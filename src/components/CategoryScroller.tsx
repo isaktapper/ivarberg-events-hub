@@ -1,0 +1,85 @@
+import { Music, Drama, Users, Palette, PartyPopper, Building2, Trophy, UtensilsCrossed, GraduationCap } from 'lucide-react';
+import { EventCategory } from '@/types/event';
+
+interface CategoryItem {
+  id: EventCategory;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+interface CategoryScrollerProps {
+  selectedCategories: EventCategory[];
+  onCategoryToggle: (category: EventCategory) => void;
+}
+
+const categories: CategoryItem[] = [
+  { id: 'Scen', label: 'Scen', icon: Drama },
+  { id: 'Nattliv', label: 'Nattliv', icon: PartyPopper },
+  { id: 'Sport', label: 'Sport', icon: Trophy },
+  { id: 'Konst', label: 'Konst', icon: Palette },
+  { id: 'Föreläsningar', label: 'Föreläsning', icon: GraduationCap },
+  { id: 'Barn & Familj', label: 'Barn & familj', icon: Users },
+  { id: 'Mat & Dryck', label: 'Mat & Dryck', icon: UtensilsCrossed },
+];
+
+export function CategoryScroller({ selectedCategories, onCategoryToggle }: CategoryScrollerProps) {
+  return (
+    <div className="w-full py-4">
+      <div 
+        className="flex gap-4 sm:gap-6 overflow-x-auto sm:overflow-visible scroll-smooth pb-2 scrollbar-hide px-4 sm:px-0 sm:justify-center"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
+        
+        {categories.map((category) => {
+          const isSelected = selectedCategories.includes(category.id);
+          const IconComponent = category.icon;
+          
+          return (
+            <button
+              key={category.id}
+              onClick={() => onCategoryToggle(category.id)}
+              className="flex flex-col items-center gap-2 min-w-0 flex-shrink-0 touch-manipulation"
+              style={{ minWidth: '70px' }}
+            >
+              <div
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border flex items-center justify-center transition-all duration-200 active:scale-95"
+                style={{
+                  backgroundColor: isSelected ? '#4A90E2' : '#FFFFFF',
+                  borderColor: isSelected ? '#4A90E2' : '#08075C',
+                  color: isSelected ? '#FFFFFF' : '#08075C'
+                }}
+              >
+                <IconComponent 
+                  className="w-6 h-6 sm:w-7 sm:h-7"
+                />
+              </div>
+              <span 
+                className="text-xs font-medium text-center leading-tight"
+                style={{ 
+                  fontFamily: 'Poppins, system-ui, sans-serif',
+                  maxWidth: '65px',
+                  wordWrap: 'break-word',
+                  hyphens: 'auto',
+                  color: isSelected ? '#4A90E2' : '#08075C'
+                }}
+              >
+                {category.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      
+      {/* Scroll hint text - bara på mobil */}
+      <div className="text-center mt-2 sm:hidden">
+        <span className="text-xs" style={{ color: '#08075C', opacity: 0.6 }}>
+          Skrolla →
+        </span>
+      </div>
+    </div>
+  );
+}
