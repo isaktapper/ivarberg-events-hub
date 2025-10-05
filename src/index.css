@@ -1,0 +1,168 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Ocean & Beach Inspired Colors */
+    --ocean-deep: 217 91% 42%;
+    --ocean-light: 210 100% 56%;
+    --sandy-beige: 32 44% 89%;
+    --sandy-light: 32 44% 95%;
+    --sunset-orange: 24 95% 48%;
+    --sunset-light: 24 95% 65%;
+    
+    /* Core Design System */
+    --background: 32 44% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    --primary: 217 91% 42%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 217 91% 35%;
+
+    --secondary: 32 44% 89%;
+    --secondary-foreground: 215 25% 15%;
+
+    --muted: 210 20% 95%;
+    --muted-foreground: 215 15% 45%;
+
+    --accent: 24 95% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 90%;
+    --input: 210 20% 90%;
+    --ring: 217 91% 42%;
+
+    --radius: 0.75rem;
+    --radius-sm: 0.5rem;
+    --radius-lg: 1rem;
+
+    /* Gradients */
+    --gradient-ocean: linear-gradient(135deg, hsl(217 91% 42%), hsl(210 100% 56%));
+    --gradient-sunset: linear-gradient(135deg, hsl(24 95% 48%), hsl(24 95% 65%));
+    --gradient-sand: linear-gradient(180deg, hsl(32 44% 98%), hsl(32 44% 89%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 42%), hsl(217 91% 55%));
+
+    /* Shadows */
+    --shadow-sm: 0 2px 8px hsl(217 91% 42% / 0.08);
+    --shadow-md: 0 4px 16px hsl(217 91% 42% / 0.12);
+    --shadow-lg: 0 8px 32px hsl(217 91% 42% / 0.16);
+    --shadow-card: 0 2px 12px hsl(217 91% 42% / 0.1);
+
+    /* Typography */
+    --font-heading: 'Poppins', system-ui, sans-serif;
+    --font-body: 'Poppins', system-ui, sans-serif;
+
+    /* Animations */
+    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --ocean-deep: 217 91% 60%;
+    --ocean-light: 210 100% 70%;
+    --sandy-beige: 32 30% 25%;
+    --sandy-light: 32 30% 30%;
+    --sunset-orange: 24 95% 55%;
+    
+    --background: 215 25% 8%;
+    --foreground: 210 20% 98%;
+
+    --card: 215 25% 12%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 215 25% 12%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 215 25% 8%;
+
+    --secondary: 32 30% 25%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 215 20% 18%;
+    --muted-foreground: 210 15% 60%;
+
+    --accent: 24 95% 55%;
+    --accent-foreground: 215 25% 8%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 215 20% 20%;
+    --input: 215 20% 20%;
+    --ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-all duration-200 hover:-translate-y-1;
+    box-shadow: var(--shadow-card);
+  }
+  
+  .card-hover:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .gradient-ocean {
+    background: var(--gradient-ocean);
+  }
+
+  .gradient-sunset {
+    background: var(--gradient-sunset);
+  }
+
+  .gradient-sand {
+    background: var(--gradient-sand);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background: var(--gradient-ocean);
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
