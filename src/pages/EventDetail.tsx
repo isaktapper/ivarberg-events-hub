@@ -4,15 +4,18 @@ import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, ChevronRight } 
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SimilarEventsCarousel } from "@/components/SimilarEventsCarousel";
 import { supabase } from "@/lib/supabase";
 import { EventDisplay } from "@/types/event";
-import { transformEventForDisplay } from "@/services/eventService";
+import { transformEventForDisplay, getSimilarEvents } from "@/services/eventService";
 import { formatLocation } from "@/lib/locationUtils";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventDisplay | null>(null);
+  const [similarEvents, setSimilarEvents] = useState<EventDisplay[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   // Hämta event från Supabase
@@ -36,7 +39,20 @@ const EventDetail = () => {
           console.error('Error fetching event:', error);
           setEvent(null);
         } else if (data) {
-          setEvent(transformEventForDisplay(data));
+          const eventData = transformEventForDisplay(data);
+          setEvent(eventData);
+          
+          // Hämta liknande evenemang
+          setLoadingSimilar(true);
+          try {
+            const similar = await getSimilarEvents(eventData);
+            setSimilarEvents(similar);
+          } catch (error) {
+            console.error('Error fetching similar events:', error);
+            setSimilarEvents([]);
+          } finally {
+            setLoadingSimilar(false);
+          }
         }
       } catch (error) {
         console.error('Error in fetchEvent:', error);
@@ -286,6 +302,26 @@ const EventDetail = () => {
                       </a>
                     )}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Similar Events */}
+            {!loadingSimilar && similarEvents.length > 0 && (
+              <div className="mt-8">
+                <SimilarEventsCarousel events={similarEvents} />
+              </div>
+            )}
+
+            {/* Loading state for similar events */}
+            {loadingSimilar && (
+              <div className="mt-8 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 className="text-2xl font-bold mb-6" style={{ color: '#08075C' }}>
+                  Liknande evenemang
+                </h3>
+                <div className="flex items-center justify-center py-8">
+                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#4A90E2' }}></div>
+                  <span className="ml-3 text-gray-600">Laddar liknande evenemang...</span>
                 </div>
               </div>
             )}

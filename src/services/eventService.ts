@@ -35,6 +35,10 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
   try {
     console.log('🔍 Fetching events from Supabase...');
     
+    // Skapa dagens datum vid midnatt för korrekt filtrering
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -42,19 +46,19 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
         organizer:organizers(*)
       `)
       .eq('status', 'published')
-      .gte('date_time', new Date().toISOString().slice(0, 19)) // Endast framtida events (utan timezone)
+      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
       .order('featured', { ascending: false })
       .order('date_time', { ascending: true });
 
     console.log('📊 Supabase response:', { data, error });
-    console.log('📅 Current date filter:', new Date().toISOString().slice(0, 19));
+    console.log('📅 Current date filter (from today):', today.toISOString().slice(0, 19));
 
     if (error) {
       console.error('❌ Error fetching events:', error);
       return [];
     }
 
-    console.log(`✅ Found ${data?.length || 0} events`);
+    console.log(`✅ Found ${data?.length || 0} current/future events`);
     const transformedEvents = (data || []).map(transformEventForDisplay);
     console.log('🔄 Transformed events:', transformedEvents);
     
@@ -68,7 +72,11 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
 // DEBUG: Hämta alla events utan datum-filter
 export async function getAllEvents(): Promise<EventDisplay[]> {
   try {
-    console.log('🔍 DEBUG: Fetching ALL events (no date filter)...');
+    console.log('🔍 DEBUG: Fetching ALL events (with current date filter)...');
+    
+    // Skapa dagens datum vid midnatt för korrekt filtrering
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
     const { data, error } = await supabase
       .from('events')
@@ -77,17 +85,19 @@ export async function getAllEvents(): Promise<EventDisplay[]> {
         organizer:organizers(*)
       `)
       .eq('status', 'published')
+      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
       .order('featured', { ascending: false })
       .order('date_time', { ascending: true });
 
     console.log('📊 DEBUG: All events response:', { data, error });
+    console.log('📅 DEBUG: Date filter (from today):', today.toISOString().slice(0, 19));
 
     if (error) {
       console.error('❌ DEBUG: Error fetching all events:', error);
       return [];
     }
 
-    console.log(`✅ DEBUG: Found ${data?.length || 0} total events`);
+    console.log(`✅ DEBUG: Found ${data?.length || 0} current/future events`);
     return (data || []).map(transformEventForDisplay);
   } catch (error) {
     console.error('💥 DEBUG: Error in getAllEvents:', error);
@@ -98,6 +108,10 @@ export async function getAllEvents(): Promise<EventDisplay[]> {
 // Hämta featured events
 export async function getFeaturedEvents(): Promise<EventDisplay[]> {
   try {
+    // Skapa dagens datum vid midnatt för korrekt filtrering
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -106,7 +120,7 @@ export async function getFeaturedEvents(): Promise<EventDisplay[]> {
       `)
       .eq('status', 'published')
       .eq('featured', true)
-      .gte('date_time', new Date().toISOString().slice(0, 19))
+      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
       .order('date_time', { ascending: true })
       .limit(5);
 
@@ -125,6 +139,10 @@ export async function getFeaturedEvents(): Promise<EventDisplay[]> {
 // Hämta events för en specifik kategori
 export async function getEventsByCategory(category: EventCategory): Promise<EventDisplay[]> {
   try {
+    // Skapa dagens datum vid midnatt för korrekt filtrering
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -133,7 +151,7 @@ export async function getEventsByCategory(category: EventCategory): Promise<Even
       `)
       .eq('status', 'published')
       .eq('category', category)
-      .gte('date_time', new Date().toISOString().slice(0, 19))
+      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
       .order('featured', { ascending: false })
       .order('date_time', { ascending: true });
 
@@ -179,6 +197,10 @@ export async function getEventsByDateRange(startDate: Date, endDate: Date): Prom
 // Sök events (fulltext search)
 export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> {
   try {
+    // Skapa dagens datum vid midnatt för korrekt filtrering
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -186,7 +208,7 @@ export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> 
         organizer:organizers(*)
       `)
       .eq('status', 'published')
-      .gte('date_time', new Date().toISOString().slice(0, 19))
+      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
       .textSearch('name', searchTerm, {
         type: 'websearch',
         config: 'swedish'
@@ -201,6 +223,69 @@ export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> 
     return (data || []).map(transformEventForDisplay);
   } catch (error) {
     console.error('Error in searchEvents:', error);
+    return [];
+  }
+}
+
+// Hämta liknande events (samma kategori, +/- 1 dag)
+export async function getSimilarEvents(currentEvent: EventDisplay): Promise<EventDisplay[]> {
+  try {
+    // Beräkna datumintervall (+/- 1 dag) - hela dagar
+    const eventDate = new Date(currentEvent.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Startdatum: 1 dag före, från början av dagen (00:00:00)
+    // Men aldrig tidigare än idag
+    const startDate = new Date(eventDate);
+    startDate.setDate(eventDate.getDate() - 1);
+    startDate.setHours(0, 0, 0, 0);
+    
+    // Använd dagens datum som minimum startdatum
+    const actualStartDate = startDate < today ? today : startDate;
+    
+    // Slutdatum: 1 dag efter, till slutet av dagen (23:59:59)
+    const endDate = new Date(eventDate);
+    endDate.setDate(eventDate.getDate() + 1);
+    endDate.setHours(23, 59, 59, 999);
+
+    console.log(`🔍 Searching for similar events:`, {
+      currentEvent: currentEvent.title,
+      currentDate: eventDate.toISOString(),
+      category: currentEvent.category,
+      today: today.toISOString(),
+      searchRange: {
+        originalStart: startDate.toISOString(),
+        actualStart: actualStartDate.toISOString(),
+        end: endDate.toISOString()
+      }
+    });
+
+    const { data, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        organizer:organizers(*)
+      `)
+      .eq('status', 'published')
+      .eq('category', currentEvent.category)
+      .neq('event_id', currentEvent.id) // Exkludera nuvarande event
+      .gte('date_time', actualStartDate.toISOString().slice(0, 19)) // Använd actualStartDate
+      .lte('date_time', endDate.toISOString().slice(0, 19))
+      .order('featured', { ascending: false })
+      .order('date_time', { ascending: true })
+      .limit(6); // Begränsa till 6 events för karusellen
+
+    console.log(`📊 Similar events found:`, data?.length || 0, data);
+
+    if (error) {
+      console.error('Error fetching similar events:', error);
+      return [];
+    }
+
+    return (data || []).map(transformEventForDisplay);
+  } catch (error) {
+    console.error('Error in getSimilarEvents:', error);
     return [];
   }
 }
