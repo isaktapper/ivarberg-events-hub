@@ -40,3 +40,73 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Modern Event Card Styling */
+.event-card {
+  background: white;
+  border-radius: 16px; /* Mer rundade hörn */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04); /* Subtil skugga med djup */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden; /* För bilder */
+  border: 1px solid rgba(0,0,0,0.02);
+}
+
+.event-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08);
+  border-color: rgba(74, 144, 226, 0.1);
+}
+
+/* Bild ska alltid vara samma höjd med modern aspect ratio */
+.event-card-image {
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+/* Smooth animations för alla interaktioner */
+.event-card * {
+  transition: inherit;
+}
+
+/* Förbättrad gradient overlay på hover */
+.event-card:hover .absolute.inset-0 {
+  background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+}
+
+/* Responsiv design för mobila enheter */
+@media (max-width: 768px) {
+  .event-card {
+    border-radius: 12px;
+    margin: 0 4px;
+  }
+  
+  .event-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.06);
+  }
+}
+
+/* Förbättrade animationer för touch-enheter */
+@media (hover: none) {
+  .event-card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  }
+  
+  .event-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* Dölj scrollbars för karusell */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}

@@ -70,6 +70,6 @@ export const categoryColors: Record<EventCategory, string> = {
   "Sport": "bg-green-500",
   "Konst": "bg-blue-500",
   "Föreläsningar": "bg-yellow-500",
-  "Barn & Familj": "bg-orange-500",
+  "Barn & Familj": "bg-slate-700",
   "Mat & Dryck": "bg-red-500",
 };
