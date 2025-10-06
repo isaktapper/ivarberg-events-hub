@@ -8,6 +8,15 @@ interface EventCardProps {
   event: EventDisplay;
 }
 
+// Ta bort Markdown-syntax och skapa preview
+const createPreview = (markdown: string, maxLength: number = 150): string => {
+  return markdown
+    .replace(/[#*_\[\]`]/g, '') // Ta bort Markdown-tecken
+    .replace(/\n+/g, ' ')        // Ersätt newlines med space
+    .substring(0, maxLength)
+    .trim() + '...';
+};
+
 export function EventCard({ event }: EventCardProps) {
   const categoryColor = categoryColors[event.category];
   const locationInfo = formatLocation(event.venue_name, event.location);

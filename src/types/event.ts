@@ -5,7 +5,11 @@ export type EventCategory =
   | "Konst" 
   | "Föreläsningar" 
   | "Barn & Familj" 
-  | "Mat & Dryck";
+  | "Mat & Dryck"
+  | "Jul"
+  | "Film & bio"
+  | "Djur & Natur"
+  | "Guidade visningar";
 
 export type EventStatus = 'draft' | 'pending_approval' | 'published' | 'cancelled';
 
@@ -20,6 +24,7 @@ export interface Event {
   price: string | null;
   image_url: string | null;
   description: string | null;
+  description_format?: 'markdown' | 'plain'; // Format för beskrivning
   organizer_event_url: string | null;
   featured: boolean;
   status: EventStatus;
@@ -54,6 +59,7 @@ export interface EventDisplay {
   price: string;
   image: string;
   description: string;
+  description_format?: 'markdown' | 'plain'; // Format för beskrivning
   isFeatured: boolean;
   organizer_event_url: string | null;
   organizer?: {
@@ -72,4 +78,8 @@ export const categoryColors: Record<EventCategory, string> = {
   "Föreläsningar": "bg-yellow-500",
   "Barn & Familj": "bg-slate-700",
   "Mat & Dryck": "bg-red-500",
+  "Jul": "bg-red-600",
+  "Film & bio": "bg-indigo-500",
+  "Djur & Natur": "bg-emerald-600",
+  "Guidade visningar": "bg-amber-500",
 };
