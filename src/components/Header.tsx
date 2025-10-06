@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -41,21 +42,23 @@ export function Header() {
               ivarberg.nu
             </h1>
             <nav className="hidden md:flex items-center gap-6">
-              <Button 
-                variant="ghost" 
-                className="transition-colors"
-                style={{ color: '#08075C' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#FFFFFF';
-                  e.currentTarget.style.backgroundColor = '#08075C';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#08075C';
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
-                Alla event
-              </Button>
+              <Link to="/">
+                <Button 
+                  variant="ghost" 
+                  className="transition-colors"
+                  style={{ color: '#08075C' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#FFFFFF';
+                    e.currentTarget.style.backgroundColor = '#08075C';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#08075C';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  Alla evenemang
+                </Button>
+              </Link>
               <a href="/om-oss">
                 <Button 
                   variant="ghost" 

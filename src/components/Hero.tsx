@@ -1,4 +1,4 @@
-import { Calendar, Clock, Users, UtensilsCrossed, MessageCircle } from "lucide-react";
+import { Calendar, Clock, Users, Snowflake, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventCategory } from "@/types/event";
 
@@ -97,11 +97,11 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories }:
       value: 'Barn & Familj'
     },
     {
-      id: 'food',
-      label: 'Mat & dryck',
-      icon: UtensilsCrossed,
+      id: 'christmas',
+      label: 'Jul',
+      icon: Snowflake,
       type: 'category',
-      value: 'Mat & Dryck'
+      value: 'Jul'
     }
   ];
 

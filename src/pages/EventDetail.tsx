@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SimilarEventsCarousel } from "@/components/SimilarEventsCarousel";
+import { EventDescription } from "@/components/EventDescription";
 import { supabase } from "@/lib/supabase";
 import { EventDisplay } from "@/types/event";
 import { transformEventForDisplay, getSimilarEvents } from "@/services/eventService";
@@ -16,7 +17,6 @@ const EventDetail = () => {
   const [similarEvents, setSimilarEvents] = useState<EventDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   // Hämta event från Supabase
   useEffect(() => {
@@ -113,28 +113,22 @@ const EventDetail = () => {
   }
 
   const locationInfo = formatLocation(event.venue_name, event.location);
-  
-  // Beskrivnings-logik
-  const description = event.description || '';
-  const shouldShowReadMore = description.length > 200;
-  const truncatedDescription = shouldShowReadMore ? description.slice(0, 200) : description;
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
       <Header />
       <main className="container mx-auto px-4 py-8">
-        {/* Back button */}
-        <div className="mb-6">
-          <Link to="/">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Tillbaka
-            </Button>
-          </Link>
-        </div>
-
         {/* Event content */}
         <div className="max-w-4xl mx-auto">
+          {/* Back button */}
+          <div className="mb-6">
+            <Link to="/">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Tillbaka
+              </Button>
+            </Link>
+          </div>
           {/* Event image */}
           <div className="relative mb-8">
             <img
@@ -199,44 +193,12 @@ const EventDetail = () => {
             </div>
 
             {/* Description */}
-            <div className="prose prose-lg max-w-none">
-              <h2 className="text-xl font-semibold mb-4" style={{ color: '#08075C' }}>Om evenemanget</h2>
-              <div className="relative">
-                <p 
-                  className="leading-relaxed whitespace-pre-line transition-all duration-300"
-                  style={{ color: '#08075C', opacity: 0.8 }}
-                >
-                  {isDescriptionExpanded ? description : truncatedDescription}
-                  {!isDescriptionExpanded && shouldShowReadMore && '...'}
-                </p>
-                
-                {/* Fade-out gradient när text är kollapsad */}
-                {!isDescriptionExpanded && shouldShowReadMore && (
-                  <div 
-                    className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(to bottom, transparent, #F5F3F0)'
-                    }}
-                  />
-                )}
-                
-                {/* Läs mer/mindre knapp - placerad över faden */}
-                {shouldShowReadMore && (
-                  <div className="relative z-10 mt-3">
-                    <button
-                      onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                      className="text-sm font-medium transition-colors hover:underline px-2 py-1 rounded"
-                      style={{ 
-                        color: '#4A90E2',
-                        backgroundColor: '#F5F3F0'
-                      }}
-                    >
-                      {isDescriptionExpanded ? 'Visa mindre' : 'Läs mer'}
-                    </button>
-                  </div>
-                )}
+            {event.description && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4" style={{ color: '#08075C' }}>Om evenemanget</h2>
+                <EventDescription description={event.description} />
               </div>
-            </div>
+            )}
 
             {/* Organizer CTA Button */}
             {event.organizer && event.organizer_event_url && (
