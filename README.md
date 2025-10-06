@@ -1,3 +1,18 @@
+# Ivarberg Events Hub
+
+En modern webbapplikation för att upptäcka evenemang i Varberg.
+
+## Features
+
+- 🎨 Moderna event cards med hover-animationer
+- 📱 Responsiv design för alla enheter  
+- 🔍 Smart filtrering efter kategori, datum och plats
+- 🎠 "Liknande evenemang" karusell
+- 🌊 Scroll-baserad header-transparens
+- 🎯 Automatisk filtrering av passerade evenemang
+
+---
+
 # Welcome to your Lovable project
 
 ## Project info
