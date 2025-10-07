@@ -91,14 +91,14 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories }:
     },
     {
       id: 'family',
-      label: 'Barn & familj',
+      label: 'För familjen',
       icon: Users,
       type: 'category',
       value: 'Barn & Familj'
     },
     {
       id: 'christmas',
-      label: 'Jul',
+      label: 'Till jul',
       icon: Snowflake,
       type: 'category',
       value: 'Jul'
