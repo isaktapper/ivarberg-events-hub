@@ -41,31 +41,44 @@ export function CategoryScroller({ selectedCategories, onCategoryToggle }: Categ
         {categories.map((category) => {
           const isSelected = selectedCategories.includes(category.id);
           const IconComponent = category.icon;
-          
+          // Öka bredden för "Föreläsning" så texten får plats
+          const isForelasning = category.id === 'Föreläsningar';
+
           return (
             <button
               key={category.id}
               onClick={() => onCategoryToggle(category.id)}
               className="flex flex-col items-center gap-2 min-w-0 flex-shrink-0 touch-manipulation"
-              style={{ minWidth: '70px' }}
+              style={{ minWidth: isForelasning ? '85px' : '70px' }}
             >
               <div
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border flex items-center justify-center transition-all duration-200 active:scale-95"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border flex items-center justify-center transition-all duration-200 active:scale-95 backdrop-blur-md shadow-lg"
                 style={{
-                  backgroundColor: isSelected ? '#4A90E2' : '#FFFFFF',
-                  borderColor: isSelected ? '#4A90E2' : '#08075C',
-                  color: isSelected ? '#FFFFFF' : '#08075C'
+                  backgroundColor: isSelected ? 'rgba(74, 144, 226, 0.25)' : 'rgba(255, 255, 255, 0.25)',
+                  borderColor: isSelected ? 'rgba(74, 144, 226, 0.5)' : 'rgba(255, 255, 255, 0.5)',
+                  color: '#08075C',
+                  backdropFilter: 'blur(12px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.3)';
+                  e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.5)';
+                  e.currentTarget.style.color = '#FFFFFF';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = isSelected ? 'rgba(74, 144, 226, 0.25)' : 'rgba(255, 255, 255, 0.25)';
+                  e.currentTarget.style.borderColor = isSelected ? 'rgba(74, 144, 226, 0.5)' : 'rgba(255, 255, 255, 0.5)';
+                  e.currentTarget.style.color = '#08075C';
                 }}
               >
-                <IconComponent 
+                <IconComponent
                   className="w-6 h-6 sm:w-7 sm:h-7"
                 />
               </div>
-              <span 
+              <span
                 className="text-xs font-medium text-center leading-tight"
-                style={{ 
+                style={{
                   fontFamily: 'Poppins, system-ui, sans-serif',
-                  maxWidth: '65px',
+                  maxWidth: isForelasning ? '80px' : '65px',
                   wordWrap: 'break-word',
                   hyphens: 'auto',
                   color: isSelected ? '#4A90E2' : '#08075C'

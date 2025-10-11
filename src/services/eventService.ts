@@ -34,11 +34,18 @@ export function transformEventForDisplay(event: Event): EventDisplay {
 export async function getPublishedEvents(): Promise<EventDisplay[]> {
   try {
     console.log('🔍 Fetching events from Supabase...');
-    
-    // Skapa dagens datum vid midnatt för korrekt filtrering
+
+    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+    stockholmTime.setHours(0, 0, 0, 0);
+
+    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
+    const year = stockholmTime.getFullYear();
+    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
+    const day = String(stockholmTime.getDate()).padStart(2, '0');
+    const filterDate = `${year}-${month}-${day} 00:00:00`;
+
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -46,12 +53,12 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
         organizer:organizers(*)
       `)
       .eq('status', 'published')
-      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
+      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .order('featured', { ascending: false })
       .order('date_time', { ascending: true });
 
     console.log('📊 Supabase response:', { data, error });
-    console.log('📅 Current date filter (from today):', today.toISOString().slice(0, 19));
+    console.log('📅 Current date filter (Swedish time):', filterDate);
 
     if (error) {
       console.error('❌ Error fetching events:', error);
@@ -61,7 +68,7 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
     console.log(`✅ Found ${data?.length || 0} current/future events`);
     const transformedEvents = (data || []).map(transformEventForDisplay);
     console.log('🔄 Transformed events:', transformedEvents);
-    
+
     return transformedEvents;
   } catch (error) {
     console.error('💥 Error in getPublishedEvents:', error);
@@ -73,11 +80,18 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
 export async function getAllEvents(): Promise<EventDisplay[]> {
   try {
     console.log('🔍 DEBUG: Fetching ALL events (with current date filter)...');
-    
-    // Skapa dagens datum vid midnatt för korrekt filtrering
+
+    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+    stockholmTime.setHours(0, 0, 0, 0);
+
+    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
+    const year = stockholmTime.getFullYear();
+    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
+    const day = String(stockholmTime.getDate()).padStart(2, '0');
+    const filterDate = `${year}-${month}-${day} 00:00:00`;
+
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -85,12 +99,12 @@ export async function getAllEvents(): Promise<EventDisplay[]> {
         organizer:organizers(*)
       `)
       .eq('status', 'published')
-      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
+      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .order('featured', { ascending: false })
       .order('date_time', { ascending: true });
 
     console.log('📊 DEBUG: All events response:', { data, error });
-    console.log('📅 DEBUG: Date filter (from today):', today.toISOString().slice(0, 19));
+    console.log('📅 DEBUG: Date filter (Swedish time):', filterDate);
 
     if (error) {
       console.error('❌ DEBUG: Error fetching all events:', error);
@@ -108,10 +122,17 @@ export async function getAllEvents(): Promise<EventDisplay[]> {
 // Hämta featured events
 export async function getFeaturedEvents(): Promise<EventDisplay[]> {
   try {
-    // Skapa dagens datum vid midnatt för korrekt filtrering
+    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+    stockholmTime.setHours(0, 0, 0, 0);
+
+    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
+    const year = stockholmTime.getFullYear();
+    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
+    const day = String(stockholmTime.getDate()).padStart(2, '0');
+    const filterDate = `${year}-${month}-${day} 00:00:00`;
+
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -120,7 +141,7 @@ export async function getFeaturedEvents(): Promise<EventDisplay[]> {
       `)
       .eq('status', 'published')
       .eq('featured', true)
-      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
+      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .order('date_time', { ascending: true })
       .limit(5);
 
@@ -139,10 +160,17 @@ export async function getFeaturedEvents(): Promise<EventDisplay[]> {
 // Hämta events för en specifik kategori
 export async function getEventsByCategory(category: EventCategory): Promise<EventDisplay[]> {
   try {
-    // Skapa dagens datum vid midnatt för korrekt filtrering
+    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+    stockholmTime.setHours(0, 0, 0, 0);
+
+    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
+    const year = stockholmTime.getFullYear();
+    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
+    const day = String(stockholmTime.getDate()).padStart(2, '0');
+    const filterDate = `${year}-${month}-${day} 00:00:00`;
+
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -151,7 +179,7 @@ export async function getEventsByCategory(category: EventCategory): Promise<Even
       `)
       .eq('status', 'published')
       .eq('category', category)
-      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
+      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .order('featured', { ascending: false })
       .order('date_time', { ascending: true });
 
@@ -197,10 +225,17 @@ export async function getEventsByDateRange(startDate: Date, endDate: Date): Prom
 // Sök events (fulltext search)
 export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> {
   try {
-    // Skapa dagens datum vid midnatt för korrekt filtrering
+    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+    stockholmTime.setHours(0, 0, 0, 0);
+
+    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
+    const year = stockholmTime.getFullYear();
+    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
+    const day = String(stockholmTime.getDate()).padStart(2, '0');
+    const filterDate = `${year}-${month}-${day} 00:00:00`;
+
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -208,7 +243,7 @@ export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> 
         organizer:organizers(*)
       `)
       .eq('status', 'published')
-      .gte('date_time', today.toISOString().slice(0, 19)) // Endast events från idag och framåt
+      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .textSearch('name', searchTerm, {
         type: 'websearch',
         config: 'swedish'
@@ -232,28 +267,42 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Even
   try {
     // Beräkna datumintervall (+/- 1 dag) - hela dagar
     const eventDate = new Date(currentEvent.date);
+
+    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+    stockholmTime.setHours(0, 0, 0, 0);
+
     // Startdatum: 1 dag före, från början av dagen (00:00:00)
     // Men aldrig tidigare än idag
     const startDate = new Date(eventDate);
     startDate.setDate(eventDate.getDate() - 1);
     startDate.setHours(0, 0, 0, 0);
-    
+
     // Använd dagens datum som minimum startdatum
-    const actualStartDate = startDate < today ? today : startDate;
-    
+    const actualStartDate = startDate < stockholmTime ? stockholmTime : startDate;
+
     // Slutdatum: 1 dag efter, till slutet av dagen (23:59:59)
     const endDate = new Date(eventDate);
     endDate.setDate(eventDate.getDate() + 1);
     endDate.setHours(23, 59, 59, 999);
 
+    // Formatera datum för Supabase query
+    const formatDateForQuery = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
     console.log(`🔍 Searching for similar events:`, {
       currentEvent: currentEvent.title,
       currentDate: eventDate.toISOString(),
       category: currentEvent.category,
-      today: today.toISOString(),
+      today: stockholmTime.toISOString(),
       searchRange: {
         originalStart: startDate.toISOString(),
         actualStart: actualStartDate.toISOString(),
@@ -270,8 +319,8 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Even
       .eq('status', 'published')
       .eq('category', currentEvent.category)
       .neq('event_id', currentEvent.id) // Exkludera nuvarande event
-      .gte('date_time', actualStartDate.toISOString().slice(0, 19)) // Använd actualStartDate
-      .lte('date_time', endDate.toISOString().slice(0, 19))
+      .gte('date_time', formatDateForQuery(actualStartDate))
+      .lte('date_time', formatDateForQuery(endDate))
       .order('featured', { ascending: false })
       .order('date_time', { ascending: true })
       .limit(6); // Begränsa till 6 events för karusellen

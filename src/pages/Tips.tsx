@@ -5,6 +5,8 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DateTimePicker } from "@/components/DateTimePicker";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { supabase } from "@/lib/supabase";
 
 const Tips = () => {
@@ -120,12 +122,10 @@ const Tips = () => {
                   <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
                     När? *
                   </label>
-                  <Input
-                    required
+                  <DateTimePicker
                     value={formData.event_date}
-                    onChange={(e) => handleInputChange('event_date', e.target.value)}
-                    placeholder="T.ex. 25 december kl 19:00"
-                    className="w-full"
+                    onChange={(value) => handleInputChange('event_date', value)}
+                    required
                   />
                 </div>
 
@@ -133,12 +133,11 @@ const Tips = () => {
                   <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
                     Var? *
                   </label>
-                  <Input
-                    required
+                  <AddressAutocomplete
                     value={formData.event_location}
-                    onChange={(e) => handleInputChange('event_location', e.target.value)}
+                    onChange={(value) => handleInputChange('event_location', value)}
                     placeholder="T.ex. Varbergs Teater, Teatergatan 1"
-                    className="w-full"
+                    required
                   />
                 </div>
 

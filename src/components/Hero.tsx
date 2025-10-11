@@ -131,22 +131,23 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories }:
         <div className="text-center mb-8">
           {/* Tipsa oss knapp */}
           <div className="mb-6">
-            <a 
-              href="/tips" 
+            <a
+              href="/tips"
               target="_blank"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 backdrop-blur-md shadow-lg"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                backgroundColor: 'rgba(255, 255, 255, 0.25)',
                 color: '#08075C',
-                border: '1px solid rgba(8, 7, 92, 0.3)'
+                border: '1px solid rgba(255, 255, 255, 0.5)',
+                backdropFilter: 'blur(12px)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#4A90E2';
-                e.currentTarget.style.color = '#FFFFFF';
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.35)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.7)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-                e.currentTarget.style.color = '#08075C';
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
               }}
             >
               <MessageCircle className="h-4 w-4" />
@@ -154,7 +155,7 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories }:
             </a>
           </div>
           
-          <h2 className="text-4xl md:text-5xl font-bold mb-8">
+          <h2 className="text-4xl md:text-5xl font-bold mb-8" style={{ fontFamily: 'Bricolage Grotesque, sans-serif' }}>
             <span className="text-white drop-shadow-lg">Vad händer i Varberg?</span>
           </h2>
           
@@ -169,21 +170,22 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories }:
                   onClick={() => handleFilterClick(filter)}
                   variant="outline"
                   size="lg"
-                  className="flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 sm:py-4 h-auto transition-all duration-200 shadow-sm hover:shadow-md border w-full text-sm sm:text-base"
+                  className="flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 sm:py-4 h-auto transition-all duration-200 shadow-lg hover:shadow-xl border w-full text-sm sm:text-base backdrop-blur-md"
                   style={{
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
                     color: '#08075C',
-                    borderColor: '#08075C'
+                    borderColor: 'rgba(255, 255, 255, 0.5)',
+                    backdropFilter: 'blur(12px)'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#4A90E2';
+                    e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.3)';
+                    e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.5)';
                     e.currentTarget.style.color = '#FFFFFF';
-                    e.currentTarget.style.borderColor = '#4A90E2';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#FFFFFF';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
                     e.currentTarget.style.color = '#08075C';
-                    e.currentTarget.style.borderColor = '#08075C';
                   }}
                 >
                   <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
