@@ -20,7 +20,7 @@ const createPreview = (markdown: string, maxLength: number = 150): string => {
 export function EventCard({ event }: EventCardProps) {
   const categoryColor = categoryColors[event.category];
   const locationInfo = formatLocation(event.venue_name, event.location);
-  
+
   return (
     <div className="event-card group cursor-pointer">
       <div className="relative h-48 overflow-hidden">

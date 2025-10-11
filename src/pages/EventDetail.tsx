@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, ChevronRight, CalendarPlus, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -114,20 +114,125 @@ const EventDetail = () => {
 
   const locationInfo = formatLocation(event.venue_name, event.location);
 
+  // Kontrollera om eventet har passerat
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const eventDate = new Date(event.date);
+  eventDate.setHours(0, 0, 0, 0);
+  const isPast = eventDate < today;
+
+  // Funktion för att dela eventet
+  const handleShare = async () => {
+    const shareData = {
+      title: event.title,
+      text: `${event.title} - ${event.date.toLocaleDateString('sv-SE', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })} ${event.time}`,
+      url: window.location.href
+    };
+
+    try {
+      // Kontrollera om Web Share API finns
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: Kopiera länk till urklipp
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Länken har kopierats till urklipp!');
+      }
+    } catch (err) {
+      // Användaren avbröt delningen eller något gick fel
+      if (err instanceof Error && err.name !== 'AbortError') {
+        console.error('Error sharing:', err);
+        // Fallback: Kopiera länk
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          alert('Länken har kopierats till urklipp!');
+        } catch (clipboardErr) {
+          console.error('Error copying to clipboard:', clipboardErr);
+        }
+      }
+    }
+  };
+
+  // Funktion för att skapa .ics-fil
+  const generateICS = () => {
+    // Formatera datum och tid för iCalendar-format
+    const formatICSDate = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}${month}${day}T${hours}${minutes}${seconds}`;
+    };
+
+    // Skapa start- och sluttid (antag 2 timmar om ingen sluttid finns)
+    const startDate = new Date(event.date);
+    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // +2 timmar
+
+    // Skapa ICS-innehåll
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//ivarberg.nu//Event Calendar//SV',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `DTSTART:${formatICSDate(startDate)}`,
+      `DTEND:${formatICSDate(endDate)}`,
+      `DTSTAMP:${formatICSDate(new Date())}`,
+      `SUMMARY:${event.title}`,
+      `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}`,
+      `LOCATION:${locationInfo.hasVenueName ? `${locationInfo.venueName}, ${locationInfo.address}` : locationInfo.address}`,
+      `UID:${event.id}@ivarberg.nu`,
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    // Skapa blob och ladda ner
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${event.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
       <Header />
       <main className="container mx-auto px-4 py-8">
         {/* Event content */}
         <div className="max-w-4xl mx-auto">
-          {/* Back button */}
-          <div className="mb-6">
+          {/* Back button and Share button */}
+          <div className="mb-6 flex items-center justify-between">
             <Link to="/">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Tillbaka
               </Button>
             </Link>
+            <Button
+              onClick={handleShare}
+              variant="outline"
+              size="sm"
+              className="px-3 py-2"
+              style={{
+                backgroundColor: '#FFFFFF',
+                color: '#08075C',
+                borderColor: '#08075C'
+              }}
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              <span>Dela</span>
+            </Button>
           </div>
           {/* Event image */}
           <div className="relative mb-8">
@@ -143,6 +248,15 @@ const EventDetail = () => {
               </span>
             </div>
           </div>
+
+          {/* Past event badge */}
+          {isPast && (
+            <div className="mb-4">
+              <span className="inline-block px-4 py-2 bg-red-600 text-white rounded-full text-sm font-bold shadow-lg">
+                PASSERAT
+              </span>
+            </div>
+          )}
 
           {/* Event info */}
           <div className="space-y-6">
@@ -160,33 +274,95 @@ const EventDetail = () => {
 
             {/* Date and location */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2" style={{ color: '#08075C', opacity: 0.8 }}>
-                <Calendar className="h-5 w-5" style={{ color: '#4A90E2' }} />
-                <span className="text-lg">
-                  {event.date.toLocaleDateString('sv-SE', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })} - {event.time}
-                </span>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2" style={{ color: '#08075C', opacity: 0.8 }}>
+                  <Calendar className="h-5 w-5" style={{ color: '#4A90E2' }} />
+                  <span className="text-lg">
+                    {event.date.toLocaleDateString('sv-SE', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })} - {event.time}
+                  </span>
+                </div>
+                <Button
+                  onClick={generateICS}
+                  size="sm"
+                  variant="outline"
+                  className="flex-shrink-0 px-3 py-2"
+                  style={{
+                    backgroundColor: '#FFFFFF',
+                    color: '#08075C',
+                    borderColor: '#08075C'
+                  }}
+                >
+                  <CalendarPlus className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Lägg till</span>
+                </Button>
               </div>
               
               <div className="space-y-2">
                 {locationInfo.hasVenueName ? (
                   <>
-                    <div className="flex items-center gap-2" style={{ color: '#08075C', opacity: 0.8 }}>
-                      <MapPin className="h-5 w-5" style={{ color: '#4A90E2' }} />
-                      <span className="text-lg">{locationInfo.venueName}</span>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2" style={{ color: '#08075C', opacity: 0.8 }}>
+                        <MapPin className="h-5 w-5" style={{ color: '#4A90E2' }} />
+                        <span className="text-lg">{locationInfo.venueName}</span>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          const address = encodeURIComponent(locationInfo.address);
+                          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                          const mapsUrl = isIOS
+                            ? `maps://maps.apple.com/?q=${address}`
+                            : `https://www.google.com/maps/search/?api=1&query=${address}`;
+                          window.open(mapsUrl, '_blank');
+                        }}
+                        size="sm"
+                        variant="outline"
+                        className="flex-shrink-0 px-3 py-2"
+                        style={{
+                          backgroundColor: '#FFFFFF',
+                          color: '#08075C',
+                          borderColor: '#08075C'
+                        }}
+                      >
+                        <MapPin className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Vägbeskrivning</span>
+                      </Button>
                     </div>
                     <div className="ml-7" style={{ color: '#08075C', opacity: 0.6 }}>
                       <span className="text-base">{locationInfo.address}</span>
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center gap-2" style={{ color: '#08075C', opacity: 0.8 }}>
-                    <MapPin className="h-5 w-5" style={{ color: '#4A90E2' }} />
-                    <span className="text-lg">{locationInfo.address}</span>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2" style={{ color: '#08075C', opacity: 0.8 }}>
+                      <MapPin className="h-5 w-5" style={{ color: '#4A90E2' }} />
+                      <span className="text-lg">{locationInfo.address}</span>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        const address = encodeURIComponent(locationInfo.address);
+                        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                        const mapsUrl = isIOS
+                          ? `maps://maps.apple.com/?q=${address}`
+                          : `https://www.google.com/maps/search/?api=1&query=${address}`;
+                        window.open(mapsUrl, '_blank');
+                      }}
+                      size="sm"
+                      variant="outline"
+                      className="flex-shrink-0 px-3 py-2"
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        color: '#08075C',
+                        borderColor: '#08075C'
+                      }}
+                    >
+                      <MapPin className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Vägbeskrivning</span>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -203,13 +379,13 @@ const EventDetail = () => {
             {/* Organizer CTA Button */}
             {event.organizer && event.organizer_event_url && (
               <div className="mt-6">
-                <a 
+                <a
                   href={event.organizer_event_url}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button 
-                    size="lg" 
+                  <Button
+                    size="lg"
                     className="w-full sm:w-auto px-8 py-4 text-lg font-semibold"
                     style={{
                       backgroundColor: '#4A90E2',

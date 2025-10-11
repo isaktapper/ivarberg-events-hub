@@ -42,9 +42,9 @@ export function Header() {
               ivarberg.nu
             </h1>
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/">
-                <Button 
-                  variant="ghost" 
+              <Link to="/" reloadDocument>
+                <Button
+                  variant="ghost"
                   className="transition-colors"
                   style={{ color: '#08075C' }}
                   onMouseEnter={(e) => {
@@ -59,9 +59,9 @@ export function Header() {
                   Alla evenemang
                 </Button>
               </Link>
-              <a href="/om-oss">
-                <Button 
-                  variant="ghost" 
+              <Link to="/om-oss">
+                <Button
+                  variant="ghost"
                   className="transition-colors"
                   style={{ color: '#08075C' }}
                   onMouseEnter={(e) => {
@@ -75,22 +75,24 @@ export function Header() {
                 >
                   Om oss
                 </Button>
-              </a>
-              <Button 
-                variant="ghost" 
-                className="transition-colors"
-                style={{ color: '#08075C' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#FFFFFF';
-                  e.currentTarget.style.backgroundColor = '#08075C';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#08075C';
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
-                Lägg till event
-              </Button>
+              </Link>
+              <Link to="/tips" target="_blank">
+                <Button
+                  variant="ghost"
+                  className="transition-colors"
+                  style={{ color: '#08075C' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#FFFFFF';
+                    e.currentTarget.style.backgroundColor = '#08075C';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#08075C';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  Lägg till event
+                </Button>
+              </Link>
             </nav>
           </div>
         </div>

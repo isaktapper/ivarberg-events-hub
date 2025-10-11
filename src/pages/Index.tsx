@@ -20,6 +20,7 @@ const Index = () => {
   const eventsPerPage = 10;
   const resultsRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
 
   // Hämta events från Supabase
   useEffect(() => {
@@ -147,6 +148,22 @@ const Index = () => {
     }
   };
 
+  // Funktion för att byta sida och scrolla till datum/platsfilter
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scrolla till datum/plats-filter sektionen
+    if (filtersRef.current) {
+      const elementPosition = filtersRef.current.offsetTop;
+      const offset = -100; // Offset för att ge lite luft och visa kategorierna också
+      const offsetPosition = elementPosition + offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
       <Header />
@@ -169,7 +186,7 @@ const Index = () => {
           </div>
           
           {/* Date and Location Filters */}
-          <div className="flex flex-col items-center mt-6">
+          <div ref={filtersRef} className="flex flex-col items-center mt-6">
             <div className="flex items-center gap-3">
               <DateFilter 
                 selectedDate={selectedDate}
@@ -232,7 +249,7 @@ const Index = () => {
             {/* Mobile: Simple navigation */}
             <div className="flex items-center justify-between sm:hidden px-4">
               <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
@@ -243,15 +260,15 @@ const Index = () => {
               >
                 ‹ Föregående
               </button>
-              
+
               <div className="flex items-center gap-2">
                 <span className="text-sm" style={{ color: '#08075C', opacity: 0.7 }}>
                   Sida {currentPage} av {totalPages}
                 </span>
               </div>
-              
+
               <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
@@ -267,7 +284,7 @@ const Index = () => {
             {/* Desktop: Traditional pagination */}
             <div className="hidden sm:flex justify-center items-center gap-3">
               <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
                 className="px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
@@ -278,12 +295,12 @@ const Index = () => {
               >
                 Föregående
               </button>
-              
+
               <div className="flex items-center gap-2">
                 {(() => {
                   const pages = [];
                   const maxVisible = 5;
-                  
+
                   if (totalPages <= maxVisible) {
                     for (let i = 1; i <= totalPages; i++) {
                       pages.push(i);
@@ -291,31 +308,31 @@ const Index = () => {
                   } else {
                     // Alltid visa första sidan
                     pages.push(1);
-                    
+
                     if (currentPage > 3) {
                       pages.push('...');
                     }
-                    
+
                     // Visa sidor runt current page
                     const start = Math.max(2, currentPage - 1);
                     const end = Math.min(totalPages - 1, currentPage + 1);
-                    
+
                     for (let i = start; i <= end; i++) {
                       if (!pages.includes(i)) {
                         pages.push(i);
                       }
                     }
-                    
+
                     if (currentPage < totalPages - 2) {
                       pages.push('...');
                     }
-                    
+
                     // Alltid visa sista sidan
                     if (!pages.includes(totalPages)) {
                       pages.push(totalPages);
                     }
                   }
-                  
+
                   return pages.map((page, index) => (
                     page === '...' ? (
                       <span key={`ellipsis-${index}`} className="px-2 text-sm" style={{ color: '#08075C', opacity: 0.5 }}>
@@ -324,7 +341,7 @@ const Index = () => {
                     ) : (
                       <button
                         key={page}
-                        onClick={() => setCurrentPage(page as number)}
+                        onClick={() => handlePageChange(page as number)}
                         className="w-10 h-10 text-sm font-medium rounded-lg transition-colors"
                         style={{
                           backgroundColor: currentPage === page ? '#4A90E2' : '#FFFFFF',
@@ -338,9 +355,9 @@ const Index = () => {
                   ));
                 })()}
               </div>
-              
+
               <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
