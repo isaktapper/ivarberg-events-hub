@@ -1,4 +1,4 @@
-import { Calendar, Clock, Users, Snowflake, MessageCircle } from "lucide-react";
+import { Calendar, Clock, Snowflake, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventCategory } from "@/types/event";
 
@@ -57,24 +57,45 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories }:
     return { start: friday, end: sunday };
   };
 
-  // Beräkna nästa veckas datum (måndag till söndag)
-  const getNextWeekDates = () => {
+  // Beräkna dagens datum (idag)
+  const getTodayDates = () => {
+    const today = new Date();
+    const todayStart = new Date(today);
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date(today);
+    todayEnd.setHours(23, 59, 59, 999);
+
+    return { start: todayStart, end: todayEnd };
+  };
+
+  // Beräkna denna veckas datum (måndag till söndag)
+  const getThisWeekDates = () => {
     const today = new Date();
     const currentDay = today.getDay(); // 0 = söndag, 1 = måndag, ..., 6 = lördag
-    
-    // Beräkna måndag nästa vecka
-    const daysUntilNextMonday = currentDay === 0 ? 1 : 8 - currentDay;
-    const nextMonday = new Date(today);
-    nextMonday.setDate(today.getDate() + daysUntilNextMonday);
-    
-    // Söndag nästa vecka är 6 dagar efter måndag
-    const nextSunday = new Date(nextMonday);
-    nextSunday.setDate(nextMonday.getDate() + 6);
-    
-    return { start: nextMonday, end: nextSunday };
+
+    // Beräkna måndag denna vecka
+    const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - daysFromMonday);
+    monday.setHours(0, 0, 0, 0);
+
+    // Söndag denna vecka
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+
+    return { start: monday, end: sunday };
   };
 
   const quickFilters: QuickFilter[] = [
+    {
+      id: 'today',
+      label: 'Idag',
+      icon: Clock,
+      type: 'date',
+      dateRange: getTodayDates()
+    },
     {
       id: 'weekend',
       label: 'I helgen',
@@ -83,18 +104,11 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories }:
       dateRange: getWeekendDates()
     },
     {
-      id: 'next-week',
-      label: 'Nästa vecka',
-      icon: Clock,
+      id: 'this-week',
+      label: 'Denna vecka',
+      icon: Calendar,
       type: 'date',
-      dateRange: getNextWeekDates()
-    },
-    {
-      id: 'family',
-      label: 'För familjen',
-      icon: Users,
-      type: 'category',
-      value: 'Barn & Familj'
+      dateRange: getThisWeekDates()
     },
     {
       id: 'christmas',
