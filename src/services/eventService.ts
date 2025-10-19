@@ -262,6 +262,44 @@ export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> 
   }
 }
 
+// Hämta events för en specifik arrangör
+export async function getEventsByOrganizer(organizerName: string): Promise<EventDisplay[]> {
+  try {
+    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
+    const today = new Date();
+    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+    stockholmTime.setHours(0, 0, 0, 0);
+
+    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
+    const year = stockholmTime.getFullYear();
+    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
+    const day = String(stockholmTime.getDate()).padStart(2, '0');
+    const filterDate = `${year}-${month}-${day} 00:00:00`;
+
+    const { data, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        organizer:organizers(*)
+      `)
+      .eq('status', 'published')
+      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
+      .ilike('organizer.name', `%${organizerName}%`) // Sök i organizer.name fält
+      .order('featured', { ascending: false })
+      .order('date_time', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching events by organizer:', error);
+      return [];
+    }
+
+    return (data || []).map(transformEventForDisplay);
+  } catch (error) {
+    console.error('Error in getEventsByOrganizer:', error);
+    return [];
+  }
+}
+
 // Hämta liknande events (samma kategori, +/- 1 dag)
 export async function getSimilarEvents(currentEvent: EventDisplay): Promise<EventDisplay[]> {
   try {
