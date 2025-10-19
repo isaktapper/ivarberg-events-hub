@@ -17,7 +17,7 @@ const categories: CategoryItem[] = [
   { id: 'Nattliv', label: 'Nattliv', icon: PartyPopper },
   { id: 'Jul', label: 'Jul', icon: Snowflake },
   { id: 'Sport', label: 'Sport', icon: Trophy },
-  { id: 'Konst', label: 'Konst', icon: Palette },
+  { id: 'Utställningar', label: 'Utställningar', icon: Palette },
   { id: 'Föreläsningar', label: 'Föreläsning', icon: GraduationCap },
   { id: 'Barn & Familj', label: 'Barn & familj', icon: Users },
   { id: 'Mat & Dryck', label: 'Mat & Dryck', icon: UtensilsCrossed },

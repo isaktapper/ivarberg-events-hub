@@ -8,7 +8,7 @@ CREATE TYPE event_category AS ENUM (
   'Scen', 
   'Nattliv', 
   'Sport', 
-  'Konst', 
+  'Utställningar', 
   'Föreläsningar', 
   'Barn & Familj', 
   'Mat & Dryck'
