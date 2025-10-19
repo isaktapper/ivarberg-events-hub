@@ -2,7 +2,7 @@ export type EventCategory =
   | "Scen" 
   | "Nattliv" 
   | "Sport" 
-  | "Konst" 
+  | "Utställningar" 
   | "Föreläsningar" 
   | "Barn & Familj" 
   | "Mat & Dryck"
@@ -74,7 +74,7 @@ export const categoryColors: Record<EventCategory, string> = {
   "Scen": "bg-purple-500",
   "Nattliv": "bg-pink-500",
   "Sport": "bg-green-500",
-  "Konst": "bg-blue-500",
+  "Utställningar": "bg-blue-500",
   "Föreläsningar": "bg-yellow-500",
   "Barn & Familj": "bg-slate-700",
   "Mat & Dryck": "bg-red-500",
