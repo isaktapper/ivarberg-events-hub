@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { CategoryScroller } from "@/components/CategoryScroller";
@@ -10,6 +11,7 @@ import { getPublishedEvents, getAllEvents } from "@/services/eventService";
 import { EventCategory, EventDisplay } from "@/types/event";
 
 const Index = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [events, setEvents] = useState<EventDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<EventCategory[]>([]);
@@ -21,6 +23,27 @@ const Index = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
+
+  // Handle URL parameters for category selection
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      // Validate that the category is a valid EventCategory
+      const validCategories: EventCategory[] = [
+        'Scen', 'Nattliv', 'Sport', 'Utställningar', 'Föreläsningar', 
+        'Barn & Familj', 'Mat & Dryck', 'Jul', 'Film & bio', 
+        'Djur & Natur', 'Guidade visningar'
+      ];
+      
+      if (validCategories.includes(categoryParam as EventCategory)) {
+        setSelectedCategories([categoryParam as EventCategory]);
+        // Scroll to categories section after a short delay
+        setTimeout(() => {
+          scrollToCategories();
+        }, 100);
+      }
+    }
+  }, [searchParams]);
 
   // Hämta events från Supabase
   useEffect(() => {
@@ -42,11 +65,25 @@ const Index = () => {
   }, []);
 
   const handleCategoryToggle = (category: EventCategory) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
+    const newCategories = selectedCategories.includes(category)
+      ? selectedCategories.filter((c) => c !== category)
+      : [...selectedCategories, category];
+    
+    setSelectedCategories(newCategories);
+    
+    // Update URL parameters
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (newCategories.length === 0) {
+      newSearchParams.delete('category');
+    } else if (newCategories.length === 1) {
+      newSearchParams.set('category', newCategories[0]);
+    } else {
+      // For multiple categories, we could implement a different approach
+      // For now, just use the first one
+      newSearchParams.set('category', newCategories[0]);
+    }
+    setSearchParams(newSearchParams);
+    
     resetPagination();
   };
 
@@ -210,6 +247,7 @@ const Index = () => {
                 setSelectedDate(undefined);
                 setDateRange(undefined);
                 setSelectedLocation("Hela Varberg");
+                setSearchParams({}); // Clear all URL parameters
                 resetPagination();
               }}
               className="text-sm mt-3 transition-colors cursor-pointer"

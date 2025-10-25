@@ -249,6 +249,33 @@ const EventDetail = () => {
             </div>
           </div>
 
+          {/* Category label under image */}
+          <div className="mb-6">
+            <Link 
+              to={`/?category=${encodeURIComponent(event.category)}`}
+              className="inline-block"
+            >
+              <span 
+                className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md cursor-pointer"
+                style={{
+                  backgroundColor: '#4A90E2',
+                  color: '#FFFFFF',
+                  border: '1px solid #4A90E2'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3A7BC8';
+                  e.currentTarget.style.borderColor = '#3A7BC8';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#4A90E2';
+                  e.currentTarget.style.borderColor = '#4A90E2';
+                }}
+              >
+                {event.category}
+              </span>
+            </Link>
+          </div>
+
           {/* Past event badge */}
           {isPast && (
             <div className="mb-4">
