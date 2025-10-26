@@ -1,5 +1,148 @@
 import { supabase } from '@/lib/supabase';
-import { Event, EventDisplay, EventCategory, getAllCategories } from '@/types/event';
+import { Event, EventDisplay, EventCategory, getAllCategories, CategoryScore } from '@/types/event';
+
+// Skicka tips till event_tips tabellen
+export async function submitEventTip(eventData: {
+  event_name: string;
+  date_time: string;
+  event_location: string;
+  venue_name?: string;
+  description: string;
+  categories: EventCategory[];
+  category?: EventCategory;
+  image_url?: string;
+  website_url?: string;
+  submitter_email?: string;
+  submitter_name?: string;
+}): Promise<{ success: boolean; tip_id?: number; error?: string }> {
+  try {
+    console.log('Submitting event tip:', eventData);
+
+    // Säkerhetsvalidering
+    const validationResult = validateEventSubmission({
+      name: eventData.event_name,
+      date_time: eventData.date_time,
+      location: eventData.event_location,
+      description: eventData.description,
+      categories: eventData.categories,
+      image_url: eventData.image_url,
+      organizer_event_url: eventData.website_url
+    });
+    
+    if (!validationResult.isValid) {
+      return { success: false, error: validationResult.error };
+    }
+
+    // Förbered data för Supabase
+    const tipRecord = {
+      event_name: eventData.event_name.trim(),
+      event_date: eventData.date_time, // For compatibility
+      date_time: eventData.date_time,
+      event_location: eventData.event_location.trim(),
+      venue_name: eventData.venue_name?.trim() || eventData.event_location.trim(),
+      event_description: eventData.description.trim(),
+      categories: eventData.categories, // Multi-category array
+      category: eventData.categories[0] || eventData.category, // Main category
+      image_url: eventData.image_url?.trim() || null,
+      website_url: eventData.website_url?.trim() || null,
+      submitter_email: eventData.submitter_email?.trim() || null,
+      submitter_name: eventData.submitter_name?.trim() || null,
+      status: 'pending' as const,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    console.log('Tip record to insert:', tipRecord);
+
+    const { data, error } = await supabase
+      .from('event_tips')
+      .insert([tipRecord])
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Error submitting tip:', error);
+      return { success: false, error: `Fel vid inlämning av tips: ${error.message}` };
+    }
+
+    console.log('Tip submitted successfully:', data);
+    return { success: true, tip_id: data.id };
+
+  } catch (error) {
+    console.error('Unexpected error submitting tip:', error);
+    return { success: false, error: 'Ett oväntat fel uppstod' };
+  }
+}
+
+// Säkerhetsvalidering för event-submission
+function validateEventSubmission(eventData: {
+  name: string;
+  date_time: string;
+  location: string;
+  description: string;
+  categories: EventCategory[];
+  image_url?: string;
+  organizer_event_url?: string;
+}): { isValid: boolean; error?: string } {
+  // Validera namn
+  if (eventData.name.length < 3 || eventData.name.length > 200) {
+    return { isValid: false, error: 'Namnet måste vara mellan 3 och 200 tecken' };
+  }
+
+  // Validera beskrivning
+  if (eventData.description.length < 10 || eventData.description.length > 2000) {
+    return { isValid: false, error: 'Beskrivningen måste vara mellan 10 och 2000 tecken' };
+  }
+
+  // Validera plats
+  if (eventData.location.length < 3 || eventData.location.length > 200) {
+    return { isValid: false, error: 'Platsen måste vara mellan 3 och 200 tecken' };
+  }
+
+  // Validera kategorier
+  if (eventData.categories.length === 0) {
+    return { isValid: false, error: 'Du måste välja minst en kategori' };
+  }
+
+  if (eventData.categories.length > 3) {
+    return { isValid: false, error: 'Du kan bara välja max 3 kategorier' };
+  }
+
+  // Validera URL:er om de finns
+  if (eventData.image_url) {
+    try {
+      new URL(eventData.image_url);
+    } catch {
+      return { isValid: false, error: 'Bild-URL:en är inte giltig' };
+    }
+  }
+
+  if (eventData.organizer_event_url) {
+    try {
+      new URL(eventData.organizer_event_url);
+    } catch {
+      return { isValid: false, error: 'Hemsida-URL:en är inte giltig' };
+    }
+  }
+
+  // Kontrollera för potentiellt skadligt innehåll
+  const suspiciousPatterns = [
+    /<script/i,
+    /javascript:/i,
+    /on\w+\s*=/i,
+    /data:/i,
+    /vbscript:/i
+  ];
+
+  const textToCheck = `${eventData.name} ${eventData.description} ${eventData.location}`;
+  for (const pattern of suspiciousPatterns) {
+    if (pattern.test(textToCheck)) {
+      return { isValid: false, error: 'Innehållet innehåller otillåten kod' };
+    }
+  }
+
+  return { isValid: true };
+}
 
 // Transformera Supabase event till frontend format
 export function transformEventForDisplay(event: Event): EventDisplay {
