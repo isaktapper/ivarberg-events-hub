@@ -1,5 +1,5 @@
 import { Calendar, MapPin } from "lucide-react";
-import { EventDisplay } from "@/types/event";
+import { EventDisplay, getMainCategory, getAllCategories } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
@@ -7,10 +7,26 @@ import { formatLocation } from "@/lib/locationUtils";
 
 interface EventListItemProps {
   event: EventDisplay;
+  activeFilter?: EventCategory | null; // För smart kategori-visning
 }
 
-export function EventListItem({ event }: EventListItemProps) {
+export function EventListItem({ event, activeFilter }: EventListItemProps) {
   const locationInfo = formatLocation(event.venue_name, event.location);
+  
+  // Multi-category logic with smart display
+  const allCategories = getAllCategories(event);
+  let displayCategory: EventCategory;
+  let additionalCount: number;
+  
+  // Om vi filtrerar på en specifik kategori och eventet har den kategorin
+  if (activeFilter && allCategories.includes(activeFilter)) {
+    displayCategory = activeFilter;
+    additionalCount = allCategories.length - 1;
+  } else {
+    // Normal visning (huvudkategori + antal fler)
+    displayCategory = getMainCategory(event);
+    additionalCount = allCategories.length - 1;
+  }
   
   return (
     <Link to={`/event/${event.id}`} className="block">
@@ -25,7 +41,10 @@ export function EventListItem({ event }: EventListItemProps) {
             />
             {/* Category badge overlayed on image - covers the entire corner */}
             <div className="absolute top-0 left-0 rounded-br-lg text-xs px-2 py-1 font-medium" style={{ backgroundColor: '#F5F3F0', color: '#08075C' }}>
-              {event.category}
+              {displayCategory}
+              {additionalCount > 0 && (
+                <span className="ml-1 text-xs opacity-75">+{additionalCount}</span>
+              )}
             </div>
           </div>
           

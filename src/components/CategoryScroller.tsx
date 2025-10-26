@@ -1,4 +1,4 @@
-import { Drama, Users, Image, PartyPopper, Trophy, UtensilsCrossed, GraduationCap, Snowflake, Film, TreePine, Compass } from 'lucide-react';
+import { Drama, Users, Image, PartyPopper, Trophy, UtensilsCrossed, GraduationCap, Snowflake, Film, TreePine, Compass, Store } from 'lucide-react';
 import { EventCategory } from '@/types/event';
 
 interface CategoryItem {
@@ -13,15 +13,16 @@ interface CategoryScrollerProps {
 }
 
 const categories: CategoryItem[] = [
-  { id: 'Scen', label: 'Scen', icon: Drama },
-  { id: 'Nattliv', label: 'Nattliv', icon: PartyPopper },
-  { id: 'Jul', label: 'Jul', icon: Snowflake },
-  { id: 'Sport', label: 'Sport', icon: Trophy },
-  { id: 'Utställningar', label: 'Utställningar', icon: Image },
-  { id: 'Föreläsningar', label: 'Föreläsning', icon: GraduationCap },
   { id: 'Barn & Familj', label: 'Barn & familj', icon: Users },
+  { id: 'Scen', label: 'Scen', icon: Drama },
   { id: 'Mat & Dryck', label: 'Mat & Dryck', icon: UtensilsCrossed },
+  { id: 'Jul', label: 'Jul', icon: Snowflake },
+  { id: 'Marknader', label: 'Marknader', icon: Store },
+  { id: 'Nattliv', label: 'Nattliv', icon: PartyPopper },
+  { id: 'Sport', label: 'Sport', icon: Trophy },
   { id: 'Film & bio', label: 'Film & bio', icon: Film },
+  { id: 'Föreläsningar', label: 'Föreläsning', icon: GraduationCap },
+  { id: 'Utställningar', label: 'Utställningar', icon: Image },
   { id: 'Djur & Natur', label: 'Djur & Natur', icon: TreePine },
   { id: 'Guidade visningar', label: 'Guidade visningar', icon: Compass },
 ];

@@ -11,7 +11,13 @@ CREATE TYPE event_category AS ENUM (
   'Utställningar', 
   'Föreläsningar', 
   'Barn & Familj', 
-  'Mat & Dryck'
+  'Mat & Dryck',
+  'Jul',
+  'Film & bio',
+  'Djur & Natur',
+  'Guidade visningar',
+  'Marknader',
+  'Okategoriserad'
 );
 
 -- Organizer tabell

@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { SimilarEventsCarousel } from "@/components/SimilarEventsCarousel";
 import { EventDescription } from "@/components/EventDescription";
 import { supabase } from "@/lib/supabase";
-import { EventDisplay } from "@/types/event";
+import { EventDisplay, getAllCategories } from "@/types/event";
 import { transformEventForDisplay, getSimilarEvents } from "@/services/eventService";
 import { formatLocation } from "@/lib/locationUtils";
 
@@ -241,39 +241,38 @@ const EventDetail = () => {
               alt={event.title}
               className="w-full h-64 md:h-96 object-cover rounded-xl"
             />
-            {/* Category badge overlay */}
-            <div className="absolute top-4 left-4">
-              <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-secondary-foreground">
-                {event.category}
-              </span>
-            </div>
           </div>
 
-          {/* Category label under image */}
+          {/* Category labels under image */}
           <div className="mb-6">
-            <Link 
-              to={`/?category=${encodeURIComponent(event.category)}`}
-              className="inline-block"
-            >
-              <span 
-                className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md cursor-pointer"
-                style={{
-                  backgroundColor: '#4A90E2',
-                  color: '#FFFFFF',
-                  border: '1px solid #4A90E2'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#3A7BC8';
-                  e.currentTarget.style.borderColor = '#3A7BC8';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#4A90E2';
-                  e.currentTarget.style.borderColor = '#4A90E2';
-                }}
-              >
-                {event.category}
-              </span>
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              {getAllCategories(event).map((category, index) => (
+                <Link 
+                  key={category}
+                  to={`/?category=${encodeURIComponent(category)}`}
+                  className="inline-block"
+                >
+                  <span 
+                    className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md cursor-pointer"
+                    style={{
+                      backgroundColor: '#4A90E2',
+                      color: '#FFFFFF',
+                      border: '1px solid #4A90E2'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#3A7BC8';
+                      e.currentTarget.style.borderColor = '#3A7BC8';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#4A90E2';
+                      e.currentTarget.style.borderColor = '#4A90E2';
+                    }}
+                  >
+                    {category}
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Past event badge */}

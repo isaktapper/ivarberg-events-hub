@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { Event, EventDisplay, EventCategory } from '@/types/event';
+import { Event, EventDisplay, EventCategory, getAllCategories } from '@/types/event';
 
 // Transformera Supabase event till frontend format
 export function transformEventForDisplay(event: Event): EventDisplay {
@@ -8,7 +8,11 @@ export function transformEventForDisplay(event: Event): EventDisplay {
   return {
     id: event.event_id,
     title: event.name,
+    // Gamla systemet (bakåtkompatibilitet)
     category: event.category,
+    // Nya systemet
+    categories: event.categories,
+    category_scores: event.category_scores,
     date: eventDate,
     time: eventDate.toLocaleTimeString('sv-SE', { 
       hour: '2-digit', 
@@ -300,7 +304,7 @@ export async function getEventsByOrganizer(organizerName: string): Promise<Event
   }
 }
 
-// Hämta liknande events (samma kategori, +/- 1 dag)
+// Hämta liknande events (alla kategorier som eventet har, +/- 1 dag)
 export async function getSimilarEvents(currentEvent: EventDisplay): Promise<EventDisplay[]> {
   try {
     // Beräkna datumintervall (+/- 1 dag) - hela dagar
@@ -336,10 +340,13 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Even
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
+    // Hämta alla kategorier för det aktuella eventet
+    const eventCategories = getAllCategories(currentEvent);
+
     console.log(`🔍 Searching for similar events:`, {
       currentEvent: currentEvent.title,
       currentDate: eventDate.toISOString(),
-      category: currentEvent.category,
+      categories: eventCategories,
       today: stockholmTime.toISOString(),
       searchRange: {
         originalStart: startDate.toISOString(),
@@ -348,29 +355,54 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Even
       }
     });
 
-    const { data, error } = await supabase
-      .from('events')
-      .select(`
-        *,
-        organizer:organizers(*)
-      `)
-      .eq('status', 'published')
-      .eq('category', currentEvent.category)
-      .neq('event_id', currentEvent.id) // Exkludera nuvarande event
-      .gte('date_time', formatDateForQuery(actualStartDate))
-      .lte('date_time', formatDateForQuery(endDate))
-      .order('featured', { ascending: false })
-      .order('date_time', { ascending: true })
-      .limit(6); // Begränsa till 6 events för karusellen
+    // Hämta events för varje kategori och kombinera resultaten
+    const allSimilarEvents: Event[] = [];
+    
+    for (const category of eventCategories) {
+      const { data: categoryData, error: categoryError } = await supabase
+        .from('events')
+        .select(`
+          *,
+          organizer:organizers(*)
+        `)
+        .eq('status', 'published')
+        .eq('category', category) // Huvudkategori måste matcha
+        .neq('event_id', currentEvent.id) // Exkludera nuvarande event
+        .gte('date_time', formatDateForQuery(actualStartDate))
+        .lte('date_time', formatDateForQuery(endDate))
+        .order('featured', { ascending: false })
+        .order('date_time', { ascending: true })
+        .limit(6);
 
-    console.log(`📊 Similar events found:`, data?.length || 0, data);
+      if (categoryError) {
+        console.error(`Error fetching events for category ${category}:`, categoryError);
+        continue;
+      }
 
-    if (error) {
-      console.error('Error fetching similar events:', error);
-      return [];
+      // Lägg till events som inte redan finns i listan
+      if (categoryData) {
+        for (const event of categoryData) {
+          if (!allSimilarEvents.find(e => e.event_id === event.event_id)) {
+            allSimilarEvents.push(event);
+          }
+        }
+      }
     }
 
-    return (data || []).map(transformEventForDisplay);
+    // Sortera och begränsa till 6 events
+    const sortedEvents = allSimilarEvents
+      .sort((a, b) => {
+        // Sortera efter featured först, sedan datum
+        if (a.featured !== b.featured) {
+          return b.featured ? 1 : -1;
+        }
+        return new Date(a.date_time).getTime() - new Date(b.date_time).getTime();
+      })
+      .slice(0, 6);
+
+    console.log(`📊 Similar events found:`, sortedEvents.length, sortedEvents);
+
+    return sortedEvents.map(transformEventForDisplay);
   } catch (error) {
     console.error('Error in getSimilarEvents:', error);
     return [];
