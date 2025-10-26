@@ -9,7 +9,13 @@ export type EventCategory =
   | "Jul"
   | "Film & bio"
   | "Djur & Natur"
-  | "Guidade visningar";
+  | "Guidade visningar"
+  | "Marknader"
+  | "Okategoriserad";
+
+export interface CategoryScore {
+  [category: string]: number; // 0.0 - 1.0
+}
 
 export type EventStatus = 'draft' | 'pending_approval' | 'published' | 'cancelled';
 
@@ -17,7 +23,11 @@ export interface Event {
   id: number;
   event_id: string;
   name: string;
-  category: EventCategory;
+  // Gamla systemet (bakåtkompatibilitet)
+  category?: EventCategory;
+  // Nya systemet
+  categories?: EventCategory[];        // 1-3 kategorier, sorterade efter relevans
+  category_scores?: CategoryScore;      // Confidence scores
   date_time: string; // ISO string från Supabase
   location: string; // Adress
   venue_name: string | null; // Platsnamn
@@ -51,7 +61,11 @@ export interface Organizer {
 export interface EventDisplay {
   id: string;
   title: string;
-  category: EventCategory;
+  // Gamla systemet (bakåtkompatibilitet)
+  category?: EventCategory;
+  // Nya systemet
+  categories?: EventCategory[];        // 1-3 kategorier, sorterade efter relevans
+  category_scores?: CategoryScore;      // Confidence scores
   date: Date;
   time: string;
   location: string; // Adress
@@ -82,4 +96,29 @@ export const categoryColors: Record<EventCategory, string> = {
   "Film & bio": "bg-indigo-500",
   "Djur & Natur": "bg-emerald-600",
   "Guidade visningar": "bg-amber-500",
+  "Marknader": "bg-orange-500",
+  "Okategoriserad": "bg-gray-500",
 };
+
+// Helper functions för multi-category system
+export function getMainCategory(event: Event | EventDisplay): EventCategory {
+  return event.categories?.[0] || event.category || 'Okategoriserad';
+}
+
+export function hasCategory(event: Event | EventDisplay, category: EventCategory): boolean {
+  return event.categories?.includes(category) || event.category === category;
+}
+
+export function getAllCategories(event: Event | EventDisplay): EventCategory[] {
+  return event.categories || (event.category ? [event.category] : []);
+}
+
+export function ensureCategories(event: Event | EventDisplay): Event | EventDisplay {
+  if (!event.categories && event.category) {
+    return {
+      ...event,
+      categories: [event.category]
+    };
+  }
+  return event;
+}

@@ -8,7 +8,8 @@ import { DateFilter } from "@/components/DateFilter";
 import { LocationFilter } from "@/components/LocationFilter";
 import { Footer } from "@/components/Footer";
 import { getPublishedEvents, getAllEvents } from "@/services/eventService";
-import { EventCategory, EventDisplay } from "@/types/event";
+import { EventCategory, EventDisplay, hasCategory } from "@/types/event";
+import { addTestEventsToState } from "@/testMultiCategoryEvents";
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,7 +33,7 @@ const Index = () => {
       const validCategories: EventCategory[] = [
         'Scen', 'Nattliv', 'Sport', 'Utställningar', 'Föreläsningar', 
         'Barn & Familj', 'Mat & Dryck', 'Jul', 'Film & bio', 
-        'Djur & Natur', 'Guidade visningar'
+        'Djur & Natur', 'Guidade visningar', 'Marknader', 'Okategoriserad'
       ];
       
       if (validCategories.includes(categoryParam as EventCategory)) {
@@ -52,10 +53,17 @@ const Index = () => {
       try {
         // DEBUG: Använd getAllEvents för att se alla events
         const eventsData = await getAllEvents();
-        setEvents(eventsData);
+        
+        // Lägg till test events i utvecklingsläge för multi-category testning
+        if (eventsData.length === 0) {
+          addTestEventsToState(setEvents);
+        } else {
+          setEvents(eventsData);
+        }
       } catch (error) {
         console.error('Error fetching events:', error);
-        setEvents([]);
+        // Fallback till test events om Supabase inte fungerar
+        addTestEventsToState(setEvents);
       } finally {
         setLoading(false);
       }
@@ -90,11 +98,16 @@ const Index = () => {
   const filteredEvents = useMemo(() => {
     let filteredEvents = [...events];
 
-    // Category filter
+    // Category filter - updated for multi-category support
     if (selectedCategories.length > 0) {
-      filteredEvents = filteredEvents.filter((event) =>
-        selectedCategories.includes(event.category)
-      );
+      filteredEvents = filteredEvents.filter((event) => {
+        // Kolla nya multi-category systemet först
+        if (event.categories && event.categories.length > 0) {
+          return selectedCategories.some(category => event.categories!.includes(category));
+        }
+        // Fallback till gamla systemet
+        return selectedCategories.includes(event.category!);
+      });
     }
 
     // Date filter
@@ -278,7 +291,7 @@ const Index = () => {
             </p>
           </div>
         ) : (
-          <EventList events={paginatedEvents} />
+          <EventList events={paginatedEvents} activeFilter={selectedCategories.length === 1 ? selectedCategories[0] : null} />
         )}
         
         {/* Pagination - Mobile First */}
