@@ -38,9 +38,9 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center h-16">
           <div className="flex items-center gap-8">
-            <h1 className="text-2xl font-bold" style={{ color: '#08075C' }}>
+            <Link to="/" className="text-2xl font-bold hover:opacity-80 transition-opacity" style={{ color: '#08075C' }}>
               ivarberg.nu
-            </h1>
+            </Link>
             <nav className="hidden md:flex items-center gap-6">
               <Link to="/" reloadDocument>
                 <Button

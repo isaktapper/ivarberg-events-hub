@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, CheckCircle } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,44 +7,64 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
-import { supabase } from "@/lib/supabase";
+import { CategoryMultiSelect } from "@/components/CategoryMultiSelect";
+import { submitEventTip } from "@/services/eventService";
+import { EventCategory } from "@/types/event";
 
 const Tips = () => {
   const [formData, setFormData] = useState({
-    event_name: '',
-    event_date: '',
-    event_location: '',
-    submitter_email: ''
+    name: '',
+    date_time: '',
+    location: '',
+    description: '',
+    categories: [] as EventCategory[],
+    image_url: '',
+    organizer_event_url: '',
+    submitter_email: '',
+    submitter_name: ''
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | EventCategory[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
     try {
-      const { error } = await supabase
-        .from('event_tips')
-        .insert([formData]);
+      const result = await submitEventTip({
+        event_name: formData.name,
+        date_time: formData.date_time,
+        event_location: formData.location,
+        description: formData.description,
+        categories: formData.categories,
+        image_url: formData.image_url || undefined,
+        website_url: formData.organizer_event_url || undefined,
+        venue_name: formData.location,
+        submitter_email: formData.submitter_email || undefined,
+        submitter_name: formData.submitter_name || undefined
+      });
 
-      if (error) {
-        console.error('Error submitting tip:', error);
-        alert('Ett fel uppstod. Försök igen senare.');
-      } else {
+      if (result.success) {
         setIsSubmitted(true);
+        console.log('Tip submitted successfully with ID:', result.tip_id);
+      } else {
+        setError(result.error || 'Ett fel uppstod vid inlämning av tips');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Ett fel uppstod. Försök igen senare.');
+      setError('Ett oväntat fel uppstod. Försök igen senare.');
     } finally {
       setIsSubmitting(false);
     }
@@ -54,30 +74,63 @@ const Tips = () => {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
         <Header />
-        <main className="container mx-auto px-4 py-12">
+        
+        <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
-            <div className="bg-white rounded-xl p-8 shadow-sm">
-              <div className="text-6xl mb-4">🎉</div>
-              <h1 className="text-2xl font-bold mb-4" style={{ color: '#08075C' }}>
+            <div className="mb-8">
+              <CheckCircle className="h-16 w-16 mx-auto mb-4" style={{ color: '#4A90E2' }} />
+              <h1 className="text-3xl font-bold mb-4" style={{ color: '#08075C' }}>
                 Tack för ditt tips!
               </h1>
-              <p className="mb-6" style={{ color: '#08075C', opacity: 0.7 }}>
-                Vi har tagit emot ditt eventtips och kommer att granska det. 
-                Om vi publicerar eventet kommer det att synas på ivarberg.nu inom kort.
+              <p className="text-lg" style={{ color: '#08075C' }}>
+                Ditt evenemang har skapats och kommer att granskas innan det publiceras.
               </p>
+            </div>
+
+            <div className="bg-white rounded-lg p-6 shadow-sm border">
+              <h2 className="text-xl font-semibold mb-4" style={{ color: '#08075C' }}>
+                Vad händer nu?
+              </h2>
+              <div className="text-left space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold" style={{ color: '#4A90E2' }}>1</span>
+                  </div>
+                  <p className="text-sm" style={{ color: '#08075C' }}>
+                    Vi granskar ditt evenemang för att säkerställa kvalitet och korrekt information
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold" style={{ color: '#4A90E2' }}>2</span>
+                  </div>
+                  <p className="text-sm" style={{ color: '#08075C' }}>
+                    Om allt ser bra ut publiceras evenemanget på vår sida
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold" style={{ color: '#4A90E2' }}>3</span>
+                  </div>
+                  <p className="text-sm" style={{ color: '#08075C' }}>
+                    Du får en bekräftelse när evenemanget är live
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8">
               <Button
-                onClick={() => window.close()}
-                style={{
-                  backgroundColor: '#4A90E2',
-                  color: '#FFFFFF',
-                  border: 'none'
-                }}
+                onClick={() => window.location.href = '/'}
+                className="px-6 py-3"
+                style={{ backgroundColor: '#4A90E2', color: 'white' }}
               >
-                Stäng fönster
+                Tillbaka till startsidan
               </Button>
             </div>
           </div>
-        </main>
+        </div>
+
         <Footer />
       </div>
     );
@@ -86,99 +139,178 @@ const Tips = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
       <Header />
-      <main className="container mx-auto px-4 py-12">
+      
+      <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-xl p-6 sm:p-8 shadow-sm">
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <MessageCircle className="h-8 w-8" style={{ color: '#4A90E2' }} />
-                <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#08075C' }}>
-                  Tipsa oss om ett event
-                </h1>
-              </div>
-              <p style={{ color: '#08075C', opacity: 0.7 }}>
-                Känner du till ett event som borde vara med på ivarberg.nu? 
-                Tipsa oss så granskar vi det och lägger upp det om det passar!
-              </p>
-            </div>
+          <div className="text-center mb-8">
+            <MessageCircle className="h-12 w-12 mx-auto mb-4" style={{ color: '#4A90E2' }} />
+            <h1 className="text-3xl font-bold mb-4" style={{ color: '#08075C' }}>
+              Tipsa oss om ett evenemang
+            </h1>
+            <p className="text-lg" style={{ color: '#08075C' }}>
+              Hjälp oss att hålla Varbergs evenemangskalender uppdaterad!
+            </p>
+          </div>
 
+          <div className="bg-white rounded-lg p-8 shadow-sm border">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Förenklat formulär */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
-                    Namn på eventet *
-                  </label>
-                  <Input
-                    required
-                    value={formData.event_name}
-                    onChange={(e) => handleInputChange('event_name', e.target.value)}
-                    placeholder="T.ex. Konsert med lokala artister"
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
-                    När? *
-                  </label>
-                  <DateTimePicker
-                    value={formData.event_date}
-                    onChange={(value) => handleInputChange('event_date', value)}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
-                    Var? *
-                  </label>
-                  <AddressAutocomplete
-                    value={formData.event_location}
-                    onChange={(value) => handleInputChange('event_location', value)}
-                    placeholder="T.ex. Varbergs Teater, Teatergatan 1"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
-                    Din email *
-                  </label>
-                  <Input
-                    type="email"
-                    required
-                    value={formData.submitter_email}
-                    onChange={(e) => handleInputChange('submitter_email', e.target.value)}
-                    placeholder="din@email.se"
-                    className="w-full"
-                  />
-                  <p className="text-xs mt-1" style={{ color: '#08075C', opacity: 0.6 }}>
-                    Vi behöver din email om vi har frågor om eventet
-                  </p>
-                </div>
+              {/* Namn på evenemang */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                  Namn på evenemang *
+                </label>
+                <Input
+                  required
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="T.ex. Konsert med lokala artister"
+                  className="w-full"
+                />
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-4">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || !formData.event_name || !formData.event_date || !formData.event_location || !formData.submitter_email}
-                  className="w-full py-3 text-base font-medium"
-                  style={{
-                    backgroundColor: '#4A90E2',
-                    color: '#FFFFFF',
-                    border: 'none',
-                    opacity: (isSubmitting || !formData.event_name || !formData.event_date || !formData.event_location || !formData.submitter_email) ? 0.5 : 1
+              {/* Datum och tid */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                  Datum och tid *
+                </label>
+                <DateTimePicker
+                  value={formData.date_time}
+                  onChange={(value) => handleInputChange('date_time', value)}
+                  required
+                />
+              </div>
+
+              {/* Plats */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                  Plats *
+                </label>
+                <AddressAutocomplete
+                  value={formData.location}
+                  onChange={(value) => handleInputChange('location', value)}
+                  onPlaceSelect={(place) => {
+                    console.log('Place selected in Tips form:', place);
+                    // Place is already handled by onChange above
                   }}
-                >
-                  {isSubmitting ? 'Skickar tips...' : 'Skicka tips'}
-                </Button>
+                  placeholder="T.ex. Varbergs Teater, Teatergatan 1"
+                  required
+                />
               </div>
+
+              {/* Beskrivning */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                  Beskrivning *
+                </label>
+                <Textarea
+                  required
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Beskriv evenemanget så detaljerat som möjligt..."
+                  className="w-full min-h-[120px]"
+                />
+              </div>
+
+              {/* Kategorier */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                  Kategori/er *
+                </label>
+                <CategoryMultiSelect
+                  selectedCategories={formData.categories}
+                  onCategoriesChange={(categories) => handleInputChange('categories', categories)}
+                />
+              </div>
+
+              {/* Bild URL */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                  Bild (via URL)
+                </label>
+                <Input
+                  value={formData.image_url}
+                  onChange={(e) => handleInputChange('image_url', e.target.value)}
+                  placeholder="https://example.com/bild.jpg"
+                  className="w-full"
+                  type="url"
+                />
+                <p className="text-xs text-gray-600 mt-1">
+                  Länka till en bild som representerar evenemanget
+                </p>
+              </div>
+
+              {/* Länk till hemsida */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                  Länk till hemsida
+                </label>
+                <Input
+                  value={formData.organizer_event_url}
+                  onChange={(e) => handleInputChange('organizer_event_url', e.target.value)}
+                  placeholder="https://example.com/evenemang"
+                  className="w-full"
+                  type="url"
+                />
+                <p className="text-xs text-gray-600 mt-1">
+                  Länk till arrangörens sida eller biljettförsäljning
+                </p>
+              </div>
+
+              {/* Din e-postadress */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                  Din e-postadress *
+                </label>
+                <Input
+                  type="email"
+                  required
+                  value={formData.submitter_email}
+                  onChange={(e) => handleInputChange('submitter_email', e.target.value)}
+                  placeholder="din@email.se"
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-600 mt-1">
+                  Vi behöver din e-post om vi har frågor om evenemanget
+                </p>
+              </div>
+
+              {/* Din namn (valfritt) */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                  Ditt namn (valfritt)
+                </label>
+                <Input
+                  value={formData.submitter_name}
+                  onChange={(e) => handleInputChange('submitter_name', e.target.value)}
+                  placeholder="Ditt namn"
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-600 mt-1">
+                  Hjälp oss kontakta dig om vi har frågor
+                </p>
+              </div>
+
+              {/* Error message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
+
+              {/* Submit button */}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3"
+                style={{ backgroundColor: '#4A90E2', color: 'white' }}
+              >
+                {isSubmitting ? 'Skickar in tips...' : 'Skicka in tips'}
+              </Button>
             </form>
           </div>
         </div>
-      </main>
+      </div>
+
       <Footer />
     </div>
   );
