@@ -125,12 +125,7 @@ const EventDetail = () => {
   const handleShare = async () => {
     const shareData = {
       title: event.title,
-      text: `${event.title} - ${event.date.toLocaleDateString('sv-SE', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })} ${event.time}`,
+      text: `Kolla in: ${event.title} - ${event.date.toLocaleDateString('sv-SE')} ${event.time}\n\n${window.location.href}`,
       url: window.location.href
     };
 
