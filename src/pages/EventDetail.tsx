@@ -10,9 +10,11 @@ import { supabase } from "@/lib/supabase";
 import { EventDisplay, getAllCategories } from "@/types/event";
 import { transformEventForDisplay, getSimilarEvents } from "@/services/eventService";
 import { formatLocation } from "@/lib/locationUtils";
+import { usePostHog } from "posthog-js/react";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const posthog = usePostHog();
   const [event, setEvent] = useState<EventDisplay | null>(null);
   const [similarEvents, setSimilarEvents] = useState<EventDisplay[]>([]);
   const [loading, setLoading] = useState(true);
@@ -404,6 +406,14 @@ const EventDetail = () => {
                   href={event.organizer_event_url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => {
+                    posthog.capture('organizer_cta_clicked', {
+                      event_id: event.id,
+                      event_title: event.title,
+                      organizer_name: event.organizer?.name,
+                      organizer_url: event.organizer_event_url,
+                    });
+                  }}
                 >
                   <Button
                     size="lg"
