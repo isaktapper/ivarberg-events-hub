@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export function Footer() {
   return (
-    <footer className="mt-16" style={{ backgroundColor: '#FFFFFF', borderTop: '1px solid #08075C', borderOpacity: 0.1 }}>
+    <footer className="mt-16" style={{ backgroundColor: '#FFFFFF', borderTop: '1px solid rgba(8, 7, 92, 0.1)' }}>
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -91,7 +91,7 @@ export function Footer() {
           </div>
         </div>
         
-        <div className="mt-8 pt-8 text-center text-sm" style={{ borderTop: '1px solid #08075C', borderOpacity: 0.1, color: '#08075C', opacity: 0.7 }}>
+        <div className="mt-8 pt-8 text-center text-sm" style={{ borderTop: '1px solid rgba(8, 7, 92, 0.1)', color: '#08075C', opacity: 0.7 }}>
           <p>&copy; 2024 ivarberg.nu - Alla rättigheter förbehållna</p>
         </div>
       </div>
