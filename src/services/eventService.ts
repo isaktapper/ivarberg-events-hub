@@ -551,3 +551,44 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Even
     return [];
   }
 }
+
+// Prenumerera på nyhetsbrev
+export async function subscribeToNewsletter(email: string, name: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Validera e-post
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return { success: false, error: 'Ogiltig e-postadress' };
+    }
+
+    // Validera namn (obligatoriskt)
+    if (!name || name.trim().length < 2 || name.trim().length > 100) {
+      return { success: false, error: 'Namnet måste vara mellan 2 och 100 tecken' };
+    }
+
+    const subscriptionData = {
+      email: email.trim().toLowerCase(),
+      name: name.trim(),
+    };
+
+    const { error } = await supabase
+      .from('newsletter_subscriptions')
+      .insert([subscriptionData]);
+
+    if (error) {
+      // Om e-posten redan finns (unique constraint)
+      if (error.code === '23505') {
+        return { success: false, error: 'Denna e-postadress är redan registrerad' };
+      }
+      console.error('Error subscribing to newsletter:', error);
+      return { success: false, error: `Fel vid registrering: ${error.message}` };
+    }
+
+    console.log('Newsletter subscription successful');
+    return { success: true };
+
+  } catch (error) {
+    console.error('Unexpected error subscribing to newsletter:', error);
+    return { success: false, error: 'Ett oväntat fel uppstod' };
+  }
+}
