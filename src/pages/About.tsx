@@ -32,8 +32,8 @@ const About = () => {
                 </h2>
               </div>
               <p className="leading-relaxed" style={{ color: '#08075C', opacity: 0.7 }}>
-                Vi samlar alla evenemang i Varberg - från stora konserter och teaterföreställningar 
-                till lokala föreningsaktiviteter och familjeträffar. Vårt mål är att göra det enkelt 
+                Vi samlar alla evenemang i Varberg,från stora konserter och teaterföreställningar 
+                till lokala föreningsaktiviteter och marknader. Vårt mål är att göra det enkelt 
                 för alla att upptäcka vad som händer i staden.
               </p>
             </div>
