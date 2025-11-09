@@ -90,7 +90,23 @@ export function DateFilter({ selectedDate, dateRange, onDateChange, onDateRangeC
       <PopoverTrigger asChild>
         <Button
           variant="filter"
-          className="justify-start text-left font-normal w-40 sm:w-44 data-[state=open]:bg-white data-[state=open]:text-foreground"
+          className="justify-start text-left font-normal w-40 sm:w-44 transition-all duration-200 backdrop-blur-md shadow-lg"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.25)',
+            borderColor: 'rgba(255, 255, 255, 0.5)',
+            color: '#08075C',
+            backdropFilter: 'blur(12px)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
+            e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
+            e.currentTarget.style.color = '#FFFFFF';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+            e.currentTarget.style.color = '#08075C';
+          }}
         >
           <Calendar className="mr-2 h-4 w-4" />
           {getDateText()}

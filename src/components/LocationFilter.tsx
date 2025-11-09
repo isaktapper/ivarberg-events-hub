@@ -36,13 +36,29 @@ export function LocationFilter({ selectedLocation, onLocationChange }: LocationF
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button 
-          variant="outline" 
+          variant="filter" 
           onClick={handleClick}
-          className="flex items-center justify-between gap-2 h-10 px-4 bg-white border-border hover:bg-gray-50 w-40 sm:w-44 data-[state=open]:bg-white data-[state=open]:text-foreground"
+          className="flex items-center justify-between gap-2 h-10 px-4 font-normal w-40 sm:w-44 transition-all duration-200 backdrop-blur-md shadow-lg"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.25)',
+            borderColor: 'rgba(255, 255, 255, 0.5)',
+            color: '#08075C',
+            backdropFilter: 'blur(12px)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
+            e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
+            e.currentTarget.style.color = '#FFFFFF';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+            e.currentTarget.style.color = '#08075C';
+          }}
         >
-          <MapPin className="h-4 w-4 text-muted-foreground" />
+          <MapPin className="h-4 w-4" />
           <span className="text-sm truncate flex-1 text-center">{selectedLocation}</span>
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-56 p-2 relative" align="start">
