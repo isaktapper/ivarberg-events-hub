@@ -234,7 +234,11 @@ export const NavbarLogo = () => {
       href="/"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
-      <span className="font-bold text-2xl" style={{ color: '#08075C' }}>ivarberg.nu</span>
+      <img 
+        src="/logo.png" 
+        alt="ivarberg.nu" 
+        className="h-8 w-auto"
+      />
     </a>
   );
 };

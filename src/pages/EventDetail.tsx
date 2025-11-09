@@ -211,20 +211,51 @@ const EventDetail = () => {
           {/* Back button and Share button */}
           <div className="mb-6 flex items-center justify-between">
             <Link to="/">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="filter" 
+                size="sm"
+                className="font-normal transition-all duration-200 backdrop-blur-md shadow-lg"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                  color: '#08075C',
+                  backdropFilter: 'blur(12px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
+                  e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
+                  e.currentTarget.style.color = '#FFFFFF';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                  e.currentTarget.style.color = '#08075C';
+                }}
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Tillbaka
               </Button>
             </Link>
             <Button
               onClick={handleShare}
-              variant="outline"
+              variant="filter"
               size="sm"
-              className="px-3 py-2"
+              className="px-3 py-2 font-normal transition-all duration-200 backdrop-blur-md shadow-lg"
               style={{
-                backgroundColor: '#FFFFFF',
+                backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
                 color: '#08075C',
-                borderColor: '#08075C'
+                backdropFilter: 'blur(12px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
+                e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                e.currentTarget.style.color = '#08075C';
               }}
             >
               <Share2 className="h-4 w-4 mr-2" />
@@ -312,12 +343,23 @@ const EventDetail = () => {
                 <Button
                   onClick={generateICS}
                   size="sm"
-                  variant="outline"
-                  className="flex-shrink-0 px-3 py-2"
+                  variant="filter"
+                  className="flex-shrink-0 px-3 py-2 font-normal transition-all duration-200 backdrop-blur-md shadow-lg"
                   style={{
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    borderColor: 'rgba(255, 255, 255, 0.5)',
                     color: '#08075C',
-                    borderColor: '#08075C'
+                    backdropFilter: 'blur(12px)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
+                    e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
+                    e.currentTarget.style.color = '#FFFFFF';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                    e.currentTarget.style.color = '#08075C';
                   }}
                 >
                   <CalendarPlus className="h-4 w-4 sm:mr-2" />
@@ -343,12 +385,23 @@ const EventDetail = () => {
                           window.open(mapsUrl, '_blank');
                         }}
                         size="sm"
-                        variant="outline"
-                        className="flex-shrink-0 px-3 py-2"
+                        variant="filter"
+                        className="flex-shrink-0 px-3 py-2 font-normal transition-all duration-200 backdrop-blur-md shadow-lg"
                         style={{
-                          backgroundColor: '#FFFFFF',
+                          backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
                           color: '#08075C',
-                          borderColor: '#08075C'
+                          backdropFilter: 'blur(12px)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
+                          e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
+                          e.currentTarget.style.color = '#FFFFFF';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+                          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                          e.currentTarget.style.color = '#08075C';
                         }}
                       >
                         <MapPin className="h-4 w-4 sm:mr-2" />
@@ -375,12 +428,23 @@ const EventDetail = () => {
                         window.open(mapsUrl, '_blank');
                       }}
                       size="sm"
-                      variant="outline"
-                      className="flex-shrink-0 px-3 py-2"
+                      variant="filter"
+                      className="flex-shrink-0 px-3 py-2 font-normal transition-all duration-200 backdrop-blur-md shadow-lg"
                       style={{
-                        backgroundColor: '#FFFFFF',
+                        backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                        borderColor: 'rgba(255, 255, 255, 0.5)',
                         color: '#08075C',
-                        borderColor: '#08075C'
+                        backdropFilter: 'blur(12px)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
+                        e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
+                        e.currentTarget.style.color = '#FFFFFF';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                        e.currentTarget.style.color = '#08075C';
                       }}
                     >
                       <MapPin className="h-4 w-4 sm:mr-2" />

@@ -64,10 +64,10 @@ export function CategoryMultiSelect({ selectedCategories, onCategoriesChange, re
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full min-h-[40px] p-3 border border-gray-300 rounded-md bg-white text-left hover:border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm min-h-[40px] text-left"
         >
           {selectedCategories.length === 0 ? (
-            <span className="text-gray-500 text-sm">
+            <span className="text-muted-foreground text-sm">
               Välj kategori/er (max 3)
             </span>
           ) : (
@@ -104,7 +104,7 @@ export function CategoryMultiSelect({ selectedCategories, onCategoriesChange, re
 
         {/* Dropdown menu */}
         {isOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md max-h-60 overflow-y-auto">
+          <div className="absolute z-10 w-full mt-1 bg-white border border-input rounded-md shadow-md max-h-60 overflow-y-auto">
             {categoryOptions.map((option) => {
               const isSelected = selectedCategories.includes(option.id);
               const isDisabled = !isSelected && selectedCategories.length >= 3;
@@ -115,7 +115,6 @@ export function CategoryMultiSelect({ selectedCategories, onCategoriesChange, re
                   type="button"
                   onClick={() => {
                     handleCategoryToggle(option.id);
-                    setIsOpen(false); // Close dropdown after selection
                   }}
                   disabled={isDisabled}
                   className={`w-full px-3 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none flex items-center justify-between ${
