@@ -57,7 +57,7 @@ export function Footer() {
   return (
     <footer className="mt-16" style={{ backgroundColor: '#FFFFFF', borderTop: '1px solid rgba(8, 7, 92, 0.1)' }}>
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4" style={{ color: '#08075C' }}>
               ivarberg.nu
@@ -70,9 +70,24 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4" style={{ color: '#08075C' }}>Snabblänkar</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Alla evenemang</a></li>
-              <li><a href="/tips" target="_blank" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Tipsa oss om ett evenemang</a></li>
+              <li><a href="/" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Alla evenemang</a></li>
+              <li><a href="/evenemang-varberg" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Evenemang Varberg</a></li>
+              <li><a href="/att-gora-i-varberg" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Att göra i Varberg</a></li>
+              <li><a href="/varberg-kalender" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Varberg Kalender</a></li>
+              <li><a href="/tips" target="_blank" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Tipsa oss</a></li>
               <li><a href="/om-oss" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Om oss</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 className="font-semibold mb-4" style={{ color: '#08075C' }}>Kategorier</h4>
+            <ul className="space-y-2 text-sm">
+              <li><a href="/?category=Scen" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Scen & Teater</a></li>
+              <li><a href="/?category=Sport" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Sport</a></li>
+              <li><a href="/?category=Mat & Dryck" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Mat & Dryck</a></li>
+              <li><a href="/?category=Barn & Familj" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Barn & Familj</a></li>
+              <li><a href="/?category=Nattliv" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Nattliv</a></li>
+              <li><a href="/?category=Utställningar" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Utställningar</a></li>
             </ul>
           </div>
           

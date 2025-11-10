@@ -28,6 +28,9 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
     additionalCount = allCategories.length - 1;
   }
   
+  // SEO-friendly alt text
+  const imageAlt = `${event.title} - ${displayCategory} evenemang i Varberg ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}`;
+  
   return (
     <Link to={`/event/${event.id}`} className="block">
       <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer">
@@ -36,7 +39,8 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
           <div className="w-28 sm:w-36 flex-shrink-0 relative">
             <img
               src={event.image}
-              alt={event.title}
+              alt={imageAlt}
+              loading="lazy"
               className="w-full h-full object-cover"
             />
             {/* Category badge overlayed on image - covers the entire corner */}

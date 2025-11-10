@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MessageCircle, CheckCircle } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -72,8 +73,14 @@ const Tips = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
-        <Header />
+      <>
+        <Helmet>
+          <title>Tack för ditt tips! - ivarberg.nu</title>
+          <meta name="description" content="Ditt evenemangstips har mottagits och kommer granskas innan publicering på ivarberg.nu - Varbergs eventkalender." />
+        </Helmet>
+        
+        <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+          <Header />
         
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
@@ -132,13 +139,33 @@ const Tips = () => {
         </div>
 
         <Footer />
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
-      <Header />
+    <>
+      <Helmet>
+        <title>Tipsa oss om evenemang - Varberg | ivarberg.nu</title>
+        <meta name="description" content="Tipsa oss om evenemang i Varberg! Hjälp andra att upptäcka konserter, teater, sport och aktiviteter. Kostnadsfritt att lägga till evenemang på ivarberg.nu." />
+        <meta name="keywords" content="tipsa evenemang Varberg, lägg till event Varberg, publicera evenemang Varberg, arrangörer Varberg" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Tipsa oss om evenemang - ivarberg.nu" />
+        <meta property="og:description" content="Hjälp andra att upptäcka evenemang i Varberg. Kostnadsfritt att lägga till evenemang!" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ivarberg.nu/tips" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Tipsa oss om evenemang - ivarberg.nu" />
+        
+        <link rel="canonical" href="https://ivarberg.nu/tips" />
+      </Helmet>
+
+      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+        <Header />
       
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
@@ -312,7 +339,8 @@ const Tips = () => {
       </div>
 
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 
