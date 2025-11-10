@@ -4,28 +4,35 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Hämta Supabase credentials från environment variables
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
-    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('Missing Supabase credentials');
-      return res.status(500).send('Server configuration error');
+    let events: any[] = [];
+
+    // Försök hämta events om credentials finns
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const eventsResponse = await fetch(`${supabaseUrl}/rest/v1/events?status=eq.published&select=event_id,updated_at,date`, {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (eventsResponse.ok) {
+          events = await eventsResponse.json();
+        } else {
+          console.error('Failed to fetch events:', eventsResponse.statusText);
+          // Fortsätt ändå med tom events array
+        }
+      } catch (fetchError) {
+        console.error('Error fetching events:', fetchError);
+        // Fortsätt ändå med tom events array
+      }
+    } else {
+      console.warn('Missing Supabase credentials - generating sitemap without events');
     }
-
-    // Hämta alla publishade events direkt med fetch (undvik att importera hela Supabase-klienten)
-    const eventsResponse = await fetch(`${supabaseUrl}/rest/v1/events?status=eq.published&select=event_id,updated_at,date`, {
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
-      },
-    });
-
-    if (!eventsResponse.ok) {
-      console.error('Failed to fetch events:', eventsResponse.statusText);
-      return res.status(500).send('Failed to fetch events');
-    }
-
-    const events = await eventsResponse.json();
 
     // Statiska sidor
     const staticPages = [
@@ -91,7 +98,44 @@ ${events && events.length > 0 ? events.map((event: any) => `  <url>
     return res.status(200).send(sitemap);
   } catch (error) {
     console.error('Error generating sitemap:', error);
-    return res.status(500).send('Error generating sitemap');
+    
+    // Fallback: returnera åtminstone de statiska sidorna
+    const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://ivarberg.nu/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://ivarberg.nu/evenemang-varberg</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ivarberg.nu/att-gora-i-varberg</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ivarberg.nu/varberg-kalender</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ivarberg.nu/om-oss</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ivarberg.nu/tips</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>`;
+    
+    res.setHeader('Content-Type', 'text/xml');
+    return res.status(200).send(fallbackSitemap);
   }
 }
 
