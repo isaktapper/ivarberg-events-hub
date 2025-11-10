@@ -132,6 +132,7 @@ export function SimilarEventsCarousel({ events }: SimilarEventsCarouselProps) {
         >
           {events.map((event) => {
             const locationInfo = formatLocation(event.venue_name, event.location);
+            const imageAlt = `${event.title} - ${event.category} evenemang i Varberg ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}`;
             
             return (
               <Link
@@ -145,7 +146,8 @@ export function SimilarEventsCarousel({ events }: SimilarEventsCarouselProps) {
                   <div className="relative h-40 overflow-hidden">
                     <img
                       src={event.image}
-                      alt={event.title}
+                      alt={imageAlt}
+                      loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     {/* Category badge */}

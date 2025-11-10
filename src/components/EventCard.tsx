@@ -20,13 +20,17 @@ const createPreview = (markdown: string, maxLength: number = 150): string => {
 export function EventCard({ event }: EventCardProps) {
   const categoryColor = categoryColors[event.category];
   const locationInfo = formatLocation(event.venue_name, event.location);
+  
+  // SEO-friendly alt text with event details
+  const imageAlt = `${event.title} - ${event.category} evenemang i Varberg ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 
   return (
     <div className="event-card group cursor-pointer">
       <div className="relative h-48 overflow-hidden">
         <img
           src={event.image}
-          alt={event.title}
+          alt={imageAlt}
+          loading="lazy"
           className="event-card-image group-hover:scale-105 transition-transform duration-500 ease-out"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

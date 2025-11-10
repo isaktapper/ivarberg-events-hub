@@ -3,11 +3,33 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, Calendar, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const About = () => {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
-      <Header />
+    <>
+      <Helmet>
+        <title>Om oss - Evenemang i Varberg | ivarberg.nu</title>
+        <meta name="description" content="ivarberg.nu är din kompletta guide till evenemang i Varberg. Vi samlar alla konserter, teater, sport och aktiviteter på ett ställe. Läs mer om vår vision och kontakta oss!" />
+        <meta name="keywords" content="om ivarberg, evenemang Varberg, kontakt, arrangörer Varberg, event kalender Varberg" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Om oss - ivarberg.nu" />
+        <meta property="og:description" content="Din kompletta guide till evenemang i Varberg. Vi samlar alla konserter, teater, sport och aktiviteter på ett ställe." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ivarberg.nu/om-oss" />
+        <meta property="og:image" content="https://ivarberg.nu/varberg_hero.jpg" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Om oss - ivarberg.nu" />
+        <meta name="twitter:description" content="Din kompletta guide till evenemang i Varberg" />
+        
+        <link rel="canonical" href="https://ivarberg.nu/om-oss" />
+      </Helmet>
+
+      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+        <Header />
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Hero Section */}
@@ -133,7 +155,8 @@ const About = () => {
         </div>
       </main>
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

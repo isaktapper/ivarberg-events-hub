@@ -1,9 +1,11 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, ChevronRight, CalendarPlus, Share2 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SimilarEventsCarousel } from "@/components/SimilarEventsCarousel";
 import { EventDescription } from "@/components/EventDescription";
 import { supabase } from "@/lib/supabase";
@@ -202,12 +204,89 @@ const EventDetail = () => {
     document.body.removeChild(link);
   };
 
+  // SEO data
+  const cleanDescription = event.description.replace(/[#*_\[\]`]/g, '').replace(/\n+/g, ' ');
+  const seoDescription = `${event.title} i Varberg - ${event.date.toLocaleDateString('sv-SE')} kl ${event.time}. ${cleanDescription.substring(0, 120)}...`;
+  const seoKeywords = `${event.title}, evenemang Varberg, ${getAllCategories(event).join(', ')}, event Varberg, Varberg evenemang`;
+  const eventUrl = `https://ivarberg.nu/event/${id}`;
+  
+  // SEO-friendly alt text for event image
+  const imageAlt = `${event.title} - ${getAllCategories(event)[0]} evenemang i Varberg den ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })} på ${locationInfo.hasVenueName ? locationInfo.venueName : locationInfo.address}`;
+
+  // Event Schema.org structured data
+  const eventSchema = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": event.title,
+    "startDate": event.date.toISOString(),
+    "endDate": new Date(event.date.getTime() + 2 * 60 * 60 * 1000).toISOString(), // +2 hours
+    "eventStatus": isPast ? "https://schema.org/EventCancelled" : "https://schema.org/EventScheduled",
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    "location": {
+      "@type": "Place",
+      "name": event.venue_name || event.location,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": event.location,
+        "addressLocality": "Varberg",
+        "postalCode": "432 44",
+        "addressCountry": "SE"
+      }
+    },
+    "image": [event.image],
+    "description": cleanDescription.substring(0, 200),
+    "organizer": event.organizer ? {
+      "@type": "Organization",
+      "name": event.organizer.name,
+      "url": event.organizer.website || "https://ivarberg.nu"
+    } : {
+      "@type": "Organization",
+      "name": "ivarberg.nu",
+      "url": "https://ivarberg.nu"
+    }
+  };
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
-      <Header />
+    <>
+      <Helmet>
+        <title>{event.title} - Evenemang i Varberg | ivarberg.nu</title>
+        <meta name="description" content={seoDescription} />
+        <meta name="keywords" content={seoKeywords} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={`${event.title} - ivarberg.nu`} />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:type" content="event" />
+        <meta property="og:url" content={eventUrl} />
+        <meta property="og:image" content={event.image} />
+        <meta property="og:locale" content="sv_SE" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${event.title} - ivarberg.nu`} />
+        <meta name="twitter:description" content={seoDescription} />
+        <meta name="twitter:image" content={event.image} />
+        
+        <link rel="canonical" href={eventUrl} />
+        
+        {/* Event Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify(eventSchema)}
+        </script>
+      </Helmet>
+
+      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+        <Header />
       <main className="container mx-auto px-4 py-8">
         {/* Event content */}
         <div className="max-w-4xl mx-auto">
+          {/* Breadcrumbs */}
+          <Breadcrumbs items={[
+            { label: 'Evenemang', href: '/' },
+            { label: getAllCategories(event)[0], href: `/?category=${encodeURIComponent(getAllCategories(event)[0])}` },
+            { label: event.title, href: `/event/${id}` }
+          ]} />
+          
           {/* Back button and Share button */}
           <div className="mb-6 flex items-center justify-between">
             <Link to="/">
@@ -266,7 +345,7 @@ const EventDetail = () => {
           <div className="relative mb-8">
             <img
               src={event.image}
-              alt={event.title}
+              alt={imageAlt}
               className="w-full h-64 md:h-96 object-cover rounded-xl"
             />
           </div>
@@ -562,7 +641,8 @@ const EventDetail = () => {
         </div>
       </main>
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

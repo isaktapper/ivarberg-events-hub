@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { CategoryScroller } from "@/components/CategoryScroller";
@@ -7,6 +8,8 @@ import { EventList } from "@/components/EventList";
 import { DateFilter } from "@/components/DateFilter";
 import { LocationFilter } from "@/components/LocationFilter";
 import { Footer } from "@/components/Footer";
+import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
+import { FAQSchema } from "@/components/FAQSchema";
 import { getPublishedEvents, getAllEvents } from "@/services/eventService";
 import { EventCategory, EventDisplay, hasCategory } from "@/types/event";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
@@ -214,9 +217,70 @@ const Index = () => {
     }
   };
 
+  // Dynamic SEO metadata based on filters
+  const getPageTitle = () => {
+    if (selectedCategories.length === 1) {
+      return `${selectedCategories[0]} Evenemang i Varberg | ivarberg.nu`;
+    }
+    if (selectedDate) {
+      return `Evenemang i Varberg ${selectedDate.toLocaleDateString('sv-SE')} | ivarberg.nu`;
+    }
+    if (dateRange) {
+      return `Evenemang i Varberg - Kommande händelser | ivarberg.nu`;
+    }
+    return 'Evenemang i Varberg - Din kompletta eventkalender | ivarberg.nu';
+  };
+
+  const getPageDescription = () => {
+    if (selectedCategories.length === 1) {
+      return `Upptäck alla ${selectedCategories[0]} evenemang i Varberg. Hitta konserter, teater, sport och aktiviteter. Uppdateras dagligen med nya evenemang.`;
+    }
+    if (selectedDate) {
+      return `Se alla evenemang i Varberg ${selectedDate.toLocaleDateString('sv-SE')}. Fullständig översikt över vad som händer i Varberg idag och framåt.`;
+    }
+    return 'Din kompletta guide till Varbergs evenemang. Upptäck konserter, teater, sport, restauranger och aktiviteter för hela familjen. Uppdateras dagligen!';
+  };
+
+  const getH1Text = () => {
+    if (selectedCategories.length === 1) {
+      return `${selectedCategories[0]} Evenemang i Varberg`;
+    }
+    if (selectedDate) {
+      return `Evenemang i Varberg ${selectedDate.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    }
+    return 'Evenemang i Varberg - Upptäck vad som händer';
+  };
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
-      <Header />
+    <>
+      <Helmet>
+        <title>{getPageTitle()}</title>
+        <meta name="description" content={getPageDescription()} />
+        <meta name="keywords" content="evenemang Varberg, Varberg event, att göra Varberg, vad göra Varberg, Varberg kalender, events Varberg, Varberg aktiviteter" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={getPageTitle()} />
+        <meta property="og:description" content={getPageDescription()} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ivarberg.nu" />
+        <meta property="og:image" content="https://ivarberg.nu/varberg_hero.jpg" />
+        <meta property="og:locale" content="sv_SE" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={getPageTitle()} />
+        <meta name="twitter:description" content={getPageDescription()} />
+        <meta name="twitter:image" content="https://ivarberg.nu/varberg_hero.jpg" />
+        
+        <link rel="canonical" href="https://ivarberg.nu" />
+      </Helmet>
+      
+      {/* Structured Data */}
+      <LocalBusinessSchema />
+      <FAQSchema />
+
+      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+        <Header />
       <Hero 
         onFilterApply={handleQuickFilter}
         onScrollToResults={scrollToResults}
@@ -225,7 +289,7 @@ const Index = () => {
       
       <main className="container mx-auto px-4 pt-6 pb-12" ref={resultsRef}>
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-6 text-center" style={{ color: '#08075C' }}>Bläddra bland kommande evenemang</h2>
+          <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center" style={{ color: '#08075C' }}>{getH1Text()}</h1>
           
           {/* Category Scroller */}
           <div ref={categoriesRef}>
@@ -430,7 +494,8 @@ const Index = () => {
       </main>
       
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 
