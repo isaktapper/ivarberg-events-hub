@@ -13,5 +13,6 @@ Allow: /
 User-agent: *
 Allow: /
 
-# Sitemap
+# Sitemaps
+Sitemap: https://ivarberg.nu/sitemap.xml
 Sitemap: https://ivarberg.nu/api/sitemap.xml
