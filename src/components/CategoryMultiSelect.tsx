@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { EventCategory } from "@/types/event";
 import { Check, X, ChevronDown } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 
 interface CategoryMultiSelectProps {
   selectedCategories: EventCategory[];
@@ -26,6 +27,7 @@ const categoryOptions: { id: EventCategory; label: string }[] = [
 export function CategoryMultiSelect({ selectedCategories, onCategoriesChange, required }: CategoryMultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const posthog = usePostHog();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -44,16 +46,35 @@ export function CategoryMultiSelect({ selectedCategories, onCategoriesChange, re
   const handleCategoryToggle = (category: EventCategory) => {
     if (selectedCategories.includes(category)) {
       // Remove category
+      posthog?.capture('category_multiselect_clicked', {
+        category: category,
+        action: 'deselected',
+        selected_categories_count: selectedCategories.length - 1,
+        context: 'form'
+      });
       onCategoriesChange(selectedCategories.filter(c => c !== category));
     } else {
       // Add category (max 3)
       if (selectedCategories.length < 3) {
+        posthog?.capture('category_multiselect_clicked', {
+          category: category,
+          action: 'selected',
+          selected_categories_count: selectedCategories.length + 1,
+          context: 'form'
+        });
         onCategoriesChange([...selectedCategories, category]);
       }
     }
   };
 
   const removeCategory = (category: EventCategory) => {
+    posthog?.capture('category_multiselect_clicked', {
+      category: category,
+      action: 'deselected',
+      selected_categories_count: selectedCategories.length - 1,
+      context: 'form',
+      removed_via: 'x_button'
+    });
     onCategoriesChange(selectedCategories.filter(c => c !== category));
   };
 
