@@ -1,5 +1,6 @@
 import { Drama, Users, Image, PartyPopper, Trophy, UtensilsCrossed, GraduationCap, Snowflake, Film, TreePine, Compass, Store } from 'lucide-react';
 import { EventCategory } from '@/types/event';
+import { usePostHog } from "posthog-js/react";
 
 interface CategoryItem {
   id: EventCategory;
@@ -28,6 +29,24 @@ const categories: CategoryItem[] = [
 ];
 
 export function CategoryScroller({ selectedCategories, onCategoryToggle }: CategoryScrollerProps) {
+  const posthog = usePostHog();
+
+  const handleCategoryClick = (category: EventCategory) => {
+    const isCurrentlySelected = selectedCategories.includes(category);
+    const action = isCurrentlySelected ? 'deselected' : 'selected';
+    
+    // Track the category click with specific category information
+    posthog?.capture('category_clicked', {
+      category: category,
+      action: action,
+      selected_categories_count: isCurrentlySelected 
+        ? selectedCategories.length - 1 
+        : selectedCategories.length + 1
+    });
+    
+    onCategoryToggle(category);
+  };
+
   return (
     <div className="w-full py-4">
       <div 
@@ -50,7 +69,7 @@ export function CategoryScroller({ selectedCategories, onCategoryToggle }: Categ
           return (
             <button
               key={category.id}
-              onClick={() => onCategoryToggle(category.id)}
+              onClick={() => handleCategoryClick(category.id)}
               className="flex flex-col items-center gap-2 min-w-0 flex-shrink-0 touch-manipulation"
               style={{ minWidth: (isForelasning || isUtstallningar || isMarknader) ? '85px' : '70px' }}
             >
