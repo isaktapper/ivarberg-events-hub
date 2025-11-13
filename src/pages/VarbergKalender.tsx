@@ -9,7 +9,7 @@ const VarbergKalender = () => {
   return (
     <>
       <Helmet>
-        <title>Varberg Kalender - Eventkalender för Varberg 2024 | ivarberg.nu</title>
+        <title>Varberg Kalender - Eventkalender för Varberg 2025 | ivarberg.nu</title>
         <meta name="description" content="Din kompletta eventkalender för Varberg. Se alla konserter, teater, sport och aktiviteter i en kalender. Filtrera efter datum och kategori - missa aldrig ett evenemang!" />
         <meta name="keywords" content="Varberg kalender, eventkalender Varberg, kalender Varberg, events kalender, Varberg händelsekalender, vad händer Varberg" />
         
