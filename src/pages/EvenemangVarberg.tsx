@@ -9,7 +9,7 @@ const EvenemangVarberg = () => {
   return (
     <>
       <Helmet>
-        <title>Evenemang Varberg - Komplett guide till events i Varberg 2024 | ivarberg.nu</title>
+        <title>Evenemang Varberg - Komplett guide till events i Varberg 2025 | ivarberg.nu</title>
         <meta name="description" content="Upptäck alla evenemang i Varberg! Från konserter och teater till sport och marknader. Din kompletta guide till vad som händer i Varberg - uppdateras dagligen." />
         <meta name="keywords" content="evenemang Varberg, Varberg evenemang, events Varberg, Varberg events, konserter Varberg, teater Varberg, sport Varberg" />
         

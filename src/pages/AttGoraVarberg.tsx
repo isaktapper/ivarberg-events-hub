@@ -9,7 +9,7 @@ const AttGoraVarberg = () => {
   return (
     <>
       <Helmet>
-        <title>Att göra i Varberg - Aktiviteter och upplevelser 2024 | ivarberg.nu</title>
+        <title>Att göra i Varberg - Aktiviteter och upplevelser 2025 | ivarberg.nu</title>
         <meta name="description" content="Letar du efter saker att göra i Varberg? Här hittar du aktiviteter, upplevelser och evenemang för alla åldrar. Från strandhäng och kultur till mat och nöjen!" />
         <meta name="keywords" content="att göra Varberg, vad göra Varberg, aktiviteter Varberg, upplevelser Varberg, saker att göra Varberg, göra i Varberg" />
         

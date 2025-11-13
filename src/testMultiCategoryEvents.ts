@@ -11,7 +11,7 @@ export const testMultiCategoryEvents = [
       "Scen": 0.95,
       "Barn & Familj": 0.75
     },
-    date: new Date("2024-02-15T19:00:00"),
+    date: new Date("2025-02-15T19:00:00"),
     time: "19:00",
     location: "Varbergs Teater",
     venue_name: "Varbergs Teater",
@@ -34,7 +34,7 @@ export const testMultiCategoryEvents = [
       "Utställningar": 0.90,
       "Föreläsningar": 0.60
     },
-    date: new Date("2024-02-20T14:00:00"),
+    date: new Date("2025-02-20T14:00:00"),
     time: "14:00",
     location: "Varbergs Konsthall",
     venue_name: "Varbergs Konsthall", 
@@ -56,7 +56,7 @@ export const testMultiCategoryEvents = [
     category_scores: {
       "Sport": 0.98
     },
-    date: new Date("2024-02-25T15:00:00"),
+    date: new Date("2025-02-25T15:00:00"),
     time: "15:00",
     location: "Påskbergsvallen",
     venue_name: "Påskbergsvallen",
@@ -80,7 +80,7 @@ export const testMultiCategoryEvents = [
       "Föreläsningar": 0.70,
       "Nattliv": 0.55
     },
-    date: new Date("2024-03-01T18:00:00"),
+    date: new Date("2025-03-01T18:00:00"),
     time: "18:00", 
     location: "Restaurang Havet",
     venue_name: "Restaurang Havet",
@@ -103,7 +103,7 @@ export const testMultiCategoryEvents = [
     category_scores: {
       "Scen": 0.92
     },
-    date: new Date("2024-02-16T20:00:00"),
+    date: new Date("2025-02-16T20:00:00"),
     time: "20:00",
     location: "Varbergs Teater",
     venue_name: "Varbergs Teater",
@@ -126,7 +126,7 @@ export const testMultiCategoryEvents = [
       "Barn & Familj": 0.88,
       "Utställningar": 0.65
     },
-    date: new Date("2024-02-17T10:00:00"),
+    date: new Date("2025-02-17T10:00:00"),
     time: "10:00",
     location: "Varbergs Konsthall",
     venue_name: "Varbergs Konsthall",
@@ -148,7 +148,7 @@ export const testMultiCategoryEvents = [
     category_scores: {
       "Föreläsningar": 0.95
     },
-    date: new Date("2024-02-21T19:00:00"),
+    date: new Date("2025-02-21T19:00:00"),
     time: "19:00",
     location: "Varbergs Bibliotek",
     venue_name: "Varbergs Bibliotek",
@@ -170,7 +170,7 @@ export const testMultiCategoryEvents = [
     category_scores: {
       "Nattliv": 0.90
     },
-    date: new Date("2024-03-02T22:00:00"),
+    date: new Date("2025-03-02T22:00:00"),
     time: "22:00",
     location: "Club Varberg",
     venue_name: "Club Varberg",
@@ -193,7 +193,7 @@ export const testMultiCategoryEvents = [
       "Marknader": 0.92,
       "Barn & Familj": 0.65
     },
-    date: new Date("2024-03-10T10:00:00"),
+    date: new Date("2025-03-10T10:00:00"),
     time: "10:00",
     location: "Varbergs Centrum",
     venue_name: "Varbergs Centrum",

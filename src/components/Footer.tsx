@@ -160,7 +160,7 @@ export function Footer() {
         </div>
         
         <div className="mt-8 pt-8 text-center text-sm" style={{ borderTop: '1px solid rgba(8, 7, 92, 0.1)', color: '#08075C', opacity: 0.7 }}>
-          <p>&copy; 2024 ivarberg.nu - Alla rättigheter förbehållna</p>
+          <p>&copy; 2025 ivarberg.nu - Alla rättigheter förbehållna</p>
         </div>
       </div>
 
