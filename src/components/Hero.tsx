@@ -170,7 +170,7 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories }:
           </div>
           
           <h2 className="text-4xl md:text-5xl font-bold mb-8" style={{ fontFamily: 'Bricolage Grotesque, sans-serif' }}>
-            <span className="text-white drop-shadow-lg">Vad händer i Varberg?</span>
+            <span className="text-white" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3)' }}>Vad händer i Varberg?</span>
           </h2>
           
           {/* Quick Filters */}
