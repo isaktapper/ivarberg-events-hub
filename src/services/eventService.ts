@@ -409,7 +409,7 @@ export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> 
   }
 }
 
-// Hämta events för en specifik arrangör
+// Hämta events för en specifik arrangör (by name - deprecated, använd getEventsByOrganizerId istället)
 export async function getEventsByOrganizer(organizerName: string): Promise<EventDisplay[]> {
   try {
     // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
@@ -443,6 +443,48 @@ export async function getEventsByOrganizer(organizerName: string): Promise<Event
     return (data || []).map(transformEventForDisplay);
   } catch (error) {
     console.error('Error in getEventsByOrganizer:', error);
+    return [];
+  }
+}
+
+// Hämta events för en specifik arrangör (by organizer_id)
+export async function getEventsByOrganizerId(organizerId: number): Promise<EventDisplay[]> {
+  try {
+    console.log('🔍 Fetching events for organizer_id:', organizerId);
+
+    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
+    const today = new Date();
+    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+    stockholmTime.setHours(0, 0, 0, 0);
+
+    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
+    const year = stockholmTime.getFullYear();
+    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
+    const day = String(stockholmTime.getDate()).padStart(2, '0');
+    const filterDate = `${year}-${month}-${day} 00:00:00`;
+
+    const { data, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        organizer:organizers(*)
+      `)
+      .eq('status', 'published')
+      .eq('organizer_id', organizerId) // Filtrera på organizer_id
+      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
+      .order('date_time', { ascending: true }); // Sortera på datum (tidigast först)
+
+    console.log('📊 Events by organizer_id response:', { data, error });
+
+    if (error) {
+      console.error('Error fetching events by organizer_id:', error);
+      return [];
+    }
+
+    console.log(`✅ Found ${data?.length || 0} upcoming events for organizer_id ${organizerId}`);
+    return (data || []).map(transformEventForDisplay);
+  } catch (error) {
+    console.error('Error in getEventsByOrganizerId:', error);
     return [];
   }
 }
