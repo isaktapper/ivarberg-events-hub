@@ -1,13 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, Globe, Facebook, Instagram, Twitter, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, Globe, Facebook, Instagram, Twitter, ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { EventList } from "@/components/EventList";
 import { EventDisplay } from "@/types/event";
 import { supabase } from "@/lib/supabase";
-import { getEventsByOrganizer } from "@/services/eventService";
+import { getEventsByOrganizerId } from "@/services/eventService";
 import { ImageGallery } from "@/components/ImageGallery";
 
 interface OrganizerPage {
@@ -19,6 +19,7 @@ interface OrganizerPage {
   content: string;
   hero_image_url: string;
   gallery_images: string[];
+  organizer_id: number | null;
   contact_info: {
     email?: string;
     phone?: string;
@@ -42,6 +43,7 @@ const OrganizerPage = () => {
   const [events, setEvents] = useState<EventDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [eventsLoading, setEventsLoading] = useState(false);
+  const [showAllEvents, setShowAllEvents] = useState(false);
 
   // Hämta arrangörsinformation
   useEffect(() => {
@@ -67,17 +69,22 @@ const OrganizerPage = () => {
           console.log('Organizer found:', data);
           setOrganizer(data);
           
-          // Hämta evenemang för denna arrangör
-          setEventsLoading(true);
-          try {
-            const organizerEvents = await getEventsByOrganizer(data.name);
-            console.log('Organizer events:', organizerEvents);
-            setEvents(organizerEvents);
-          } catch (error) {
-            console.error('Error fetching organizer events:', error);
+          // Hämta evenemang för denna arrangör (endast om organizer_id finns)
+          if (data.organizer_id) {
+            setEventsLoading(true);
+            try {
+              const organizerEvents = await getEventsByOrganizerId(data.organizer_id);
+              console.log('Organizer events:', organizerEvents);
+              setEvents(organizerEvents);
+            } catch (error) {
+              console.error('Error fetching organizer events:', error);
+              setEvents([]);
+            } finally {
+              setEventsLoading(false);
+            }
+          } else {
+            console.log('No organizer_id found, skipping event fetch');
             setEvents([]);
-          } finally {
-            setEventsLoading(false);
           }
         }
       } catch (error) {
@@ -196,24 +203,64 @@ const OrganizerPage = () => {
                 </div>
               )}
 
-              {/* Events section */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-xl font-bold mb-4" style={{ color: '#08075C' }}>
-                  Kommande evenemang hos {organizer.name}
-                </h3>
-                {eventsLoading ? (
-                  <div className="text-center py-8">
-                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#4A90E2' }}></div>
-                    <p className="mt-2 text-sm" style={{ color: '#08075C', opacity: 0.7 }}>Laddar evenemang...</p>
+              {/* Events section - only show if there are events */}
+              {!eventsLoading && events.length > 0 && (
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h3 className="text-xl font-bold mb-4" style={{ color: '#08075C' }}>
+                    Kommande evenemang hos {organizer.name}
+                  </h3>
+                  <div className="relative">
+                    <EventList events={showAllEvents ? events : events.slice(0, 3)} />
+                    
+                    {/* Gradient fade and "Show more" button (only if more than 3 events and not expanded) */}
+                    {!showAllEvents && events.length > 3 && (
+                      <>
+                        <div 
+                          className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+                          style={{
+                            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1))',
+                            marginTop: '-8rem'
+                          }}
+                        />
+                        <div className="flex justify-center pt-4 relative z-10">
+                          <Button
+                            onClick={() => setShowAllEvents(true)}
+                            variant="outline"
+                            className="gap-2"
+                            style={{
+                              backgroundColor: '#FFFFFF',
+                              color: '#08075C',
+                              borderColor: '#08075C'
+                            }}
+                          >
+                            Visa fler evenemang ({events.length - 3} till)
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* "Show less" button when expanded */}
+                    {showAllEvents && events.length > 3 && (
+                      <div className="flex justify-center pt-6">
+                        <Button
+                          onClick={() => setShowAllEvents(false)}
+                          variant="outline"
+                          className="gap-2"
+                          style={{
+                            backgroundColor: '#FFFFFF',
+                            color: '#08075C',
+                            borderColor: '#08075C'
+                          }}
+                        >
+                          Visa färre evenemang
+                          <ChevronDown className="h-4 w-4 rotate-180" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                ) : events.length > 0 ? (
-                  <EventList events={events} />
-                ) : (
-                  <p className="text-center py-8" style={{ color: '#08075C', opacity: 0.7 }}>
-                    Inga kommande evenemang planerade just nu.
-                  </p>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}
