@@ -28,7 +28,7 @@ const About = () => {
         <link rel="canonical" href="https://ivarberg.nu/om-oss" />
       </Helmet>
 
-      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+      <div className="min-h-screen bg-texture">
         <Header />
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">

@@ -168,6 +168,7 @@ export function transformEventForDisplay(event: Event): EventDisplay {
     description: event.description || '',
     isFeatured: event.featured,
     organizer_event_url: event.organizer_event_url,
+    event_website: event.event_website,
     organizer: event.organizer ? {
       name: event.organizer.name,
       website: event.organizer.website || undefined,

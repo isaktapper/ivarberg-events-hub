@@ -37,7 +37,7 @@ export function EventDescription({
             className="mt-3 text-sm font-medium transition-colors hover:underline px-2 py-1 rounded"
             style={{ 
               color: '#4A90E2',
-              backgroundColor: '#F5F3F0'
+              backgroundColor: 'rgba(255, 255, 255, 0.5)'
             }}
           >
             {isExpanded ? 'Visa mindre' : 'Visa mer'}
@@ -127,7 +127,7 @@ export function EventDescription({
           <div 
             className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
             style={{
-              background: 'linear-gradient(to bottom, transparent, #F5F3F0)'
+              background: 'linear-gradient(to bottom, transparent, hsl(32, 44%, 96%))'
             }}
           />
         )}

@@ -34,7 +34,7 @@ export function EventCard({ event }: EventCardProps) {
           className="event-card-image group-hover:scale-105 transition-transform duration-500 ease-out"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div className="absolute top-4 left-4 px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg" style={{ backgroundColor: '#F5F3F0', color: '#08075C' }}>
+        <div className="absolute top-4 left-4 px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg bg-white/90 backdrop-blur text-blue-900">
           {event.category}
         </div>
       </div>

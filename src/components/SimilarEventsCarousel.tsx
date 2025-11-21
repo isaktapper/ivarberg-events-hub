@@ -151,7 +151,7 @@ export function SimilarEventsCarousel({ events }: SimilarEventsCarouselProps) {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     {/* Category badge */}
-                    <div className="absolute top-3 left-3 px-2 py-1 text-xs font-medium rounded-full" style={{ backgroundColor: '#F5F3F0', color: '#08075C' }}>
+                    <div className="absolute top-3 left-3 px-2 py-1 text-xs font-medium rounded-full bg-white/90 backdrop-blur text-blue-900">
                       {event.category}
                     </div>
                   </div>

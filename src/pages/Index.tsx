@@ -279,7 +279,7 @@ const Index = () => {
       <LocalBusinessSchema />
       <FAQSchema />
 
-      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+      <div className="min-h-screen bg-texture">
         <Header />
       <Hero 
         onFilterApply={handleQuickFilter}

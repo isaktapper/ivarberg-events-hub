@@ -76,7 +76,7 @@ const EventDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+      <div className="min-h-screen bg-texture">
         <Header />
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">
@@ -91,7 +91,7 @@ const EventDetail = () => {
 
   if (!event) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+      <div className="min-h-screen bg-texture">
         <Header />
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">
@@ -275,7 +275,7 @@ const EventDetail = () => {
         </script>
       </Helmet>
 
-      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+      <div className="min-h-screen bg-texture">
         <Header />
       <main className="container mx-auto px-4 py-8">
         {/* Event content */}
@@ -543,10 +543,10 @@ const EventDetail = () => {
             )}
 
             {/* Organizer CTA Button */}
-            {event.organizer && event.organizer_event_url && (
+            {event.organizer && (event.event_website || event.organizer_event_url) && (
               <div className="mt-6">
                 <a
-                  href={event.organizer_event_url}
+                  href={event.event_website || event.organizer_event_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => {
@@ -554,7 +554,8 @@ const EventDetail = () => {
                       event_id: event.id,
                       event_title: event.title,
                       organizer_name: event.organizer?.name,
-                      organizer_url: event.organizer_event_url,
+                      organizer_url: event.event_website || event.organizer_event_url,
+                      url_type: event.event_website ? 'event_website' : 'organizer_event_url',
                     });
                   }}
                 >
