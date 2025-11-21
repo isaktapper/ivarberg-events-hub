@@ -44,7 +44,7 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
               className="w-full h-full object-cover"
             />
             {/* Category badge overlayed on image - covers the entire corner */}
-            <div className="absolute top-0 left-0 rounded-br-lg text-xs px-2 py-1 font-medium" style={{ backgroundColor: '#F5F3F0', color: '#08075C' }}>
+            <div className="absolute top-0 left-0 rounded-br-lg text-xs px-2 py-1 font-medium bg-white/90 backdrop-blur text-blue-900">
               {displayCategory}
               {additionalCount > 0 && (
                 <span className="ml-1 text-xs opacity-75">+{additionalCount}</span>

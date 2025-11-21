@@ -36,6 +36,7 @@ export interface Event {
   description: string | null;
   description_format?: 'markdown' | 'plain'; // Format för beskrivning
   organizer_event_url: string | null;
+  event_website?: string | null; // Arrangörens event-sida (används av Visit Varberg)
   featured: boolean;
   status: EventStatus;
   max_participants: number | null;
@@ -76,6 +77,7 @@ export interface EventDisplay {
   description_format?: 'markdown' | 'plain'; // Format för beskrivning
   isFeatured: boolean;
   organizer_event_url: string | null;
+  event_website?: string | null; // Arrangörens event-sida (används av Visit Varberg)
   organizer?: {
     name: string;
     website?: string;

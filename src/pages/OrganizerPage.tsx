@@ -105,7 +105,7 @@ const OrganizerPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+      <div className="min-h-screen bg-texture">
         <Header />
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">
@@ -120,7 +120,7 @@ const OrganizerPage = () => {
 
   if (!organizer) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+      <div className="min-h-screen bg-texture">
         <Header />
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">

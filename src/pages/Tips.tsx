@@ -79,7 +79,7 @@ const Tips = () => {
           <meta name="description" content="Ditt evenemangstips har mottagits och kommer granskas innan publicering på ivarberg.nu - Varbergs eventkalender." />
         </Helmet>
         
-        <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+        <div className="min-h-screen bg-texture">
           <Header />
         
         <div className="container mx-auto px-4 py-16">
@@ -164,7 +164,7 @@ const Tips = () => {
         <link rel="canonical" href="https://ivarberg.nu/tips" />
       </Helmet>
 
-      <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
+      <div className="min-h-screen bg-texture">
         <Header />
       
       <div className="container mx-auto px-4 py-16">

@@ -11,13 +11,14 @@ All colors MUST be HSL.
     /* Ocean & Beach Inspired Colors */
     --ocean-deep: 217 91% 42%;
     --ocean-light: 210 100% 56%;
-    --sandy-beige: 32 44% 89%;
-    --sandy-light: 32 44% 95%;
+    --sandy-beige: 32 44% 96%; /* Matchar vågens färg exakt */
+    --sandy-light: 32 44% 97%;
+    --sunset-orange: 18 85% 65%; /* Ny accentfärg */
     --dark-navy: 240 89% 20%;
     --dark-navy-light: 240 89% 30%;
     
     /* Core Design System */
-    --background: 32 44% 98%;
+    --background: 32 44% 96%; /* Använder den justerade beigea */
     --foreground: 215 25% 15%;
 
     --card: 0 0% 100%;
@@ -182,5 +183,27 @@ All colors MUST be HSL.
 
   .event-description a:hover {
     text-decoration: underline;
+  }
+
+  /* Texture & Utility Classes */
+  .bg-texture {
+    background-color: hsl(var(--background));
+    /* background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"); */
+  }
+  
+  .text-sunset {
+    color: hsl(18 85% 65%);
+  }
+  
+  .bg-sunset {
+    background-color: hsl(18 85% 65%);
+  }
+  
+  .event-card {
+    @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-white/50 overflow-hidden transition-all duration-300;
+  }
+  
+  .event-card:hover {
+    @apply shadow-xl -translate-y-1 bg-white/95;
   }
 }
