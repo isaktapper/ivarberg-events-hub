@@ -144,9 +144,28 @@ function validateEventSubmission(eventData: {
   return { isValid: true };
 }
 
+// Helper function för sortering - behandlar 00:00 som 12:00 för sortering
+function getSortableDate(date: Date): number {
+  const sortDate = new Date(date);
+  const hours = sortDate.getHours();
+  const minutes = sortDate.getMinutes();
+  
+  // Om det är 00:00, behandla det som 12:00 för sorteringsändamål
+  if (hours === 0 && minutes === 0) {
+    sortDate.setHours(12, 0, 0, 0);
+  }
+  
+  return sortDate.getTime();
+}
+
 // Transformera Supabase event till frontend format
 export function transformEventForDisplay(event: Event): EventDisplay {
   const eventDate = new Date(event.date_time);
+  
+  // Kontrollera om händelsen börjar vid 00:00 (hela dagen)
+  const hours = eventDate.getHours();
+  const minutes = eventDate.getMinutes();
+  const isAllDay = hours === 0 && minutes === 0;
   
   return {
     id: event.event_id,
@@ -157,7 +176,7 @@ export function transformEventForDisplay(event: Event): EventDisplay {
     categories: event.categories,
     category_scores: event.category_scores,
     date: eventDate,
-    time: eventDate.toLocaleTimeString('sv-SE', { 
+    time: isAllDay ? 'Hela dagen' : eventDate.toLocaleTimeString('sv-SE', { 
       hour: '2-digit', 
       minute: '2-digit' 
     }),
@@ -215,7 +234,18 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
 
     console.log(`✅ Found ${data?.length || 0} current/future events`);
     const transformedEvents = (data || []).map(transformEventForDisplay);
-    console.log('🔄 Transformed events:', transformedEvents);
+    
+    // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
+    transformedEvents.sort((a, b) => {
+      // Featured events först
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      
+      // Sedan sortera efter datum (00:00 behandlas som 12:00 för sortering)
+      return getSortableDate(a.date) - getSortableDate(b.date);
+    });
+    
+    console.log('🔄 Transformed and sorted events:', transformedEvents);
 
     return transformedEvents;
   } catch (error) {
@@ -260,7 +290,16 @@ export async function getAllEvents(): Promise<EventDisplay[]> {
     }
 
     console.log(`✅ DEBUG: Found ${data?.length || 0} current/future events`);
-    return (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay);
+    
+    // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
+    transformedEvents.sort((a, b) => {
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      return getSortableDate(a.date) - getSortableDate(b.date);
+    });
+    
+    return transformedEvents;
   } catch (error) {
     console.error('💥 DEBUG: Error in getAllEvents:', error);
     return [];
@@ -298,7 +337,14 @@ export async function getFeaturedEvents(): Promise<EventDisplay[]> {
       return [];
     }
 
-    return (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay);
+    
+    // Sortera events efter datum (00:00 behandlas som 12:00)
+    transformedEvents.sort((a, b) => {
+      return getSortableDate(a.date) - getSortableDate(b.date);
+    });
+    
+    return transformedEvents;
   } catch (error) {
     console.error('Error in getFeaturedEvents:', error);
     return [];
@@ -336,7 +382,16 @@ export async function getEventsByCategory(category: EventCategory): Promise<Even
       return [];
     }
 
-    return (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay);
+    
+    // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
+    transformedEvents.sort((a, b) => {
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      return getSortableDate(a.date) - getSortableDate(b.date);
+    });
+    
+    return transformedEvents;
   } catch (error) {
     console.error('Error in getEventsByCategory:', error);
     return [];
@@ -363,7 +418,16 @@ export async function getEventsByDateRange(startDate: Date, endDate: Date): Prom
       return [];
     }
 
-    return (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay);
+    
+    // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
+    transformedEvents.sort((a, b) => {
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      return getSortableDate(a.date) - getSortableDate(b.date);
+    });
+    
+    return transformedEvents;
   } catch (error) {
     console.error('Error in getEventsByDateRange:', error);
     return [];
@@ -403,7 +467,14 @@ export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> 
       return [];
     }
 
-    return (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay);
+    
+    // Sortera events efter datum (00:00 behandlas som 12:00)
+    transformedEvents.sort((a, b) => {
+      return getSortableDate(a.date) - getSortableDate(b.date);
+    });
+    
+    return transformedEvents;
   } catch (error) {
     console.error('Error in searchEvents:', error);
     return [];
@@ -441,7 +512,16 @@ export async function getEventsByOrganizer(organizerName: string): Promise<Event
       return [];
     }
 
-    return (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay);
+    
+    // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
+    transformedEvents.sort((a, b) => {
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      return getSortableDate(a.date) - getSortableDate(b.date);
+    });
+    
+    return transformedEvents;
   } catch (error) {
     console.error('Error in getEventsByOrganizer:', error);
     return [];
@@ -483,7 +563,14 @@ export async function getEventsByOrganizerId(organizerId: number): Promise<Event
     }
 
     console.log(`✅ Found ${data?.length || 0} upcoming events for organizer_id ${organizerId}`);
-    return (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay);
+    
+    // Sortera events efter datum (00:00 behandlas som 12:00)
+    transformedEvents.sort((a, b) => {
+      return getSortableDate(a.date) - getSortableDate(b.date);
+    });
+    
+    return transformedEvents;
   } catch (error) {
     console.error('Error in getEventsByOrganizerId:', error);
     return [];
@@ -575,20 +662,21 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Even
       }
     }
 
-    // Sortera och begränsa till 6 events
-    const sortedEvents = allSimilarEvents
+    // Transformera och sortera events
+    const transformedEvents = allSimilarEvents.map(transformEventForDisplay);
+    
+    // Sortera: featured först, sedan efter datum (00:00 behandlas som 12:00)
+    const sortedEvents = transformedEvents
       .sort((a, b) => {
-        // Sortera efter featured först, sedan datum
-        if (a.featured !== b.featured) {
-          return b.featured ? 1 : -1;
-        }
-        return new Date(a.date_time).getTime() - new Date(b.date_time).getTime();
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        return getSortableDate(a.date) - getSortableDate(b.date);
       })
       .slice(0, 6);
 
     console.log(`📊 Similar events found:`, sortedEvents.length, sortedEvents);
 
-    return sortedEvents.map(transformEventForDisplay);
+    return sortedEvents;
   } catch (error) {
     console.error('Error in getSimilarEvents:', error);
     return [];
