@@ -45,37 +45,61 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
       </Helmet>
 
       <nav 
-        className="flex items-center gap-2 text-sm mb-6 flex-wrap" 
+        className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm mb-4 sm:mb-6 overflow-hidden" 
         aria-label="Breadcrumb"
         style={{ color: '#08075C' }}
       >
         <Link 
           to="/" 
-          className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+          className="flex items-center gap-1 hover:text-blue-600 transition-colors flex-shrink-0"
           style={{ opacity: 0.7 }}
         >
-          <Home className="h-4 w-4" />
-          <span>Hem</span>
+          <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Hem</span>
         </Link>
         
-        {items.map((item, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <ChevronRight className="h-4 w-4" style={{ opacity: 0.4 }} />
-            {index === items.length - 1 ? (
-              <span className="font-medium" style={{ color: '#08075C' }}>
-                {item.label}
-              </span>
-            ) : (
-              <Link 
-                to={item.href} 
-                className="hover:text-blue-600 transition-colors"
-                style={{ opacity: 0.7 }}
-              >
-                {item.label}
-              </Link>
-            )}
-          </div>
-        ))}
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+          const isMiddle = !isLast && index > 0;
+          
+          return (
+            <div key={index} className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" style={{ opacity: 0.4 }} />
+              {isLast ? (
+                <span 
+                  className="font-medium truncate max-w-[200px] sm:max-w-none" 
+                  style={{ color: '#08075C' }}
+                  title={item.label}
+                >
+                  {item.label}
+                </span>
+              ) : isMiddle && items.length > 2 ? (
+                // Dölj mitten-breadcrumbs på mobil om det finns fler än 2 items
+                <>
+                  <span className="hidden sm:inline">
+                    <Link 
+                      to={item.href} 
+                      className="hover:text-blue-600 transition-colors"
+                      style={{ opacity: 0.7 }}
+                    >
+                      {item.label}
+                    </Link>
+                  </span>
+                  <span className="sm:hidden" style={{ opacity: 0.4 }}>...</span>
+                </>
+              ) : (
+                <Link 
+                  to={item.href} 
+                  className="hover:text-blue-600 transition-colors truncate max-w-[120px] sm:max-w-none"
+                  style={{ opacity: 0.7 }}
+                  title={item.label}
+                >
+                  {item.label}
+                </Link>
+              )}
+            </div>
+          );
+        })}
       </nav>
     </>
   );

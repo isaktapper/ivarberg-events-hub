@@ -282,8 +282,6 @@ const Index = () => {
       <div className="min-h-screen bg-texture">
         <Header />
       <Hero 
-        onFilterApply={handleQuickFilter}
-        onScrollToResults={scrollToResults}
         onScrollToCategories={scrollToCategories}
       />
       
