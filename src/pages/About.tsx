@@ -35,7 +35,7 @@ const About = () => {
           {/* Hero Section */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#08075C' }}>
-              Om ivarberg.nu
+              Om iVarberg.nu
             </h1>
             <p className="text-lg md:text-xl leading-relaxed max-w-3xl mx-auto" style={{ color: '#08075C', opacity: 0.8 }}>
               Din kompletta guide till allt som händer i Varberg. Vi samlar alla evenemang på ett ställe 
@@ -54,7 +54,7 @@ const About = () => {
                 </h2>
               </div>
               <p className="leading-relaxed" style={{ color: '#08075C', opacity: 0.7 }}>
-                Vi samlar alla evenemang i Varberg,från stora konserter och teaterföreställningar 
+                Vi samlar alla evenemang i Varberg, från stora konserter och teaterföreställningar 
                 till lokala föreningsaktiviteter och marknader. Vårt mål är att göra det enkelt 
                 för alla att upptäcka vad som händer i staden.
               </p>
@@ -85,7 +85,7 @@ const About = () => {
               </div>
               <p className="leading-relaxed mb-4" style={{ color: '#08075C', opacity: 0.7 }}>
                 Arrangerar du evenemang i Varberg? Vi hjälper dig att nå ut till fler människor 
-                genom att visa ditt evenemang på vår plattform. Det är helt kostnadsfritt!
+                genom att visa ditt evenemang på vår plattform.
               </p>
               <Link to="/tips" target="_blank">
                 <Button
