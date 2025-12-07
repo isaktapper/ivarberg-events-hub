@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { Event, EventDisplay, EventCategory, getAllCategories, CategoryScore } from '@/types/event';
 
-// Skicka tips till event_tips tabellen
+// Skicka tips till event_tips tabellen via säker API
 export async function submitEventTip(eventData: {
   event_name: string;
   date_time: string;
@@ -16,9 +16,9 @@ export async function submitEventTip(eventData: {
   submitter_name?: string;
 }): Promise<{ success: boolean; tip_id?: number; error?: string }> {
   try {
-    console.log('Submitting event tip:', eventData);
+    console.log('Submitting event tip via API:', eventData);
 
-    // Säkerhetsvalidering
+    // Client-side validering (för snabb feedback till användaren)
     const validationResult = validateEventSubmission({
       name: eventData.event_name,
       date_time: eventData.date_time,
@@ -28,45 +28,29 @@ export async function submitEventTip(eventData: {
       image_url: eventData.image_url,
       organizer_event_url: eventData.website_url
     });
-    
+
     if (!validationResult.isValid) {
       return { success: false, error: validationResult.error };
     }
 
-    // Förbered data för Supabase
-    const tipRecord = {
-      event_name: eventData.event_name.trim(),
-      event_date: eventData.date_time, // For compatibility
-      date_time: eventData.date_time,
-      event_location: eventData.event_location.trim(),
-      venue_name: eventData.venue_name?.trim() || eventData.event_location.trim(),
-      event_description: eventData.description.trim(),
-      categories: eventData.categories, // Multi-category array
-      category: eventData.categories[0] || eventData.category, // Main category
-      image_url: eventData.image_url?.trim() || null,
-      website_url: eventData.website_url?.trim() || null,
-      submitter_email: eventData.submitter_email?.trim() || null,
-      submitter_name: eventData.submitter_name?.trim() || null,
-      status: 'pending' as const,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    // Skicka till vår säkra API endpoint
+    const response = await fetch('/api/submit-event-tip', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(eventData)
+    });
 
-    console.log('Tip record to insert:', tipRecord);
+    const result = await response.json();
 
-    const { data, error } = await supabase
-      .from('event_tips')
-      .insert([tipRecord])
-      .select('id')
-      .single();
-
-    if (error) {
-      console.error('Error submitting tip:', error);
-      return { success: false, error: `Fel vid inlämning av tips: ${error.message}` };
+    if (!response.ok) {
+      console.error('API error:', result);
+      return { success: false, error: result.error || 'Ett fel uppstod vid inlämning' };
     }
 
-    console.log('Tip submitted successfully:', data);
-    return { success: true, tip_id: data.id };
+    console.log('Tip submitted successfully via API:', result);
+    return { success: true, tip_id: result.tip_id };
 
   } catch (error) {
     console.error('Unexpected error submitting tip:', error);
