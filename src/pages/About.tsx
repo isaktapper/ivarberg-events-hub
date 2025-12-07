@@ -111,7 +111,6 @@ const About = () => {
               </div>
               <div className="space-y-2" style={{ color: '#08075C', opacity: 0.7 }}>
                 <p>📧 info@ivarberg.nu</p>
-                <p>📱 0340-123 45</p>
                 <p>📍 Varberg, Sverige</p>
               </div>
             </div>

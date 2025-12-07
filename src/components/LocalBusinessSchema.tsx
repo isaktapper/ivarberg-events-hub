@@ -19,7 +19,6 @@ export function LocalBusinessSchema() {
       "addressCountry": "SE"
     },
     "email": "info@ivarberg.nu",
-    "telephone": "0340-123 45",
     "areaServed": {
       "@type": "City",
       "name": "Varberg",

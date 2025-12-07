@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Phone, MapPin, Facebook, Instagram, Twitter } from "lucide-react";
+import { Mail, MapPin, Facebook, Instagram, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -97,10 +97,6 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4" style={{ color: '#4A90E2' }} />
                 <span>info@ivarberg.nu</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4" style={{ color: '#4A90E2' }} />
-                <span>0340-123 45</span>
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" style={{ color: '#4A90E2' }} />
