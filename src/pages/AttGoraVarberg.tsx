@@ -18,7 +18,7 @@ const AttGoraVarberg = () => {
         <meta property="og:description" content="Upptäck de bästa sakerna att göra i Varberg - aktiviteter, upplevelser och evenemang för alla" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ivarberg.nu/att-gora-i-varberg" />
-        <meta property="og:image" content="https://ivarberg.nu/varberg_hero.jpg" />
+        <meta property="og:image" content="https://ivarberg.nu/hero_jul.png" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

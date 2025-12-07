@@ -18,7 +18,7 @@ const VarbergKalender = () => {
         <meta property="og:description" content="Se alla evenemang i Varberg i en kalender - konserter, teater, sport och mycket mer" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ivarberg.nu/varberg-kalender" />
-        <meta property="og:image" content="https://ivarberg.nu/varberg_hero.jpg" />
+        <meta property="og:image" content="https://ivarberg.nu/hero_jul.png" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
