@@ -143,6 +143,8 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
 
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+    inputRef.current?.blur(); // Stäng mobiltangentbordet
+    
     if (suggestion.type === 'category' && suggestion.category) {
       // Välj kategori
       onCategorySelect(suggestion.category);
@@ -164,6 +166,7 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
   };
 
   const handleShowAllResults = () => {
+    inputRef.current?.blur(); // Stäng mobiltangentbordet
     setIsDropdownOpen(false);
     onScrollToResults();
   };
@@ -432,13 +435,14 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
                 onKeyDown={handleKeyDown}
                 onFocus={() => searchTerm.length >= 2 && setIsDropdownOpen(true)}
                 placeholder="Hitta ditt nästa äventyr..."
-                className="w-full pl-10 pr-10 py-3 text-sm rounded-lg transition-all duration-200 shadow-lg focus:shadow-xl border backdrop-blur-md focus:outline-none focus:ring-2"
+                className="w-full pl-10 pr-10 py-3 text-base rounded-lg transition-all duration-200 shadow-lg focus:shadow-xl border backdrop-blur-md focus:outline-none focus:ring-2"
                 style={{
                   backgroundColor: isDropdownOpen ? 'rgba(255, 255, 255, 0.95)' : 'rgba(215, 235, 255, 0.45)',
                   color: '#08075C',
                   borderColor: isDropdownOpen ? 'rgba(74, 144, 226, 0.9)' : 'rgba(255, 255, 255, 0.7)',
                   backdropFilter: 'blur(16px)',
-                  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
+                  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+                  fontSize: '16px' // Förhindrar iOS zoom
                 }}
                 autoComplete="off"
               />
