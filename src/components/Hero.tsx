@@ -415,11 +415,22 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
           {/* Search Field with Autocomplete */}
           <div className="mt-6 max-w-xs sm:max-w-md mx-auto px-4 sm:px-0 relative">
             <form 
+              action="#"
+              role="search"
               onSubmit={(e) => {
                 e.preventDefault();
                 setIsDropdownOpen(false);
-                inputRef.current?.blur(); // Stäng mobiltangentbordet
-                onScrollToResults();
+                // Stäng mobiltangentbordet - flera metoder för säkerhet
+                if (inputRef.current) {
+                  inputRef.current.blur();
+                }
+                if (document.activeElement instanceof HTMLElement) {
+                  document.activeElement.blur();
+                }
+                // Scrolla efter kort delay så blur hinner köras
+                setTimeout(() => {
+                  onScrollToResults();
+                }, 100);
               }}
               className="relative"
             >
