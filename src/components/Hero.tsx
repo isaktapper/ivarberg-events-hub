@@ -142,8 +142,19 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
   }, []);
 
 
+  // Hjälpfunktion för att stänga mobiltangentbord
+  const dismissKeyboard = () => {
+    if (inputRef.current) {
+      inputRef.current.setAttribute('readonly', 'readonly');
+      inputRef.current.blur();
+      setTimeout(() => {
+        inputRef.current?.removeAttribute('readonly');
+      }, 100);
+    }
+  };
+
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    inputRef.current?.blur(); // Stäng mobiltangentbordet
+    dismissKeyboard();
     
     if (suggestion.type === 'category' && suggestion.category) {
       // Välj kategori
@@ -166,9 +177,9 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
   };
 
   const handleShowAllResults = () => {
-    inputRef.current?.blur(); // Stäng mobiltangentbordet
+    dismissKeyboard();
     setIsDropdownOpen(false);
-    onScrollToResults();
+    setTimeout(() => onScrollToResults(), 150);
   };
   // Beräkna helgens datum (fredag, lördag, söndag)
   const getWeekendDates = () => {
@@ -420,17 +431,8 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
               onSubmit={(e) => {
                 e.preventDefault();
                 setIsDropdownOpen(false);
-                // Stäng mobiltangentbordet - flera metoder för säkerhet
-                if (inputRef.current) {
-                  inputRef.current.blur();
-                }
-                if (document.activeElement instanceof HTMLElement) {
-                  document.activeElement.blur();
-                }
-                // Scrolla efter kort delay så blur hinner köras
-                setTimeout(() => {
-                  onScrollToResults();
-                }, 100);
+                dismissKeyboard();
+                setTimeout(() => onScrollToResults(), 150);
               }}
               className="relative"
             >
