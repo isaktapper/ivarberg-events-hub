@@ -211,7 +211,8 @@ const Index = () => {
         'dateEnd': null
       });
     } else {
-      updateUrlParams({ 'date': null });
+      // Clear all date-related URL params when date is cleared
+      updateUrlParams({ 'date': null, 'dateStart': null, 'dateEnd': null });
     }
     
     resetPagination();
@@ -219,20 +220,19 @@ const Index = () => {
 
   const handleDateRangeChange = (range: { start: Date; end: Date } | undefined) => {
     setDateRange(range);
-    setSelectedDate(undefined); // Clear single date when selecting range
     
-    // Update URL
+    // Only clear single date and update URL when actually setting a range
     if (range) {
+      setSelectedDate(undefined); // Clear single date when selecting range
       updateUrlParams({
         'dateStart': range.start.toISOString().split('T')[0],
         'dateEnd': range.end.toISOString().split('T')[0],
         'date': null
       });
-    } else {
-      updateUrlParams({ 'dateStart': null, 'dateEnd': null });
+      resetPagination();
     }
-    
-    resetPagination();
+    // When range is undefined (cleared), don't touch selectedDate or URL
+    // as it's likely being called alongside onDateChange
   };
 
   const handleQuickFilter = (filter: any) => {

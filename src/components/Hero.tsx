@@ -81,22 +81,54 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
       }
     });
     
-    // 2. Sök matchande platser/venues (unika)
-    const venueMap = new Map<string, number>();
+    // 2. Sök matchande platser/venues (unika, med fuzzy matching för liknande namn)
+    // Normalisera namn för att gruppera liknande (t.ex. "Societén" och "Societen")
+    const normalizeVenueName = (name: string): string => {
+      return name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Ta bort accenter
+        .replace(/[^a-z0-9\s]/g, '') // Ta bort specialtecken
+        .trim();
+    };
+    
+    // Mappa normaliserat namn → { originalNames: Map<string, count>, totalCount }
+    const normalizedVenueMap = new Map<string, { originalNames: Map<string, number>, totalCount: number }>();
+    
     events.forEach(event => {
       if (event.venue_name && event.venue_name.toLowerCase().includes(searchLower)) {
-        const count = venueMap.get(event.venue_name) || 0;
-        venueMap.set(event.venue_name, count + 1);
+        const normalized = normalizeVenueName(event.venue_name);
+        
+        if (!normalizedVenueMap.has(normalized)) {
+          normalizedVenueMap.set(normalized, { originalNames: new Map(), totalCount: 0 });
+        }
+        
+        const entry = normalizedVenueMap.get(normalized)!;
+        const currentCount = entry.originalNames.get(event.venue_name) || 0;
+        entry.originalNames.set(event.venue_name, currentCount + 1);
+        entry.totalCount++;
       }
     });
     
-    Array.from(venueMap.entries())
+    // Välj det mest använda originalnamnet för varje grupp
+    Array.from(normalizedVenueMap.entries())
+      .sort((a, b) => b[1].totalCount - a[1].totalCount) // Sortera på totalCount
       .slice(0, 3) // Max 3 platser
-      .forEach(([venue, count]) => {
+      .forEach(([_, { originalNames, totalCount }]) => {
+        // Hitta det vanligaste originalnamnet
+        let bestName = '';
+        let bestCount = 0;
+        originalNames.forEach((count, name) => {
+          if (count > bestCount) {
+            bestCount = count;
+            bestName = name;
+          }
+        });
+        
         results.push({
           type: 'venue',
-          label: venue,
-          count
+          label: bestName,
+          count: totalCount
         });
       });
     
