@@ -22,6 +22,7 @@ const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [dateRange, setDateRange] = useState<{ start: Date; end: Date } | undefined>(undefined);
   const [selectedLocation, setSelectedLocation] = useState("Hela Varberg");
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 10;
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -101,6 +102,19 @@ const Index = () => {
   const filteredEvents = useMemo(() => {
     let filteredEvents = [...events];
 
+    // Search filter - söker i eventnamn, platsnamn, och arrangör
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      filteredEvents = filteredEvents.filter((event) => {
+        const titleMatch = event.title.toLowerCase().includes(searchLower);
+        const venueMatch = event.venue_name?.toLowerCase().includes(searchLower) || false;
+        const locationMatch = event.location.toLowerCase().includes(searchLower);
+        const organizerMatch = event.organizer?.name.toLowerCase().includes(searchLower) || false;
+        
+        return titleMatch || venueMatch || locationMatch || organizerMatch;
+      });
+    }
+
     // Category filter - updated for multi-category support
     if (selectedCategories.length > 0) {
       filteredEvents = filteredEvents.filter((event) => {
@@ -136,7 +150,7 @@ const Index = () => {
     }
 
     return filteredEvents;
-  }, [events, selectedCategories, selectedDate, dateRange]);
+  }, [events, selectedCategories, selectedDate, dateRange, searchTerm]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
@@ -162,16 +176,22 @@ const Index = () => {
   };
 
   const handleQuickFilter = (filter: any) => {
-    // Rensa andra filter först
+    // Rensa andra filter först (inklusive sökning)
     setSelectedCategories([]);
     setSelectedDate(undefined);
     setDateRange(undefined);
+    setSearchTerm("");
     
     if (filter.type === 'date' && filter.dateRange) {
       setDateRange(filter.dateRange);
     } else if (filter.type === 'category' && filter.value) {
       setSelectedCategories([filter.value]);
     }
+    resetPagination();
+  };
+
+  const handleSearchChange = (search: string) => {
+    setSearchTerm(search);
     resetPagination();
   };
 
@@ -285,6 +305,13 @@ const Index = () => {
         onFilterApply={handleQuickFilter}
         onScrollToResults={scrollToResults}
         onScrollToCategories={scrollToCategories}
+        onSearchChange={handleSearchChange}
+        onCategorySelect={(category) => {
+          setSelectedCategories([category]);
+          setSearchTerm("");
+          resetPagination();
+        }}
+        events={events}
       />
       
       <main className="container mx-auto px-4 pt-6 pb-12" ref={resultsRef}>
@@ -324,15 +351,16 @@ const Index = () => {
                 setSelectedDate(undefined);
                 setDateRange(undefined);
                 setSelectedLocation("Hela Varberg");
+                setSearchTerm("");
                 setSearchParams({}); // Clear all URL parameters
                 resetPagination();
               }}
               className="text-sm mt-3 transition-colors cursor-pointer"
               style={{
-                color: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg")
+                color: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm)
                   ? '#4A90E2' 
                   : '#08075C',
-                opacity: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg")
+                opacity: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm)
                   ? 1 
                   : 0.5
               }}
