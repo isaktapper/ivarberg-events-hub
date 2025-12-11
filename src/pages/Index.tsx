@@ -29,26 +29,47 @@ const Index = () => {
   const categoriesRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
 
-  // Handle URL parameters for category selection
+  // Handle URL parameters - restore filters from URL on page load
   useEffect(() => {
+    const validCategories: EventCategory[] = [
+      'Scen', 'Nattliv', 'Sport', 'Utställningar', 'Föreläsningar', 
+      'Barn & Familj', 'Mat & Dryck', 'Jul', 'Film & bio', 
+      'Djur & Natur', 'Guidade visningar', 'Marknader', 'Okategoriserad'
+    ];
+
+    // Read category from URL
     const categoryParam = searchParams.get('category');
-    if (categoryParam) {
-      // Validate that the category is a valid EventCategory
-      const validCategories: EventCategory[] = [
-        'Scen', 'Nattliv', 'Sport', 'Utställningar', 'Föreläsningar', 
-        'Barn & Familj', 'Mat & Dryck', 'Jul', 'Film & bio', 
-        'Djur & Natur', 'Guidade visningar', 'Marknader', 'Okategoriserad'
-      ];
-      
-      if (validCategories.includes(categoryParam as EventCategory)) {
-        setSelectedCategories([categoryParam as EventCategory]);
-        // Scroll to categories section after a short delay
-        setTimeout(() => {
-          scrollToCategories();
-        }, 100);
-      }
+    if (categoryParam && validCategories.includes(categoryParam as EventCategory)) {
+      setSelectedCategories([categoryParam as EventCategory]);
+      setTimeout(() => scrollToCategories(), 100);
     }
-  }, [searchParams]);
+
+    // Read search from URL
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+
+    // Read date or date range from URL
+    const dateParam = searchParams.get('date');
+    const dateStartParam = searchParams.get('dateStart');
+    const dateEndParam = searchParams.get('dateEnd');
+    
+    if (dateStartParam && dateEndParam) {
+      setDateRange({
+        start: new Date(dateStartParam),
+        end: new Date(dateEndParam)
+      });
+    } else if (dateParam) {
+      setSelectedDate(new Date(dateParam));
+    }
+
+    // Read location from URL
+    const locationParam = searchParams.get('location');
+    if (locationParam) {
+      setSelectedLocation(locationParam);
+    }
+  }, []); // Only run once on mount
 
   // Hämta events från Supabase
   useEffect(() => {
@@ -165,13 +186,52 @@ const Index = () => {
 
 
 
+  // Helper function to update URL params
+  const updateUrlParams = (updates: Record<string, string | null>) => {
+    const newParams = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null) {
+        newParams.delete(key);
+      } else {
+        newParams.set(key, value);
+      }
+    });
+    setSearchParams(newParams);
+  };
+
   const handleDateChange = (date: Date | undefined) => {
     setSelectedDate(date);
+    setDateRange(undefined); // Clear range when selecting single date
+    
+    // Update URL
+    if (date) {
+      updateUrlParams({
+        'date': date.toISOString().split('T')[0],
+        'dateStart': null,
+        'dateEnd': null
+      });
+    } else {
+      updateUrlParams({ 'date': null });
+    }
+    
     resetPagination();
   };
 
   const handleDateRangeChange = (range: { start: Date; end: Date } | undefined) => {
     setDateRange(range);
+    setSelectedDate(undefined); // Clear single date when selecting range
+    
+    // Update URL
+    if (range) {
+      updateUrlParams({
+        'dateStart': range.start.toISOString().split('T')[0],
+        'dateEnd': range.end.toISOString().split('T')[0],
+        'date': null
+      });
+    } else {
+      updateUrlParams({ 'dateStart': null, 'dateEnd': null });
+    }
+    
     resetPagination();
   };
 
@@ -182,16 +242,32 @@ const Index = () => {
     setDateRange(undefined);
     setSearchTerm("");
     
+    // Build new URL params
+    const newParams: Record<string, string | null> = {
+      'category': null,
+      'search': null,
+      'date': null,
+      'dateStart': null,
+      'dateEnd': null,
+      'location': null
+    };
+    
     if (filter.type === 'date' && filter.dateRange) {
       setDateRange(filter.dateRange);
+      newParams['dateStart'] = filter.dateRange.start.toISOString().split('T')[0];
+      newParams['dateEnd'] = filter.dateRange.end.toISOString().split('T')[0];
     } else if (filter.type === 'category' && filter.value) {
       setSelectedCategories([filter.value]);
+      newParams['category'] = filter.value;
     }
+    
+    updateUrlParams(newParams);
     resetPagination();
   };
 
   const handleSearchChange = (search: string) => {
     setSearchTerm(search);
+    updateUrlParams({ 'search': search || null });
     resetPagination();
   };
 
@@ -309,9 +385,11 @@ const Index = () => {
         onCategorySelect={(category) => {
           setSelectedCategories([category]);
           setSearchTerm("");
+          updateUrlParams({ 'category': category, 'search': null });
           resetPagination();
         }}
         events={events}
+        initialSearchTerm={searchTerm}
       />
       
       <main className="container mx-auto px-4 pt-6 pb-12" ref={resultsRef}>
@@ -339,6 +417,7 @@ const Index = () => {
                 selectedLocation={selectedLocation}
                 onLocationChange={(location) => {
                   setSelectedLocation(location);
+                  updateUrlParams({ 'location': location !== "Hela Varberg" ? location : null });
                   resetPagination();
                 }}
               />

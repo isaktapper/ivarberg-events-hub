@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, ChevronRight, CalendarPlus, Share2 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
@@ -16,6 +16,7 @@ import { usePostHog } from "posthog-js/react";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const posthog = usePostHog();
   const [event, setEvent] = useState<EventDisplay | null>(null);
   const [similarEvents, setSimilarEvents] = useState<EventDisplay[]>([]);
@@ -289,32 +290,31 @@ const EventDetail = () => {
           
           {/* Back button and Share button */}
           <div className="mb-6 flex items-center justify-between">
-            <Link to="/">
-              <Button 
-                variant="filter" 
-                size="sm"
-                className="font-normal transition-all duration-200 backdrop-blur-md shadow-lg"
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
-                  borderColor: 'rgba(255, 255, 255, 0.5)',
-                  color: '#08075C',
-                  backdropFilter: 'blur(12px)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
-                  e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
-                  e.currentTarget.style.color = '#FFFFFF';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-                  e.currentTarget.style.color = '#08075C';
-                }}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Tillbaka
-              </Button>
-            </Link>
+            <Button 
+              variant="filter" 
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="font-normal transition-all duration-200 backdrop-blur-md shadow-lg"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                color: '#08075C',
+                backdropFilter: 'blur(12px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
+                e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                e.currentTarget.style.color = '#08075C';
+              }}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Tillbaka
+            </Button>
             <Button
               onClick={handleShare}
               variant="filter"

@@ -36,15 +36,21 @@ interface HeroProps {
   onSearchChange: (searchTerm: string) => void;
   onCategorySelect: (category: EventCategory) => void;
   events: EventDisplay[];
+  initialSearchTerm?: string;
 }
 
-export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, onSearchChange, onCategorySelect, events }: HeroProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, onSearchChange, onCategorySelect, events, initialSearchTerm = "" }: HeroProps) {
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  // Sync with external searchTerm (from URL)
+  useEffect(() => {
+    setSearchTerm(initialSearchTerm);
+  }, [initialSearchTerm]);
 
   // Hitta förslag baserat på söktermen
   const suggestions = useMemo((): SearchSuggestion[] => {
