@@ -75,6 +75,28 @@ const EventDetail = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Track event view when event is loaded
+  useEffect(() => {
+    if (event) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const eventDate = new Date(event.date);
+      eventDate.setHours(0, 0, 0, 0);
+      const isPastEvent = eventDate < today;
+
+      posthog?.capture('event_viewed', {
+        event_id: event.id,
+        event_title: event.title,
+        category: getAllCategories(event)[0],
+        all_categories: getAllCategories(event),
+        venue_name: event.venue_name,
+        is_featured: event.isFeatured,
+        is_past: isPastEvent,
+        organizer_name: event.organizer?.name,
+      });
+    }
+  }, [event, posthog]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-texture">

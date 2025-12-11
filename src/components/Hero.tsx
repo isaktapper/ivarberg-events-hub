@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { EventCategory, EventDisplay } from "@/types/event";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePostHog } from "posthog-js/react";
 
 interface QuickFilter {
   id: string;
@@ -46,6 +47,7 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const posthog = usePostHog();
 
   // Sync with external searchTerm (from URL)
   useEffect(() => {
@@ -160,6 +162,13 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
   };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+    posthog?.capture('search_suggestion_clicked', {
+      search_term: searchTerm,
+      suggestion_type: suggestion.type,
+      suggestion_label: suggestion.label,
+      suggestion_count: suggestion.count,
+    });
+    
     dismissKeyboard();
     
     if (suggestion.type === 'category' && suggestion.category) {
@@ -183,6 +192,12 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
   };
 
   const handleShowAllResults = () => {
+    posthog?.capture('search_performed', {
+      search_term: searchTerm,
+      results_count: totalResults,
+      search_method: 'show_all_button',
+    });
+    
     dismissKeyboard();
     setIsDropdownOpen(false);
     setTimeout(() => onScrollToResults(), 150);
@@ -289,6 +304,12 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
   ];
 
   const handleFilterClick = (filter: QuickFilter) => {
+    posthog?.capture('quick_filter_clicked', {
+      filter_id: filter.id,
+      filter_label: filter.label,
+      filter_type: filter.type,
+    });
+    
     onFilterApply(filter);
     // Rensa sökningen när man klickar på ett quick filter
     setSearchTerm("");
@@ -436,6 +457,13 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
               role="search"
               onSubmit={(e) => {
                 e.preventDefault();
+                if (searchTerm.trim()) {
+                  posthog?.capture('search_performed', {
+                    search_term: searchTerm,
+                    results_count: totalResults,
+                    search_method: 'form_submit',
+                  });
+                }
                 setIsDropdownOpen(false);
                 dismissKeyboard();
                 setTimeout(() => onScrollToResults(), 150);

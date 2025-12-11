@@ -3,6 +3,7 @@ import { EventDisplay, categoryColors } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatLocation } from "@/lib/locationUtils";
+import { usePostHog } from "posthog-js/react";
 
 interface EventCardProps {
   event: EventDisplay;

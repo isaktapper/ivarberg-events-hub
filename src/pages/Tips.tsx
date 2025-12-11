@@ -11,8 +11,10 @@ import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { CategoryMultiSelect } from "@/components/CategoryMultiSelect";
 import { submitEventTip } from "@/services/eventService";
 import { EventCategory } from "@/types/event";
+import { usePostHog } from "posthog-js/react";
 
 const Tips = () => {
+  const posthog = usePostHog();
   const [formData, setFormData] = useState({
     name: '',
     date_time: '',
@@ -58,6 +60,13 @@ const Tips = () => {
       });
 
       if (result.success) {
+        posthog?.capture('tip_submitted', {
+          categories: formData.categories,
+          categories_count: formData.categories.length,
+          has_image: !!formData.image_url,
+          has_website: !!formData.organizer_event_url,
+          tip_id: result.tip_id,
+        });
         setIsSubmitted(true);
         console.log('Tip submitted successfully with ID:', result.tip_id);
       } else {
