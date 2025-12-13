@@ -14,6 +14,38 @@ import { getPublishedEvents, getAllEvents } from "@/services/eventService";
 import { EventCategory, EventDisplay, hasCategory } from "@/types/event";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
 
+// Category abbreviations for shorter URLs
+const CATEGORY_TO_ABBREV: Record<EventCategory, string> = {
+  'Scen': 'scen',
+  'Nattliv': 'natt',
+  'Sport': 'sport',
+  'Utställningar': 'utst',
+  'Föreläsningar': 'forel',
+  'Barn & Familj': 'barn',
+  'Mat & Dryck': 'mat',
+  'Jul': 'jul',
+  'Film & bio': 'film',
+  'Djur & Natur': 'djur',
+  'Guidade visningar': 'guide',
+  'Marknader': 'mark',
+  'Okategoriserad': 'okat'
+};
+
+const ABBREV_TO_CATEGORY: Record<string, EventCategory> = Object.entries(CATEGORY_TO_ABBREV)
+  .reduce((acc, [cat, abbrev]) => ({ ...acc, [abbrev]: cat as EventCategory }), {});
+
+const categoriesToUrl = (categories: EventCategory[]): string | null => {
+  if (categories.length === 0) return null;
+  return categories.map(cat => CATEGORY_TO_ABBREV[cat]).join(',');
+};
+
+const urlToCategories = (urlParam: string | null): EventCategory[] => {
+  if (!urlParam) return [];
+  return urlParam.split(',')
+    .map(abbrev => ABBREV_TO_CATEGORY[abbrev])
+    .filter((cat): cat is EventCategory => cat !== undefined);
+};
+
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [events, setEvents] = useState<EventDisplay[]>([]);
@@ -31,16 +63,11 @@ const Index = () => {
 
   // Handle URL parameters - restore filters from URL on page load
   useEffect(() => {
-    const validCategories: EventCategory[] = [
-      'Scen', 'Nattliv', 'Sport', 'Utställningar', 'Föreläsningar', 
-      'Barn & Familj', 'Mat & Dryck', 'Jul', 'Film & bio', 
-      'Djur & Natur', 'Guidade visningar', 'Marknader', 'Okategoriserad'
-    ];
-
-    // Read category from URL
-    const categoryParam = searchParams.get('category');
-    if (categoryParam && validCategories.includes(categoryParam as EventCategory)) {
-      setSelectedCategories([categoryParam as EventCategory]);
+    // Read categories from URL (supports multiple via abbreviations)
+    const catParam = searchParams.get('cat');
+    const parsedCategories = urlToCategories(catParam);
+    if (parsedCategories.length > 0) {
+      setSelectedCategories(parsedCategories);
       setTimeout(() => scrollToCategories(), 100);
     }
 
@@ -68,6 +95,15 @@ const Index = () => {
     const locationParam = searchParams.get('location');
     if (locationParam) {
       setSelectedLocation(locationParam);
+    }
+
+    // Read page from URL
+    const pageParam = searchParams.get('page');
+    if (pageParam) {
+      const pageNum = parseInt(pageParam, 10);
+      if (pageNum > 0) {
+        setCurrentPage(pageNum);
+      }
     }
   }, []); // Only run once on mount
 
@@ -104,18 +140,8 @@ const Index = () => {
     
     setSelectedCategories(newCategories);
     
-    // Update URL parameters
-    const newSearchParams = new URLSearchParams(searchParams);
-    if (newCategories.length === 0) {
-      newSearchParams.delete('category');
-    } else if (newCategories.length === 1) {
-      newSearchParams.set('category', newCategories[0]);
-    } else {
-      // For multiple categories, we could implement a different approach
-      // For now, just use the first one
-      newSearchParams.set('category', newCategories[0]);
-    }
-    setSearchParams(newSearchParams);
+    // Update URL parameters with abbreviated categories (also resets page)
+    updateUrlParams({ 'cat': categoriesToUrl(newCategories) });
     
     resetPagination();
   };
@@ -182,12 +208,13 @@ const Index = () => {
   // Reset to page 1 when filters change
   const resetPagination = () => {
     setCurrentPage(1);
+    // Note: page param is removed via updateUrlParams when filters change
   };
 
 
 
-  // Helper function to update URL params
-  const updateUrlParams = (updates: Record<string, string | null>) => {
+  // Helper function to update URL params (also resets page when filters change)
+  const updateUrlParams = (updates: Record<string, string | null>, resetPage: boolean = true) => {
     const newParams = new URLSearchParams(searchParams);
     Object.entries(updates).forEach(([key, value]) => {
       if (value === null) {
@@ -196,6 +223,10 @@ const Index = () => {
         newParams.set(key, value);
       }
     });
+    // Reset page when filters change
+    if (resetPage) {
+      newParams.delete('page');
+    }
     setSearchParams(newParams);
   };
 
@@ -244,7 +275,7 @@ const Index = () => {
     
     // Build new URL params
     const newParams: Record<string, string | null> = {
-      'category': null,
+      'cat': null,
       'search': null,
       'date': null,
       'dateStart': null,
@@ -258,7 +289,7 @@ const Index = () => {
       newParams['dateEnd'] = filter.dateRange.end.toISOString().split('T')[0];
     } else if (filter.type === 'category' && filter.value) {
       setSelectedCategories([filter.value]);
-      newParams['category'] = filter.value;
+      newParams['cat'] = categoriesToUrl([filter.value]);
     }
     
     updateUrlParams(newParams);
@@ -300,6 +331,16 @@ const Index = () => {
   // Funktion för att byta sida och scrolla till datum/platsfilter
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    
+    // Save page to URL
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (page === 1) {
+      newSearchParams.delete('page');
+    } else {
+      newSearchParams.set('page', page.toString());
+    }
+    setSearchParams(newSearchParams);
+    
     // Scrolla till datum/plats-filter sektionen
     if (filtersRef.current) {
       const elementPosition = filtersRef.current.offsetTop;
@@ -385,7 +426,7 @@ const Index = () => {
         onCategorySelect={(category) => {
           setSelectedCategories([category]);
           setSearchTerm("");
-          updateUrlParams({ 'category': category, 'search': null });
+          updateUrlParams({ 'cat': categoriesToUrl([category]), 'search': null });
           resetPagination();
         }}
         events={events}
