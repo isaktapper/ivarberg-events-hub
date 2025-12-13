@@ -34,9 +34,7 @@ export function LocalBusinessSchema() {
     },
     "priceRange": "Gratis",
     "sameAs": [
-      "https://facebook.com/ivarberg",
-      "https://instagram.com/ivarberg",
-      "https://twitter.com/ivarberg"
+      "https://instagram.com/ivarberg.nu"
     ]
   };
 

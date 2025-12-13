@@ -2,7 +2,7 @@ import { Calendar, MapPin } from "lucide-react";
 import { EventDisplay, getMainCategory, getAllCategories, EventCategory } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { formatLocation } from "@/lib/locationUtils";
 import { usePostHog } from "posthog-js/react";
 
@@ -13,6 +13,7 @@ interface EventListItemProps {
 
 export function EventListItem({ event, activeFilter }: EventListItemProps) {
   const posthog = usePostHog();
+  const [searchParams] = useSearchParams();
   const locationInfo = formatLocation(event.venue_name, event.location);
   
   // Multi-category logic with smart display
@@ -33,6 +34,9 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
   // SEO-friendly alt text
   const imageAlt = `${event.title} - ${displayCategory} evenemang i Varberg ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}`;
   
+  // Build URL with preserved search params
+  const eventUrl = `/event/${event.id}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  
   const handleClick = () => {
     posthog?.capture('event_card_clicked', {
       event_id: event.id,
@@ -43,7 +47,7 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
   };
 
   return (
-    <Link to={`/event/${event.id}`} className="block" onClick={handleClick}>
+    <Link to={eventUrl} className="block" onClick={handleClick}>
       <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer">
         <div className="flex h-28 sm:h-32">
           {/* Image - Fixed width on left */}

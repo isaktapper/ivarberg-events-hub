@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, MapPin, Facebook, Instagram, Twitter } from "lucide-react";
+import { Mail, MapPin, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -115,28 +115,11 @@ export function Footer() {
                 style={{ color: '#08075C' }}
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#4A90E2'; e.currentTarget.style.color = '#FFFFFF'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#08075C'; }}
+                asChild
               >
-                <Facebook className="h-5 w-5" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full transition-colors"
-                style={{ color: '#08075C' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#4A90E2'; e.currentTarget.style.color = '#FFFFFF'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#08075C'; }}
-              >
-                <Instagram className="h-5 w-5" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full transition-colors"
-                style={{ color: '#08075C' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#4A90E2'; e.currentTarget.style.color = '#FFFFFF'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#08075C'; }}
-              >
-                <Twitter className="h-5 w-5" />
+                <a href="https://instagram.com/ivarberg.nu" target="_blank" rel="noopener noreferrer">
+                  <Instagram className="h-5 w-5" />
+                </a>
               </Button>
             </div>
             <div className="mt-4">

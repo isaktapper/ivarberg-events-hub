@@ -2,7 +2,7 @@ import { Calendar, Clock, Snowflake, MessageCircle, Search, Tag, MapPin, Ticket 
 import { Button } from "@/components/ui/button";
 import { EventCategory, EventDisplay } from "@/types/event";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePostHog } from "posthog-js/react";
 
 interface QuickFilter {
@@ -47,6 +47,7 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const posthog = usePostHog();
 
   // Sync with external searchTerm (from URL)
@@ -217,9 +218,10 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
       setIsDropdownOpen(false);
       setTimeout(() => onScrollToResults(), 100);
     } else if (suggestion.type === 'event' && suggestion.eventId) {
-      // Gå till eventsidan
+      // Gå till eventsidan med behållna URL-parametrar
       setIsDropdownOpen(false);
-      navigate(`/event/${suggestion.eventId}`);
+      const eventUrl = `/event/${suggestion.eventId}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      navigate(eventUrl);
     }
   };
 
@@ -513,7 +515,7 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onFocus={() => searchTerm.length >= 2 && setIsDropdownOpen(true)}
-                placeholder="Hitta ditt nästa äventyr..."
+                placeholder="Hitta något roligt..."
                 className="w-full pl-10 pr-10 py-3 text-base rounded-lg transition-all duration-200 shadow-lg focus:shadow-xl border backdrop-blur-md focus:outline-none focus:ring-2"
                 style={{
                   backgroundColor: isDropdownOpen ? 'rgba(255, 255, 255, 0.95)' : 'rgba(215, 235, 255, 0.45)',

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Calendar, MapPin } from "lucide-react";
 import { EventDisplay } from "@/types/event";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { formatLocation } from "@/lib/locationUtils";
 
 interface SimilarEventsCarouselProps {
@@ -12,6 +12,7 @@ interface SimilarEventsCarouselProps {
 export function SimilarEventsCarousel({ events }: SimilarEventsCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const [searchParams] = useSearchParams();
 
   if (!events || events.length === 0) {
     return null;
@@ -134,10 +135,12 @@ export function SimilarEventsCarousel({ events }: SimilarEventsCarouselProps) {
             const locationInfo = formatLocation(event.venue_name, event.location);
             const imageAlt = `${event.title} - ${event.category} evenemang i Varberg ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}`;
             
+            const eventUrl = `/event/${event.id}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+            
             return (
               <Link
                 key={event.id}
-                to={`/event/${event.id}`}
+                to={eventUrl}
                 className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 group"
                 style={{ scrollSnapAlign: 'start' }}
               >
