@@ -1,4 +1,4 @@
-import { Drama, Users, Image, PartyPopper, Trophy, UtensilsCrossed, GraduationCap, Snowflake, Film, TreePine, Compass, Store } from 'lucide-react';
+import { Drama, Users, Image, PartyPopper, Trophy, UtensilsCrossed, GraduationCap, Film, TreePine, Compass, Store } from 'lucide-react';
 import { EventCategory } from '@/types/event';
 import { usePostHog } from "posthog-js/react";
 
@@ -17,7 +17,6 @@ const categories: CategoryItem[] = [
   { id: 'Barn & Familj', label: 'Barn & familj', icon: Users },
   { id: 'Scen', label: 'Scen', icon: Drama },
   { id: 'Mat & Dryck', label: 'Mat & Dryck', icon: UtensilsCrossed },
-  { id: 'Jul', label: 'Jul', icon: Snowflake },
   { id: 'Marknader', label: 'Marknader', icon: Store },
   { id: 'Nattliv', label: 'Nattliv', icon: PartyPopper },
   { id: 'Sport', label: 'Sport', icon: Trophy },

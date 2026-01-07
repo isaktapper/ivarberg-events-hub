@@ -1,4 +1,4 @@
-import { Calendar, Clock, Snowflake, MessageCircle, Search, Tag, MapPin, Ticket } from "lucide-react";
+import { Calendar, Clock, MessageCircle, Search, Tag, MapPin, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventCategory, EventDisplay } from "@/types/event";
 import { useState, useMemo, useRef, useEffect } from "react";
@@ -329,11 +329,11 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
       dateRange: getThisWeekDates()
     },
     {
-      id: 'christmas',
-      label: 'Till jul',
-      icon: Snowflake,
+      id: 'scene',
+      label: 'Scen & Teater',
+      icon: Ticket,
       type: 'category',
-      value: 'Jul'
+      value: 'Scen'
     }
   ];
 
@@ -399,7 +399,7 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('/hero_jul.png')",
+          backgroundImage: "url('/hero_vinter_crop.png')",
         }}
       >
         {/* Solid overlay that fades to background color - Mörkare i toppen för läsbarhet */}

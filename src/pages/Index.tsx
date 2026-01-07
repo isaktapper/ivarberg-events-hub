@@ -400,14 +400,14 @@ const Index = () => {
         <meta property="og:description" content={getPageDescription()} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ivarberg.nu" />
-        <meta property="og:image" content="https://ivarberg.nu/hero_jul.png" />
+        <meta property="og:image" content="https://ivarberg.nu/hero_vinter_crop.png" />
         <meta property="og:locale" content="sv_SE" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={getPageTitle()} />
         <meta name="twitter:description" content={getPageDescription()} />
-        <meta name="twitter:image" content="https://ivarberg.nu/hero_jul.png" />
+        <meta name="twitter:image" content="https://ivarberg.nu/hero_vinter_crop.png" />
         
         <link rel="canonical" href="https://ivarberg.nu" />
       </Helmet>

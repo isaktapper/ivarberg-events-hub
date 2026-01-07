@@ -13,7 +13,6 @@ const categoryOptions: { id: EventCategory; label: string }[] = [
   { id: 'Barn & Familj', label: 'Barn & Familj' },
   { id: 'Scen', label: 'Scen' },
   { id: 'Mat & Dryck', label: 'Mat & Dryck' },
-  { id: 'Jul', label: 'Jul' },
   { id: 'Marknader', label: 'Marknader' },
   { id: 'Nattliv', label: 'Nattliv' },
   { id: 'Sport', label: 'Sport' },
