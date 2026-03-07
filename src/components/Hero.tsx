@@ -399,7 +399,7 @@ export function Hero({ onFilterApply, onScrollToResults, onScrollToCategories, o
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('/hero_vinter_crop.png')",
+          backgroundImage: "url('/hero_spring.png')",
         }}
       >
         {/* Solid overlay that fades to background color - Mörkare i toppen för läsbarhet */}
