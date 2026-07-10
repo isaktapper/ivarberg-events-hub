@@ -9,7 +9,7 @@ const AttGoraVarberg = () => {
   return (
     <>
       <Helmet>
-        <title>Att göra i Varberg - Aktiviteter och upplevelser 2025 | ivarberg.nu</title>
+        <title>{`Att göra i Varberg - Aktiviteter och upplevelser ${new Date().getFullYear()} | ivarberg.nu`}</title>
         <meta name="description" content="Letar du efter saker att göra i Varberg? Här hittar du aktiviteter, upplevelser och evenemang för alla åldrar. Från strandhäng och kultur till mat och nöjen!" />
         <meta name="keywords" content="att göra Varberg, vad göra Varberg, aktiviteter Varberg, upplevelser Varberg, saker att göra Varberg, göra i Varberg" />
         
@@ -18,7 +18,7 @@ const AttGoraVarberg = () => {
         <meta property="og:description" content="Upptäck de bästa sakerna att göra i Varberg - aktiviteter, upplevelser och evenemang för alla" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ivarberg.nu/att-gora-i-varberg" />
-        <meta property="og:image" content="https://ivarberg.nu/hero_spring.png" />
+        <meta property="og:image" content="https://ivarberg.nu/og-image.jpg" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

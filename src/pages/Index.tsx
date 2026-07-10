@@ -400,16 +400,16 @@ const Index = () => {
         <meta property="og:description" content={getPageDescription()} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ivarberg.nu" />
-        <meta property="og:image" content="https://ivarberg.nu/hero_spring.png" />
+        <meta property="og:image" content="https://ivarberg.nu/og-image.jpg" />
         <meta property="og:locale" content="sv_SE" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={getPageTitle()} />
         <meta name="twitter:description" content={getPageDescription()} />
-        <meta name="twitter:image" content="https://ivarberg.nu/hero_spring.png" />
+        <meta name="twitter:image" content="https://ivarberg.nu/og-image.jpg" />
         
-        <link rel="canonical" href="https://ivarberg.nu" />
+        <link rel="canonical" href="https://ivarberg.nu/" />
       </Helmet>
       
       {/* Structured Data */}
@@ -435,7 +435,7 @@ const Index = () => {
       
       <main className="container mx-auto px-4 pt-6 pb-12" ref={resultsRef}>
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center" style={{ color: '#08075C' }}>{getH1Text()}</h1>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center" style={{ color: '#08075C' }}>{getH1Text()}</h2>
           
           {/* Category Scroller */}
           <div ref={categoriesRef}>

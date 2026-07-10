@@ -1,0 +1,18 @@
+# ivarberg.nu
+
+> Din kompletta guide till evenemang i Varberg, Sverige. Vi samlar konserter, teater, sport, marknader, utställningar och familjeaktiviteter från alla arrangörer i Varbergs kommun på ett ställe. Uppdateras dagligen. Gratis att använda.
+
+## Viktiga sidor
+
+- [Alla evenemang](https://ivarberg.nu/): Komplett lista över kommande evenemang i Varberg med filter för datum, kategori och plats
+- [Evenemang Varberg](https://ivarberg.nu/evenemang-varberg): Guide till evenemang i Varberg
+- [Att göra i Varberg](https://ivarberg.nu/att-gora-i-varberg): Aktiviteter och upplevelser i Varberg
+- [Varberg Kalender](https://ivarberg.nu/varberg-kalender): Eventkalender för Varberg
+- [Om oss](https://ivarberg.nu/om-oss): Om ivarberg.nu
+- [Sitemap](https://ivarberg.nu/api/sitemap.xml): Alla sidor inklusive enskilda evenemang
+
+## Fakta
+
+- Täcker: Varbergs kommun, Halland, Sverige
+- Innehåll: evenemang med datum, tid, plats, arrangör och beskrivning
+- Kontakt: info@ivarberg.nu

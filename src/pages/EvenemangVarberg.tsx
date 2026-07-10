@@ -9,7 +9,7 @@ const EvenemangVarberg = () => {
   return (
     <>
       <Helmet>
-        <title>Evenemang Varberg - Komplett guide till events i Varberg 2025 | ivarberg.nu</title>
+        <title>{`Evenemang Varberg - Komplett guide till events i Varberg ${new Date().getFullYear()} | ivarberg.nu`}</title>
         <meta name="description" content="Upptäck alla evenemang i Varberg! Från konserter och teater till sport och marknader. Din kompletta guide till vad som händer i Varberg - uppdateras dagligen." />
         <meta name="keywords" content="evenemang Varberg, Varberg evenemang, events Varberg, Varberg events, konserter Varberg, teater Varberg, sport Varberg" />
         
@@ -18,7 +18,7 @@ const EvenemangVarberg = () => {
         <meta property="og:description" content="Upptäck alla evenemang i Varberg - från konserter och teater till sport och marknader" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ivarberg.nu/evenemang-varberg" />
-        <meta property="og:image" content="https://ivarberg.nu/hero_spring.png" />
+        <meta property="og:image" content="https://ivarberg.nu/og-image.jpg" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

@@ -12,7 +12,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Försök hämta events om credentials finns
     if (supabaseUrl && supabaseKey) {
       try {
-        const eventsResponse = await fetch(`${supabaseUrl}/rest/v1/events?status=eq.published&select=event_id,updated_at,date`, {
+        // Endast kommande event – passerade event ska inte fylla sitemapen
+        const today = new Date().toISOString().split('T')[0];
+        const eventsResponse = await fetch(`${supabaseUrl}/rest/v1/events?status=eq.published&date_time=gte.${today}&select=event_id,updated_at,date_time&limit=5000`, {
           headers: {
             'apikey': supabaseKey,
             'Authorization': `Bearer ${supabaseKey}`,
@@ -23,7 +25,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (eventsResponse.ok) {
           events = await eventsResponse.json();
         } else {
-          console.error('Failed to fetch events:', eventsResponse.statusText);
+          const body = await eventsResponse.text();
+          console.error(`Failed to fetch events: HTTP ${eventsResponse.status} ${eventsResponse.statusText} - ${body.slice(0, 300)}`);
           // Fortsätt ändå med tom events array
         }
       } catch (fetchError) {
@@ -85,7 +88,7 @@ ${staticPages.map(page => `  <url>
   </url>`).join('\n')}
 ${events && events.length > 0 ? events.map((event: any) => `  <url>
     <loc>https://ivarberg.nu/event/${event.event_id}</loc>
-    <lastmod>${event.updated_at ? new Date(event.updated_at).toISOString().split('T')[0] : new Date(event.date).toISOString().split('T')[0]}</lastmod>
+    <lastmod>${event.updated_at ? new Date(event.updated_at).toISOString().split('T')[0] : new Date(event.date_time).toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>`).join('\n') : ''}

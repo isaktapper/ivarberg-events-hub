@@ -115,6 +115,10 @@ const EventDetail = () => {
   if (!event) {
     return (
       <div className="min-h-screen bg-texture">
+        <Helmet>
+          <title>Evenemang hittades inte | ivarberg.nu</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
         <Header />
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">
@@ -243,7 +247,7 @@ const EventDetail = () => {
     "name": event.title,
     "startDate": event.date.toISOString(),
     "endDate": new Date(event.date.getTime() + 2 * 60 * 60 * 1000).toISOString(), // +2 hours
-    "eventStatus": isPast ? "https://schema.org/EventCancelled" : "https://schema.org/EventScheduled",
+    "eventStatus": "https://schema.org/EventScheduled",
     "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
     "location": {
       "@type": "Place",

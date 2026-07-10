@@ -1,5 +1,6 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,13 +10,17 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-center justify-center bg-texture">
+      <Helmet>
+        <title>Sidan hittades inte | ivarberg.nu</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
       <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-gray-600">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 underline hover:text-blue-700">
-          Return to Home
-        </a>
+        <h1 className="mb-4 text-4xl font-bold" style={{ color: '#08075C' }}>404</h1>
+        <p className="mb-4 text-xl" style={{ color: '#08075C', opacity: 0.8 }}>Hoppsan! Sidan finns inte.</p>
+        <Link to="/" className="text-blue-500 underline hover:text-blue-700">
+          Tillbaka till startsidan
+        </Link>
       </div>
     </div>
   );

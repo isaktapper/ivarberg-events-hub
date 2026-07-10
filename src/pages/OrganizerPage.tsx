@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, Globe, Facebook, Instagram, Twitter, ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
@@ -121,6 +122,10 @@ const OrganizerPage = () => {
   if (!organizer) {
     return (
       <div className="min-h-screen bg-texture">
+        <Helmet>
+          <title>Arrangör hittades inte | ivarberg.nu</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
         <Header />
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">
@@ -148,7 +153,17 @@ const OrganizerPage = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
-      
+      <Helmet>
+        <title>{`${organizer.name} - Arrangör i Varberg | ivarberg.nu`}</title>
+        <meta name="description" content={organizer.seo_description || organizer.description || `${organizer.name} arrangerar evenemang i Varberg. Se kommande evenemang och kontaktuppgifter.`} />
+        <meta property="og:title" content={`${organizer.name} - Arrangör i Varberg`} />
+        <meta property="og:description" content={organizer.seo_description || organizer.description || `${organizer.name} arrangerar evenemang i Varberg.`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://ivarberg.nu/arrangor/${slug}`} />
+        {organizer.hero_image_url && <meta property="og:image" content={organizer.hero_image_url} />}
+        <link rel="canonical" href={`https://ivarberg.nu/arrangor/${slug}`} />
+      </Helmet>
+
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">

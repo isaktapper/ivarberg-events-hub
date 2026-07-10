@@ -53,9 +53,9 @@ export function EventDescription({
       <p className="mb-4 text-gray-700 leading-relaxed" {...props} />
     ),
     
-    // Rubriker
+    // Rubriker (h1 renderas som h2 – sidan ska bara ha en h1: eventtiteln)
     h1: ({ node, ...props }) => (
-      <h1 className="text-2xl font-bold mb-4 mt-6" style={{ color: '#08075C' }} {...props} />
+      <h2 className="text-2xl font-bold mb-4 mt-6" style={{ color: '#08075C' }} {...props} />
     ),
     h2: ({ node, ...props }) => (
       <h2 className="text-xl font-semibold mb-3 mt-5" style={{ color: '#08075C' }} {...props} />

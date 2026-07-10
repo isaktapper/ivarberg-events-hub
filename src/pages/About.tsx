@@ -18,7 +18,7 @@ const About = () => {
         <meta property="og:description" content="Din kompletta guide till evenemang i Varberg. Vi samlar alla konserter, teater, sport och aktiviteter på ett ställe." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ivarberg.nu/om-oss" />
-        <meta property="og:image" content="https://ivarberg.nu/hero_spring.png" />
+        <meta property="og:image" content="https://ivarberg.nu/og-image.jpg" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
