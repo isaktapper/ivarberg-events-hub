@@ -370,6 +370,13 @@ ${jsonLdScript(events, period, title, metaDescription)}
   .wave svg { display:block; width:100%; height:auto; min-height:80px; }
   main { max-width:72rem; margin:-4.5rem auto 0; position:relative; z-index:2; padding:0 1.5rem 3rem; }
   .intro { max-width:52rem; margin:0 auto 1rem; background:rgba(255,255,255,.9); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,.5); border-radius:1rem; box-shadow:0 2px 12px hsl(217 91% 42% / .1); padding:1.4rem 1.6rem; font-size:1.02rem; }
+  /* Hela texten finns i HTML (SEO/AI-citering) men visas ihopfälld – Visa mer expanderar utan JS */
+  .intro-text { display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
+  #intro-toggle:checked ~ .intro-text { display:block; -webkit-line-clamp:unset; }
+  .intro-more { display:inline-block; margin-top:.5rem; color:var(--accent); font-weight:600; font-size:.9rem; cursor:pointer; }
+  .intro-more:hover { text-decoration:underline; }
+  #intro-toggle:checked ~ .intro-more .show { display:none; }
+  #intro-toggle:not(:checked) ~ .intro-more .hide { display:none; }
   h2 { text-align:center; font-size:clamp(1.5rem,3vw,2rem); color:var(--navy); font-weight:700; margin:3rem 0 1.5rem; }
   /* Höjdpunktskort – som EventCard.tsx */
   .grid3 { display:grid; grid-template-columns:1fr; gap:1.5rem; }
@@ -448,7 +455,11 @@ ${
   fallback
     ? `  <div class="intro"><p>Inga evenemang är inplanerade i Varberg ${escapeHtml(period.intro)}. Här är i stället de närmaste kommande evenemangen – hela kalendern hittar du på <a href="/">startsidan</a>.</p></div>
   <h2>Kommande evenemang i Varberg</h2>`
-    : `  <div class="intro"><p>${escapeHtml(intro)}</p></div>
+    : `  <div class="intro">
+    <input type="checkbox" id="intro-toggle" hidden>
+    <p class="intro-text">${escapeHtml(intro)}</p>
+    <label for="intro-toggle" class="intro-more"><span class="show">Visa mer</span><span class="hide">Visa mindre</span></label>
+  </div>
   <h2>Dagens ${highlights.length} höjdpunkter</h2>
   <div class="grid3">
 ${highlights.map((e) => highlightCard(e, multiDay)).join('\n')}
