@@ -259,15 +259,24 @@ const Index = () => {
     // as it's likely being called alongside onDateChange
   };
 
-  // Dagens events för "Händer idag"-sektionen
-  const todayEvents = useMemo(() => {
+  // Dagens events för "Händer idag"-sektionen. Korten visar endast events
+  // som inte redan passerat tidsmässigt (heldagsevent, kl 00:00, visas hela
+  // dagen) - finns inga kvar renderas inte sektionen alls. totalToday räknar
+  // hela dagen och styr "Visa alla"-knappen, eftersom Idag-filtret den
+  // applicerar visar dagens samtliga events.
+  const { upcomingTodayEvents, totalTodayCount } = useMemo(() => {
+    const now = new Date();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return events.filter((event) => {
+    const allToday = events.filter((event) => {
       const eventDate = new Date(event.date);
       eventDate.setHours(0, 0, 0, 0);
       return eventDate.getTime() === today.getTime();
     });
+    const upcoming = allToday.filter(
+      (event) => event.time === 'Hela dagen' || event.date.getTime() >= now.getTime()
+    );
+    return { upcomingTodayEvents: upcoming, totalTodayCount: allToday.length };
   }, [events]);
 
   const hasActiveFilters =
@@ -423,13 +432,13 @@ const Index = () => {
       />
       
       {/* Händer idag - teaser direkt under hero (visas bara utan aktiva filter) */}
-      {!loading && !hasActiveFilters && todayEvents.length > 0 && (
+      {!loading && !hasActiveFilters && upcomingTodayEvents.length > 0 && (
         <section className="container mx-auto px-4 pt-2 pb-4">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center" style={{ color: '#08075C' }}>
             Detta händer idag
           </h2>
-          <EventList events={todayEvents.slice(0, 3)} />
-          {todayEvents.length > 3 && (
+          <EventList events={upcomingTodayEvents.slice(0, 3)} />
+          {totalTodayCount > 3 && (
             <div className="text-center mt-4">
               <button
                 onClick={handleShowAllToday}
@@ -440,7 +449,7 @@ const Index = () => {
                   border: '1px solid #08075C'
                 }}
               >
-                Visa alla {todayEvents.length} evenemang idag
+                Visa alla {totalTodayCount} evenemang idag
               </button>
             </div>
           )}
