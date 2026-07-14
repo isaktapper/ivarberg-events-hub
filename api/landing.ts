@@ -248,32 +248,62 @@ function jsonLdScript(events: DbEvent[], period: PeriodConfig, title: string, de
   return `<script type="application/ld+json">${json}</script>`;
 }
 
-function highlightCard(e: DbEvent, multiDay: boolean): string {
-  const t = eventTime(e);
-  const meta = [multiDay ? eventDayLabel(e) : null, t ? `kl. ${t}` : null, e.venue_name]
-    .filter(Boolean)
-    .map((s) => escapeHtml(s as string))
-    .join(' · ');
-  const price = parsePrice(e.price);
-  const desc = plainText(e.description);
-  return `<article class="card">
-    <span class="badge">${escapeHtml(mainCategory(e))}</span>
-    <h3><a href="/event/${escapeHtml(e.event_id)}">${escapeHtml(e.name)}</a></h3>
-    <p class="meta">${meta}${price.label ? ` · ${escapeHtml(price.label)}` : ''}</p>
-    ${desc ? `<p>${escapeHtml(desc)}</p>` : ''}
-  </article>`;
+// Inline-SVG:er (lucide-ikonerna som SPA:n använder)
+const ICONS = {
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>',
+};
+
+function imageAlt(e: DbEvent): string {
+  return `${e.name} - ${mainCategory(e)} evenemang i Varberg`;
 }
 
+function eventImage(e: DbEvent): string {
+  return e.image_url ? escapeHtml(e.image_url) : '/placeholder.svg';
+}
+
+// Grid-kort som speglar EventCard.tsx (bild överst, badge, ikon-cirklar, Läs mer)
+function highlightCard(e: DbEvent, multiDay: boolean): string {
+  const t = eventTime(e);
+  const desc = plainText(e.description, 120);
+  return `<a class="ecard" href="/event/${escapeHtml(e.event_id)}">
+    <div class="ecard-img">
+      <img src="${eventImage(e)}" alt="${escapeHtml(imageAlt(e))}" loading="lazy">
+      <span class="ecard-badge">${escapeHtml(mainCategory(e))}</span>
+    </div>
+    <div class="ecard-body">
+      <h3>${escapeHtml(e.name)}</h3>
+      <div class="row"><span class="icon-circle">${ICONS.calendar}</span>${escapeHtml(eventDayLabel(e))}</div>
+      ${t ? `<div class="row"><span class="icon-circle">${ICONS.clock}</span>kl. ${escapeHtml(t)}</div>` : ''}
+      ${e.venue_name ? `<div class="row"><span class="icon-circle">${ICONS.pin}</span>${escapeHtml(e.venue_name)}</div>` : ''}
+      ${desc ? `<p class="desc">${escapeHtml(desc)}</p>` : ''}
+      <span class="more">Läs mer</span>
+    </div>
+  </a>`;
+}
+
+// Listrad som speglar EventListItem.tsx (bild vänster, badge i hörnet, pil höger)
 function eventRow(e: DbEvent, multiDay: boolean): string {
   const t = eventTime(e);
-  const timeLabel = multiDay ? `${eventDayLabel(e)}${t ? ` ${t}` : ''}` : t || 'Hela dagen';
-  const price = parsePrice(e.price);
-  return `<li>
-    <span class="time">${escapeHtml(timeLabel)}</span>
-    <span class="what"><a href="/event/${escapeHtml(e.event_id)}">${escapeHtml(e.name)}</a>
-      ${e.venue_name ? `<span class="venue">${escapeHtml(e.venue_name)}</span>` : ''}</span>
-    <span class="price">${escapeHtml(price.label || '')}</span>
-  </li>`;
+  const date = e.date_time.slice(0, 10);
+  const timeLabel = t ? `${date} - ${t.replace('.', ':')}` : `${date} - Hela dagen`;
+  return `<li><a class="litem" href="/event/${escapeHtml(e.event_id)}">
+    <span class="litem-img">
+      <img src="${eventImage(e)}" alt="${escapeHtml(imageAlt(e))}" loading="lazy">
+      <span class="litem-badge">${escapeHtml(mainCategory(e))}</span>
+    </span>
+    <span class="litem-body">
+      <h3>${escapeHtml(e.name)}</h3>
+      <span class="litem-rows">
+        <span class="litem-row">${ICONS.calendar}${escapeHtml(timeLabel)}</span>
+        ${e.venue_name ? `<span class="litem-row">${ICONS.pin}${escapeHtml(e.venue_name)}</span>` : ''}
+      </span>
+    </span>
+    <span class="litem-arrow">${ICONS.arrow}</span>
+  </a></li>`;
 }
 
 function renderPage(opts: {
@@ -313,42 +343,67 @@ function renderPage(opts: {
 <meta property="og:locale" content="sv_SE">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
 ${jsonLdScript(events, period, title, metaDescription)}
 <style>
-  /* Färger/typografi speglar src/index.css + Footer.tsx (navy #08075C, ocean-blå, sandbeige) */
+  /* Speglar startsidans design: Hero.tsx, EventCard.tsx, EventListItem.tsx, Footer.tsx, src/index.css */
   :root { --navy:#08075C; --ocean:hsl(217 91% 42%); --beige:hsl(32 44% 96%); --text:hsl(215 25% 15%); --muted:hsl(215 15% 45%); --border:hsl(210 20% 90%); --accent:#4A90E2; }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:'Poppins',system-ui,sans-serif; color:var(--text); background:var(--beige); line-height:1.6; }
-  .nav { position:sticky; top:0; z-index:10; background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-bottom:1px solid rgba(8,7,92,.08); }
-  .nav-inner { max-width:64rem; margin:0 auto; display:flex; align-items:center; gap:1.5rem; padding:.65rem 1.5rem; }
+  .nav { position:sticky; top:0; z-index:30; background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-bottom:1px solid rgba(8,7,92,.08); }
+  .nav-inner { max-width:72rem; margin:0 auto; display:flex; align-items:center; gap:1.5rem; padding:.65rem 1.5rem; }
   .nav img { height:2rem; width:auto; display:block; }
   .nav-links { display:flex; gap:1.25rem; margin-left:auto; }
   .nav-links a { color:var(--navy); opacity:.85; text-decoration:none; font-size:.9rem; font-weight:500; }
   .nav-links a:hover { color:var(--accent); opacity:1; }
   .nav-cta { background:var(--navy); color:#fff; font-size:.85rem; font-weight:700; padding:.5rem 1rem; border-radius:.375rem; text-decoration:none; white-space:nowrap; }
-  main { max-width:52rem; margin:0 auto; padding:2.5rem 1.5rem 3rem; }
-  h1 { font-size:2.1rem; line-height:1.2; color:var(--navy); margin-bottom:.25rem; }
-  .date { color:var(--muted); margin-bottom:1.5rem; }
-  .intro { background:rgba(255,255,255,.9); border:1px solid rgba(255,255,255,.5); border-radius:1rem; box-shadow:0 2px 12px hsl(217 91% 42% / .1); padding:1.4rem 1.6rem; margin-bottom:2.25rem; font-size:1.02rem; }
-  h2 { font-size:1.35rem; color:var(--navy); margin:2.25rem 0 1rem; }
-  .card { background:rgba(255,255,255,.9); border:1px solid rgba(255,255,255,.5); border-radius:1rem; box-shadow:0 2px 12px hsl(217 91% 42% / .1); padding:1.25rem 1.5rem; margin-bottom:1rem; transition:box-shadow .2s; }
-  .card:hover { box-shadow:0 8px 32px hsl(217 91% 42% / .16); }
-  .badge { display:inline-block; background:#eff6ff; color:#2563eb; font-size:.75rem; font-weight:600; border-radius:9999px; padding:.25rem .75rem; }
-  .card h3 { font-size:1.12rem; margin:.5rem 0 .15rem; }
-  .card h3 a { color:var(--navy); text-decoration:none; }
-  .card h3 a:hover { color:var(--accent); }
-  .meta { color:var(--muted); font-size:.88rem; margin-bottom:.4rem; }
-  ul.events { list-style:none; background:rgba(255,255,255,.9); border:1px solid rgba(255,255,255,.5); border-radius:1rem; box-shadow:0 2px 12px hsl(217 91% 42% / .1); overflow:hidden; }
-  ul.events li { display:flex; gap:1rem; align-items:baseline; padding:.85rem 1.25rem; border-bottom:1px solid var(--border); }
-  ul.events li:last-child { border-bottom:none; }
-  ul.events .time { flex:0 0 7.5rem; font-weight:600; font-size:.88rem; color:var(--ocean); }
-  ul.events .what { flex:1; }
-  ul.events .what a { color:var(--navy); font-weight:600; text-decoration:none; }
-  ul.events .what a:hover { color:var(--accent); }
-  ul.events .venue { display:block; color:var(--muted); font-size:.83rem; font-weight:400; }
-  ul.events .price { flex:0 0 auto; color:var(--muted); font-size:.83rem; }
-  .cta { display:inline-block; margin-top:2.25rem; background:linear-gradient(135deg,hsl(217 91% 42%),hsl(210 100% 56%)); color:#fff; font-weight:600; text-decoration:none; border-radius:9999px; padding:.9rem 2rem; box-shadow:0 4px 16px hsl(217 91% 42% / .12); }
+  /* Hero med bakgrundsbild, gradient och våg – som Hero.tsx */
+  .hero { position:relative; overflow:hidden; }
+  .hero-bg { position:absolute; inset:0; background:url('/hero_spring.webp') center/cover no-repeat; }
+  .hero-overlay { position:absolute; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,.6), rgba(0,0,0,.2) 45%, hsl(32 44% 96%)); }
+  .hero-content { position:relative; z-index:2; max-width:64rem; margin:0 auto; padding:3.5rem 1.5rem 9rem; text-align:center; }
+  .hero-badge { display:inline-flex; align-items:center; gap:.5rem; padding:.4rem 1rem; font-size:.85rem; font-weight:500; border-radius:9999px; color:#fff; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); backdrop-filter:blur(12px); text-decoration:none; margin-bottom:2rem; box-shadow:0 4px 12px rgba(0,0,0,.1); }
+  .hero-badge svg { width:.9rem; height:.9rem; opacity:.8; }
+  .hero h1 { font-family:'Outfit','Poppins',sans-serif; font-size:clamp(2.5rem,7vw,4.5rem); line-height:1.1; color:#fff; font-weight:700; letter-spacing:-.02em; filter:drop-shadow(0 8px 30px rgba(0,0,0,.8)); margin-bottom:1.25rem; }
+  .hero-sub { color:rgba(255,255,255,.9); font-size:1.15rem; font-weight:500; text-shadow:0 2px 8px rgba(0,0,0,.5); }
+  .wave { position:absolute; bottom:-2px; left:0; right:0; z-index:1; pointer-events:none; }
+  .wave svg { display:block; width:100%; height:auto; min-height:80px; }
+  main { max-width:72rem; margin:-4.5rem auto 0; position:relative; z-index:2; padding:0 1.5rem 3rem; }
+  .intro { max-width:52rem; margin:0 auto 1rem; background:rgba(255,255,255,.9); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,.5); border-radius:1rem; box-shadow:0 2px 12px hsl(217 91% 42% / .1); padding:1.4rem 1.6rem; font-size:1.02rem; }
+  h2 { text-align:center; font-size:clamp(1.5rem,3vw,2rem); color:var(--navy); font-weight:700; margin:3rem 0 1.5rem; }
+  /* Höjdpunktskort – som EventCard.tsx */
+  .grid3 { display:grid; grid-template-columns:1fr; gap:1.5rem; }
+  @media (min-width:768px) { .grid3 { grid-template-columns:repeat(3,1fr); } }
+  .ecard { display:flex; flex-direction:column; background:rgba(255,255,255,.9); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,.5); border-radius:1rem; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.06); text-decoration:none; transition:all .3s; }
+  .ecard:hover { box-shadow:0 8px 32px hsl(217 91% 42% / .16); transform:translateY(-4px); background:rgba(255,255,255,.95); }
+  .ecard-img { position:relative; height:12rem; overflow:hidden; }
+  .ecard-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s ease-out; }
+  .ecard:hover .ecard-img img { transform:scale(1.05); }
+  .ecard-badge { position:absolute; top:1rem; left:1rem; background:rgba(255,255,255,.9); backdrop-filter:blur(4px); color:#1e3a8a; font-size:.75rem; font-weight:600; padding:.35rem .75rem; border-radius:9999px; box-shadow:0 4px 12px rgba(0,0,0,.15); }
+  .ecard-body { display:flex; flex-direction:column; flex:1; padding:1.5rem; }
+  .ecard h3 { color:var(--navy); font-size:1.2rem; font-weight:700; line-height:1.35; margin-bottom:1rem; }
+  .ecard .row { display:flex; align-items:center; gap:.75rem; font-size:.85rem; font-weight:500; color:#4b5563; margin-bottom:.65rem; }
+  .icon-circle { display:flex; align-items:center; justify-content:center; width:2rem; height:2rem; border-radius:9999px; background:#eff6ff; flex-shrink:0; }
+  .icon-circle svg { width:1rem; height:1rem; color:#2563eb; }
+  .ecard .desc { font-size:.85rem; color:#4b5563; margin:.35rem 0 1.25rem; }
+  .ecard .more { margin-top:auto; text-align:center; background:linear-gradient(to right,#3b82f6,#2563eb); color:#fff; font-weight:500; font-size:.9rem; padding:.65rem; border-radius:.5rem; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+  /* Listrader – som EventListItem.tsx */
+  ul.events { list-style:none; max-width:64rem; margin:0 auto; display:flex; flex-direction:column; gap:.9rem; }
+  .litem { display:flex; background:#fff; border:1px solid var(--border); border-radius:.75rem; overflow:hidden; text-decoration:none; transition:box-shadow .2s; }
+  .litem:hover { box-shadow:0 4px 16px hsl(217 91% 42% / .12); }
+  .litem-img { position:relative; width:7rem; flex-shrink:0; }
+  @media (min-width:640px) { .litem-img { width:9rem; } }
+  .litem-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .litem-badge { position:absolute; top:0; left:0; background:rgba(255,255,255,.9); backdrop-filter:blur(4px); color:#1e3a8a; font-size:.7rem; font-weight:500; padding:.25rem .5rem; border-bottom-right-radius:.5rem; }
+  .litem-body { flex:1; min-width:0; display:flex; flex-direction:column; padding:1rem 1.25rem; min-height:7rem; }
+  .litem h3 { font-size:.98rem; font-weight:600; color:var(--text); line-height:1.35; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .litem-rows { margin-top:auto; display:flex; flex-direction:column; gap:.25rem; padding-top:.5rem; }
+  .litem-row { display:flex; align-items:center; gap:.35rem; font-size:.78rem; color:var(--muted); }
+  .litem-row svg { width:.75rem; height:.75rem; flex-shrink:0; }
+  .litem-arrow { display:flex; align-items:center; padding-right:1.25rem; color:var(--muted); }
+  .litem-arrow svg { width:1rem; height:1rem; }
+  .cta-wrap { text-align:center; }
+  .cta { display:inline-block; margin-top:2.5rem; background:linear-gradient(135deg,hsl(217 91% 42%),hsl(210 100% 56%)); color:#fff; font-weight:600; text-decoration:none; border-radius:9999px; padding:.9rem 2rem; box-shadow:0 4px 16px hsl(217 91% 42% / .12); transition:box-shadow .2s; }
   .cta:hover { box-shadow:0 8px 32px hsl(217 91% 42% / .16); }
   footer { background:#fff; border-top:1px solid rgba(8,7,92,.1); margin-top:4rem; }
   .footer-grid { max-width:72rem; margin:0 auto; padding:3rem 1.5rem 0; display:grid; grid-template-columns:1fr; gap:2rem; }
@@ -362,7 +417,7 @@ ${jsonLdScript(events, period, title, metaDescription)}
   footer a { text-decoration:none; }
   footer a:hover { color:var(--accent); }
   .copyright { max-width:72rem; margin:2rem auto 0; padding:1.5rem; border-top:1px solid rgba(8,7,92,.1); text-align:center; font-size:.85rem; color:rgba(8,7,92,.7); }
-  @media (max-width:640px) { .nav-links { display:none; } h1 { font-size:1.7rem; } ul.events li { flex-wrap:wrap; } ul.events .time { flex-basis:100%; } }
+  @media (max-width:640px) { .nav-links { display:none; } .nav-inner { gap:.75rem; padding:.6rem 1rem; } .nav img { height:1.75rem; } .nav-cta { margin-left:auto; font-size:.75rem; padding:.45rem .7rem; } .hero-content { padding-bottom:7rem; } }
 </style>
 </head>
 <body>
@@ -376,22 +431,34 @@ ${jsonLdScript(events, period, title, metaDescription)}
     <a class="nav-cta" href="/tips">Tipsa oss om evenemang</a>
   </div>
 </header>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <a class="hero-badge" href="/tips">Tipsa oss om evenemang ${ICONS.chat}</a>
+    <h1>${escapeHtml(period.h1)}</h1>
+    <p class="hero-sub">${escapeHtml(dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1))} · ${
+      fallback ? 'Se kommande evenemang' : `${events.length} evenemang i Varberg`
+    }</p>
+  </div>
+  <div class="wave"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="hsl(32 44% 96%)" fill-opacity="1" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg></div>
+</section>
 <main>
-  <h1>${escapeHtml(period.h1)}</h1>
-  <p class="date">${escapeHtml(dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1))}</p>
 ${
   fallback
     ? `  <div class="intro"><p>Inga evenemang är inplanerade i Varberg ${escapeHtml(period.intro)}. Här är i stället de närmaste kommande evenemangen – hela kalendern hittar du på <a href="/">startsidan</a>.</p></div>
   <h2>Kommande evenemang i Varberg</h2>`
     : `  <div class="intro"><p>${escapeHtml(intro)}</p></div>
   <h2>Dagens ${highlights.length} höjdpunkter</h2>
+  <div class="grid3">
 ${highlights.map((e) => highlightCard(e, multiDay)).join('\n')}
+  </div>
   <h2>Alla evenemang ${escapeHtml(period.intro)} (${events.length})</h2>`
 }
   <ul class="events">
 ${events.map((e) => eventRow(e, multiDay || fallback)).join('\n')}
   </ul>
-  <a class="cta" href="/">Se hela kalendern och filtrera på kategori</a>
+  <div class="cta-wrap"><a class="cta" href="/">Se hela kalendern och filtrera på kategori</a></div>
 </main>
 <footer>
   <div class="footer-grid">
