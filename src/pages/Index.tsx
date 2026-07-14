@@ -271,7 +271,8 @@ const Index = () => {
   }, [events]);
 
   const hasActiveFilters =
-    selectedCategories.length > 0 || !!selectedDate || !!dateRange || !!searchTerm.trim();
+    selectedCategories.length > 0 || !!selectedDate || !!dateRange || !!searchTerm.trim() ||
+    selectedLocation !== "Hela Varberg";
 
   const handleShowAllToday = () => {
     const start = new Date();
