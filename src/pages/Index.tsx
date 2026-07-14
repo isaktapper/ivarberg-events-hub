@@ -13,38 +13,7 @@ import { FAQSchema } from "@/components/FAQSchema";
 import { getPublishedEvents, getAllEvents } from "@/services/eventService";
 import { EventCategory, EventDisplay, hasCategory } from "@/types/event";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
-
-// Category abbreviations for shorter URLs
-const CATEGORY_TO_ABBREV: Record<EventCategory, string> = {
-  'Scen': 'scen',
-  'Nattliv': 'natt',
-  'Sport': 'sport',
-  'Utställningar': 'utst',
-  'Föreläsningar': 'forel',
-  'Barn & Familj': 'barn',
-  'Mat & Dryck': 'mat',
-  'Jul': 'jul',
-  'Film & bio': 'film',
-  'Djur & Natur': 'djur',
-  'Guidade visningar': 'guide',
-  'Marknader': 'mark',
-  'Okategoriserad': 'okat'
-};
-
-const ABBREV_TO_CATEGORY: Record<string, EventCategory> = Object.entries(CATEGORY_TO_ABBREV)
-  .reduce((acc, [cat, abbrev]) => ({ ...acc, [abbrev]: cat as EventCategory }), {});
-
-const categoriesToUrl = (categories: EventCategory[]): string | null => {
-  if (categories.length === 0) return null;
-  return categories.map(cat => CATEGORY_TO_ABBREV[cat]).join(',');
-};
-
-const urlToCategories = (urlParam: string | null): EventCategory[] => {
-  if (!urlParam) return [];
-  return urlParam.split(',')
-    .map(abbrev => ABBREV_TO_CATEGORY[abbrev])
-    .filter((cat): cat is EventCategory => cat !== undefined);
-};
+import { categoriesToUrl, urlToCategories } from "@/lib/categoryUrls";
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,25 +27,10 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 10;
   const resultsRef = useRef<HTMLDivElement>(null);
-  const categoriesRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
 
   // Handle URL parameters - restore filters from URL on page load
   useEffect(() => {
-    // Read categories from URL (supports multiple via abbreviations)
-    const catParam = searchParams.get('cat');
-    const parsedCategories = urlToCategories(catParam);
-    if (parsedCategories.length > 0) {
-      setSelectedCategories(parsedCategories);
-      setTimeout(() => scrollToCategories(), 100);
-    }
-
-    // Read search from URL
-    const searchParam = searchParams.get('search');
-    if (searchParam) {
-      setSearchTerm(searchParam);
-    }
-
     // Read date or date range from URL
     const dateParam = searchParams.get('date');
     const dateStartParam = searchParams.get('dateStart');
@@ -106,6 +60,29 @@ const Index = () => {
       }
     }
   }, []); // Only run once on mount
+
+  // Synka sök och kategorier från URL:en - körs både vid mount och när
+  // t.ex. header-sökningen navigerar hit med nya parametrar
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch !== searchTerm) {
+      setSearchTerm(urlSearch);
+      if (urlSearch) {
+        setCurrentPage(1);
+        setTimeout(() => scrollToResults(), 150);
+      }
+    }
+
+    const urlCategories = urlToCategories(searchParams.get('cat'));
+    if (JSON.stringify(urlCategories) !== JSON.stringify(selectedCategories)) {
+      setSelectedCategories(urlCategories);
+      if (urlCategories.length > 0) {
+        setCurrentPage(1);
+        setTimeout(() => scrollToResults(), 150);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Hämta events från Supabase
   useEffect(() => {
@@ -266,6 +243,29 @@ const Index = () => {
     // as it's likely being called alongside onDateChange
   };
 
+  // Dagens events för "Händer idag"-sektionen
+  const todayEvents = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return events.filter((event) => {
+      const eventDate = new Date(event.date);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate.getTime() === today.getTime();
+    });
+  }, [events]);
+
+  const hasActiveFilters =
+    selectedCategories.length > 0 || !!selectedDate || !!dateRange || !!searchTerm.trim();
+
+  const handleShowAllToday = () => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    handleQuickFilter({ id: 'today', type: 'date', dateRange: { start, end } });
+    setTimeout(() => scrollToResults(), 100);
+  };
+
   const handleQuickFilter = (filter: any) => {
     // Rensa andra filter först (inklusive sökning)
     setSelectedCategories([]);
@@ -296,29 +296,10 @@ const Index = () => {
     resetPagination();
   };
 
-  const handleSearchChange = (search: string) => {
-    setSearchTerm(search);
-    updateUrlParams({ 'search': search || null });
-    resetPagination();
-  };
-
   const scrollToResults = () => {
     if (resultsRef.current) {
       const offset = 100; // Extra offset för att scrolla längre ner
       const elementPosition = resultsRef.current.offsetTop;
-      const offsetPosition = elementPosition + offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  const scrollToCategories = () => {
-    if (categoriesRef.current) {
-      const offset = -80; // Negativ offset för att inte scrolla för långt
-      const elementPosition = categoriesRef.current.offsetTop;
       const offsetPosition = elementPosition + offset;
 
       window.scrollTo({
@@ -418,27 +399,43 @@ const Index = () => {
 
       <div className="min-h-screen bg-texture">
         <Header />
-      <Hero 
+      <Hero
         onFilterApply={handleQuickFilter}
         onScrollToResults={scrollToResults}
-        onScrollToCategories={scrollToCategories}
-        onSearchChange={handleSearchChange}
-        onCategorySelect={(category) => {
-          setSelectedCategories([category]);
-          setSearchTerm("");
-          updateUrlParams({ 'cat': categoriesToUrl([category]), 'search': null });
-          resetPagination();
-        }}
         events={events}
-        initialSearchTerm={searchTerm}
       />
       
+      {/* Händer idag - teaser direkt under hero (visas bara utan aktiva filter) */}
+      {!loading && !hasActiveFilters && todayEvents.length > 0 && (
+        <section className="container mx-auto px-4 pt-2 pb-4">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center" style={{ color: '#08075C' }}>
+            Detta händer idag
+          </h2>
+          <EventList events={todayEvents.slice(0, 3)} />
+          {todayEvents.length > 3 && (
+            <div className="text-center mt-4">
+              <button
+                onClick={handleShowAllToday}
+                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                style={{
+                  color: '#08075C',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #08075C'
+                }}
+              >
+                Visa alla {todayEvents.length} evenemang idag
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
       <main className="container mx-auto px-4 pt-6 pb-12" ref={resultsRef}>
         <div className="mb-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center" style={{ color: '#08075C' }}>{getH1Text()}</h2>
           
           {/* Category Scroller */}
-          <div ref={categoriesRef}>
+          <div>
             <CategoryScroller
               selectedCategories={selectedCategories}
               onCategoryToggle={handleCategoryToggle}
