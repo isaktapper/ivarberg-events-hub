@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, ChevronRight, CalendarPlus, Share2 } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, ChevronRight, CalendarPlus, Share2, Ticket } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
@@ -558,6 +558,21 @@ const EventDetail = () => {
                   </div>
                 )}
               </div>
+
+              {/* Pris - Gratis endast vid is_free === true (sätts i admin, härleds aldrig från price).
+                  Vid is_free === false visas prissträngen rakt av som fritext, aldrig tolkad/omformaterad. */}
+              {event.is_free === true && (
+                <div className="flex items-center gap-2" style={{ color: '#08075C', opacity: 0.8 }}>
+                  <Ticket className="h-5 w-5" style={{ color: '#4A90E2' }} />
+                  <span className="text-lg font-semibold text-green-700">Gratis</span>
+                </div>
+              )}
+              {event.is_free === false && event.price && (
+                <div className="flex items-center gap-2" style={{ color: '#08075C', opacity: 0.8 }}>
+                  <Ticket className="h-5 w-5" style={{ color: '#4A90E2' }} />
+                  <span className="text-lg">{event.price}</span>
+                </div>
+              )}
             </div>
 
             {/* Description */}

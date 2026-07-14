@@ -47,6 +47,7 @@ export interface Event {
   venue_name: string | null; // Platsnamn
   area?: string | null; // Område i Varbergs kommun; null/saknas = okänd plats
   price: string | null;
+  is_free?: boolean | null; // true = säkert gratis, false = kostar, null = okänt (sätts i admin, härleds ALDRIG här)
   image_url: string | null;
   description: string | null;
   description_format?: 'markdown' | 'plain'; // Format för beskrivning
@@ -88,6 +89,7 @@ export interface EventDisplay {
   venue_name: string | null; // Platsnamn
   area?: string | null; // Område i Varbergs kommun; null/saknas = okänd plats
   price: string;
+  is_free?: boolean | null; // true = säkert gratis, false = kostar, null = okänt (sätts i admin, härleds ALDRIG här)
   image: string;
   description: string;
   description_format?: 'markdown' | 'plain'; // Format för beskrivning

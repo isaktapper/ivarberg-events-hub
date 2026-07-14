@@ -167,7 +167,10 @@ export function transformEventForDisplay(event: Event): EventDisplay {
     location: event.location,
     venue_name: event.venue_name,
     area: event.area,
-    price: event.price || 'Gratis',
+    // Prissträngen är fritext i blandade format - visas rakt av, tolkas aldrig.
+    // Gratis-status kommer ENBART från is_free (sätts i admin), aldrig från price.
+    price: event.price || '',
+    is_free: event.is_free ?? null,
     image: event.image_url || '/placeholder.svg',
     description: event.description || '',
     isFeatured: event.featured,
