@@ -11,7 +11,7 @@ import { Footer } from "@/components/Footer";
 import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { FAQSchema } from "@/components/FAQSchema";
 import { getPublishedEvents, getAllEvents } from "@/services/eventService";
-import { EventCategory, EventDisplay, hasCategory } from "@/types/event";
+import { EventCategory, EventDisplay, hasCategory, EVENT_AREAS, eventMatchesArea } from "@/types/event";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
 
 // Category abbreviations for shorter URLs
@@ -91,9 +91,9 @@ const Index = () => {
       setSelectedDate(new Date(dateParam));
     }
 
-    // Read location from URL
+    // Read location from URL (only known areas are accepted)
     const locationParam = searchParams.get('location');
-    if (locationParam) {
+    if (locationParam && (EVENT_AREAS as readonly string[]).includes(locationParam)) {
       setSelectedLocation(locationParam);
     }
 
@@ -146,7 +146,8 @@ const Index = () => {
     resetPagination();
   };
 
-  const filteredEvents = useMemo(() => {
+  // Alla filter utom område – används både för listan och för räknarna i områdesfiltret
+  const preLocationEvents = useMemo(() => {
     let filteredEvents = [...events];
 
     // Search filter - söker i eventnamn, platsnamn, och arrangör
@@ -198,6 +199,21 @@ const Index = () => {
 
     return filteredEvents;
   }, [events, selectedCategories, selectedDate, dateRange, searchTerm]);
+
+  // Location filter ("Hela Varberg" = inget filter)
+  const filteredEvents = useMemo(() => {
+    if (selectedLocation === "Hela Varberg") return preLocationEvents;
+    return preLocationEvents.filter((event) => eventMatchesArea(event, selectedLocation));
+  }, [preLocationEvents, selectedLocation]);
+
+  // Antal events per område, med övriga filter applicerade (visas i områdesfiltret)
+  const areaCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const area of EVENT_AREAS) {
+      counts[area] = preLocationEvents.filter((event) => eventMatchesArea(event, area)).length;
+    }
+    return counts;
+  }, [preLocationEvents]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
@@ -454,8 +470,9 @@ const Index = () => {
                 onDateChange={handleDateChange}
                 onDateRangeChange={handleDateRangeChange}
               />
-              <LocationFilter 
+              <LocationFilter
                 selectedLocation={selectedLocation}
+                areaCounts={areaCounts}
                 onLocationChange={(location) => {
                   setSelectedLocation(location);
                   updateUrlParams({ 'location': location !== "Hela Varberg" ? location : null });

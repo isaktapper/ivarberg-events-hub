@@ -166,6 +166,7 @@ export function transformEventForDisplay(event: Event): EventDisplay {
     }),
     location: event.location,
     venue_name: event.venue_name,
+    area: event.area,
     price: event.price || 'Gratis',
     image: event.image_url || '/placeholder.svg',
     description: event.description || '',

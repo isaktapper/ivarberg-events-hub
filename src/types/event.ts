@@ -19,6 +19,20 @@ export interface CategoryScore {
 
 export type EventStatus = 'draft' | 'pending_approval' | 'published' | 'cancelled';
 
+// Områden i Varbergs kommun (matchar area-kolumnen som sätts vid import i admin)
+export const EVENT_AREAS = [
+  "Centrala Varberg",
+  "Getterön",
+  "Apelviken",
+  "Träslövsläge",
+  "Tvååker",
+  "Veddige",
+  "Bua",
+  "Övriga kommunen",
+] as const;
+
+export type EventArea = (typeof EVENT_AREAS)[number];
+
 export interface Event {
   id: number;
   event_id: string;
@@ -31,6 +45,7 @@ export interface Event {
   date_time: string; // ISO string från Supabase
   location: string; // Adress
   venue_name: string | null; // Platsnamn
+  area?: string | null; // Område i Varbergs kommun; null/saknas = okänd plats
   price: string | null;
   image_url: string | null;
   description: string | null;
@@ -71,6 +86,7 @@ export interface EventDisplay {
   time: string;
   location: string; // Adress
   venue_name: string | null; // Platsnamn
+  area?: string | null; // Område i Varbergs kommun; null/saknas = okänd plats
   price: string;
   image: string;
   description: string;
@@ -113,6 +129,12 @@ export function hasCategory(event: Event | EventDisplay, category: EventCategory
 
 export function getAllCategories(event: Event | EventDisplay): EventCategory[] {
   return event.categories || (event.category ? [event.category] : []);
+}
+
+// "Övriga kommunen" fångar även events utan säker platsbestämning (area = null)
+export function eventMatchesArea(event: Event | EventDisplay, area: string): boolean {
+  if (area === "Övriga kommunen") return !event.area || event.area === "Övriga kommunen";
+  return event.area === area;
 }
 
 export function ensureCategories(event: Event | EventDisplay): Event | EventDisplay {
