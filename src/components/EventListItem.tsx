@@ -71,12 +71,6 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
                 )}
               </div>
             )}
-            {/* Gratis-badge - visas ENDAST vid is_free === true (sätts i admin, härleds aldrig från price) */}
-            {event.is_free === true && (
-              <div className="absolute bottom-1.5 left-1.5 rounded-md text-xs px-2 py-0.5 font-semibold bg-white/90 backdrop-blur text-green-700">
-                Gratis
-              </div>
-            )}
           </div>
 
           {/* Content - Flexible width on right */}
