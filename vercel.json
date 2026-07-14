@@ -1,6 +1,9 @@
 {
   "rewrites": [
     { "source": "/idag", "destination": "/api/landing?period=idag" },
+    { "source": "/imorgon", "destination": "/api/landing?period=imorgon" },
+    { "source": "/i-helgen", "destination": "/api/landing?period=i-helgen" },
+    { "source": "/i-veckan", "destination": "/api/landing?period=i-veckan" },
     { "source": "/(.*)", "destination": "/" }
   ],
   "headers": [

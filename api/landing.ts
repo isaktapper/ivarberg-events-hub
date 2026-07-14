@@ -23,10 +23,12 @@ interface DbEvent {
 interface PeriodConfig {
   slug: string;
   h1: string;
+  pill: string; // etikett i hero-pillren
+  highlightsTitle: string;
   titleLabel: (dateLabel: string) => string;
   intro: string; // ordet som beskriver perioden i löptext, ex "idag"
-  from: (today: string) => string; // YYYY-MM-DD (inklusive)
-  to: (today: string) => string;   // YYYY-MM-DD (exklusive)
+  range: (today: string) => { from: string; to: string }; // from inkl, to exkl (YYYY-MM-DD)
+  label: (from: string, to: string) => string; // datumetikett för visning
 }
 
 function addDays(isoDate: string, days: number): string {
@@ -35,14 +37,67 @@ function addDays(isoDate: string, days: number): string {
   return dt.toISOString().split('T')[0];
 }
 
+// 0 = måndag ... 6 = söndag
+function weekdayIndex(isoDate: string): number {
+  const [y, m, d] = isoDate.split('-').map(Number);
+  return (new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7;
+}
+
+function rangeLabel(from: string, to: string): string {
+  return `${svDateLabel(from)} – ${svDateLabel(addDays(to, -1))}`;
+}
+
+// Helgen = fredag–söndag, samma logik som startsidans "I helgen"-filter (Hero.tsx),
+// men aldrig bakåt i tiden: står vi mitt i helgen börjar intervallet idag.
+function weekendRange(today: string): { from: string; to: string } {
+  const wd = weekdayIndex(today); // 0 = mån
+  const friday = addDays(today, 4 - wd); // denna veckas fredag (bakåt om lör/sön, framåt annars)
+  const from = friday < today ? today : friday;
+  const sunday = addDays(friday, 2);
+  return { from, to: addDays(sunday, 1) };
+}
+
 const PERIODS: Record<string, PeriodConfig> = {
   idag: {
     slug: 'idag',
     h1: 'Vad händer i Varberg idag?',
+    pill: 'Idag',
+    highlightsTitle: 'Dagens höjdpunkter',
     titleLabel: (dateLabel) => `Vad händer i Varberg idag, ${dateLabel}?`,
     intro: 'idag',
-    from: (today) => today,
-    to: (today) => addDays(today, 1),
+    range: (today) => ({ from: today, to: addDays(today, 1) }),
+    label: (from) => svDateLabel(from),
+  },
+  imorgon: {
+    slug: 'imorgon',
+    h1: 'Vad händer i Varberg imorgon?',
+    pill: 'Imorgon',
+    highlightsTitle: 'Morgondagens höjdpunkter',
+    titleLabel: (dateLabel) => `Vad händer i Varberg imorgon, ${dateLabel}?`,
+    intro: 'imorgon',
+    range: (today) => ({ from: addDays(today, 1), to: addDays(today, 2) }),
+    label: (from) => svDateLabel(from),
+  },
+  'i-helgen': {
+    slug: 'i-helgen',
+    h1: 'Vad händer i Varberg i helgen?',
+    pill: 'I helgen',
+    highlightsTitle: 'Helgens höjdpunkter',
+    titleLabel: (dateLabel) => `Vad händer i Varberg i helgen, ${dateLabel}?`,
+    intro: 'i helgen',
+    range: weekendRange,
+    label: rangeLabel,
+  },
+  'i-veckan': {
+    slug: 'i-veckan',
+    h1: 'Vad händer i Varberg i veckan?',
+    pill: 'I veckan',
+    highlightsTitle: 'Veckans höjdpunkter',
+    titleLabel: (dateLabel) => `Vad händer i Varberg i veckan, ${dateLabel}?`,
+    intro: 'i veckan',
+    // Resten av innevarande vecka (idag t.o.m. söndag) – listar inte redan passerade dagar
+    range: (today) => ({ from: today, to: addDays(today, 7 - weekdayIndex(today)) }),
+    label: rangeLabel,
   },
 };
 
@@ -131,7 +186,13 @@ function pickHighlights(events: DbEvent[], count = 3): DbEvent[] {
 }
 
 // Självständigt svarsblock (~134–167 ord) – det AI-översikten kan citera
-function buildIntro(period: PeriodConfig, dateLabel: string, events: DbEvent[], highlights: DbEvent[]): string {
+function buildIntro(
+  period: PeriodConfig,
+  dateLabel: string,
+  events: DbEvent[],
+  highlights: DbEvent[],
+  multiDay: boolean
+): string {
   if (events.length === 0) return '';
   const categories = [...new Set(events.map(mainCategory))];
   const catPhrase =
@@ -143,9 +204,11 @@ function buildIntro(period: PeriodConfig, dateLabel: string, events: DbEvent[], 
     const venue = e.venue_name ? ` på ${e.venue_name}` : '';
     const price = parsePrice(e.price);
     const pricePart = price.free ? ' med fri entré' : '';
+    const day = eventDayLabel(e);
+    const dayPrefix = multiDay ? `${day.charAt(0).toUpperCase() + day.slice(1)} ` : '';
     return t
-      ? `Kl. ${t} börjar ${e.name}${venue}${pricePart}`
-      : `${e.name} pågår under dagen${venue}${pricePart}`;
+      ? `${dayPrefix}${multiDay ? 'kl.' : 'Kl.'} ${t} börjar ${e.name}${venue}${pricePart}`
+      : `${e.name} pågår ${multiDay ? day : 'under dagen'}${venue}${pricePart}`;
   });
   const count = events.length === 1 ? 'ett evenemang' : `${events.length} evenemang`;
 
@@ -158,9 +221,12 @@ function buildIntro(period: PeriodConfig, dateLabel: string, events: DbEvent[], 
         : `${freeCount} av evenemangen har fri entré`
     );
   }
-  const evening = events.find(
-    (e) => !highlights.includes(e) && (eventTime(e) || '').replace('.', ':') >= '17:00'
-  );
+  // "Senare i kväll" är bara meningsfullt på idag-sidan
+  const evening = multiDay
+    ? undefined
+    : events.find(
+        (e) => !highlights.includes(e) && (eventTime(e) || '').replace('.', ':') >= '17:00'
+      );
   if (evening) {
     extras.push(
       `Senare i kväll, kl. ${eventTime(evening)}, väntar ${evening.name}` +
@@ -315,7 +381,7 @@ function renderPage(opts: {
 }): string {
   const { period, dateLabel, events, fallback, multiDay } = opts;
   const highlights = fallback ? [] : pickHighlights(events);
-  const intro = fallback ? '' : buildIntro(period, dateLabel, events, highlights);
+  const intro = fallback ? '' : buildIntro(period, dateLabel, events, highlights, multiDay);
   const title = `${period.titleLabel(dateLabel)} | ivarberg.nu`;
   const metaDescription = fallback
     ? `Inga evenemang i Varberg ${period.intro} (${dateLabel}) – men här är kommande höjdpunkter. Uppdateras dagligen.`
@@ -366,6 +432,12 @@ ${jsonLdScript(events, period, title, metaDescription)}
   .hero-badge svg { width:.9rem; height:.9rem; opacity:.8; }
   .hero h1 { font-family:'Outfit','Poppins',sans-serif; font-size:clamp(2.5rem,7vw,4.5rem); line-height:1.1; color:#fff; font-weight:700; letter-spacing:-.02em; filter:drop-shadow(0 8px 30px rgba(0,0,0,.8)); margin-bottom:1.25rem; }
   .hero-sub { color:rgba(255,255,255,.9); font-size:1.15rem; font-weight:500; text-shadow:0 2px 8px rgba(0,0,0,.5); }
+  /* Period-piller i glas-stil, som startsidans snabbfilter */
+  .hero-pills { display:grid; grid-template-columns:repeat(2,1fr); gap:.75rem; max-width:20rem; margin:2.5rem auto 0; }
+  @media (min-width:640px) { .hero-pills { display:flex; justify-content:center; max-width:none; gap:1rem; } }
+  .hero-pill { display:block; padding:.8rem 1.6rem; border-radius:9999px; font-size:.95rem; font-weight:500; text-decoration:none; color:var(--navy); background:rgba(215,235,255,.45); border:1px solid rgba(255,255,255,.7); backdrop-filter:blur(16px); box-shadow:0 8px 32px 0 rgba(31,38,135,.15); transition:all .2s; text-align:center; }
+  .hero-pill:hover { background:rgba(74,144,226,.9); color:#fff; transform:scale(1.02); }
+  .hero-pill.active { background:rgba(74,144,226,.9); color:#fff; border-color:rgba(255,255,255,.9); }
   .wave { position:absolute; bottom:-2px; left:0; right:0; z-index:1; pointer-events:none; }
   .wave svg { display:block; width:100%; height:auto; min-height:80px; }
   main { max-width:72rem; margin:-4.5rem auto 0; position:relative; z-index:2; padding:0 1.5rem 3rem; }
@@ -447,6 +519,14 @@ ${jsonLdScript(events, period, title, metaDescription)}
     <p class="hero-sub">${escapeHtml(dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1))} · ${
       fallback ? 'Se kommande evenemang' : `${events.length} evenemang i Varberg`
     }</p>
+    <nav class="hero-pills" aria-label="Välj period">
+${Object.values(PERIODS)
+  .map(
+    (p) =>
+      `      <a class="hero-pill${p.slug === period.slug ? ' active' : ''}" href="/${p.slug}">${escapeHtml(p.pill)}</a>`
+  )
+  .join('\n')}
+    </nav>
   </div>
   <div class="wave"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="hsl(32 44% 96%)" fill-opacity="1" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg></div>
 </section>
@@ -460,7 +540,7 @@ ${
     <p class="intro-text">${escapeHtml(intro)}</p>
     <label for="intro-toggle" class="intro-more"><span class="show">Visa mer</span><span class="hide">Visa mindre</span></label>
   </div>
-  <h2>Dagens ${highlights.length} höjdpunkter</h2>
+  <h2>${escapeHtml(period.highlightsTitle)}</h2>
   <div class="grid3">
 ${highlights.map((e) => highlightCard(e, multiDay)).join('\n')}
   </div>
@@ -550,8 +630,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const today = stockholmToday();
-    const from = period.from(today);
-    const to = period.to(today);
+    const { from, to } = period.range(today);
 
     let events = await fetchEvents(from, to);
     if (events === null) {
@@ -563,12 +642,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let fallback = false;
     if (events.length === 0) {
       fallback = true;
-      events = (await fetchEvents(to, addDays(today, 14), 10)) || [];
+      events = (await fetchEvents(to, addDays(to, 14), 10)) || [];
     }
 
     const html = renderPage({
       period,
-      dateLabel: svDateLabel(today),
+      dateLabel: period.label(from, to),
       events,
       fallback,
       multiDay: addDays(from, 1) !== to,
