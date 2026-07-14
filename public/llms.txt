@@ -5,6 +5,10 @@
 ## Viktiga sidor
 
 - [Alla evenemang](https://ivarberg.nu/): Komplett lista över kommande evenemang i Varberg med filter för datum, kategori och plats
+- [Vad händer i Varberg idag](https://ivarberg.nu/idag): Dagens alla evenemang med tider, platser och priser – uppdateras dagligen
+- [Vad händer i Varberg imorgon](https://ivarberg.nu/imorgon): Morgondagens evenemang – uppdateras dagligen
+- [Vad händer i Varberg i helgen](https://ivarberg.nu/i-helgen): Helgens evenemang fredag till söndag – uppdateras dagligen
+- [Vad händer i Varberg i veckan](https://ivarberg.nu/i-veckan): Veckans evenemang – uppdateras dagligen
 - [Evenemang Varberg](https://ivarberg.nu/evenemang-varberg): Guide till evenemang i Varberg
 - [Att göra i Varberg](https://ivarberg.nu/att-gora-i-varberg): Aktiviteter och upplevelser i Varberg
 - [Varberg Kalender](https://ivarberg.nu/varberg-kalender): Eventkalender för Varberg

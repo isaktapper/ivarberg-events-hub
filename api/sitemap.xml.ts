@@ -45,9 +45,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
-      { 
-        url: 'https://ivarberg.nu/evenemang-varberg', 
-        priority: '0.9', 
+      {
+        url: 'https://ivarberg.nu/idag',
+        priority: '0.9',
+        changefreq: 'daily',
+        lastmod: new Date().toISOString().split('T')[0]
+      },
+      {
+        url: 'https://ivarberg.nu/imorgon',
+        priority: '0.9',
+        changefreq: 'daily',
+        lastmod: new Date().toISOString().split('T')[0]
+      },
+      {
+        url: 'https://ivarberg.nu/i-helgen',
+        priority: '0.9',
+        changefreq: 'daily',
+        lastmod: new Date().toISOString().split('T')[0]
+      },
+      {
+        url: 'https://ivarberg.nu/i-veckan',
+        priority: '0.9',
+        changefreq: 'daily',
+        lastmod: new Date().toISOString().split('T')[0]
+      },
+      {
+        url: 'https://ivarberg.nu/evenemang-varberg',
+        priority: '0.9',
         changefreq: 'weekly',
         lastmod: new Date().toISOString().split('T')[0]
       },
