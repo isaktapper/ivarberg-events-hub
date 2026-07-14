@@ -255,9 +255,21 @@ export function Hero({ onFilterApply, onScrollToResults, events }: HeroProps) {
                   }}
                 >
                   <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="font-medium truncate">{filter.label}</span>
+                  <span className="font-medium truncate">
+                    {filter.id === 'this-week' ? (
+                      <>
+                        <span className="sm:hidden">Veckan</span>
+                        <span className="hidden sm:inline">Denna vecka</span>
+                      </>
+                    ) : (
+                      filter.label
+                    )}
+                  </span>
                   {(filterCounts[filter.id] ?? 0) > 0 && (
-                    <span className="text-xs sm:text-sm font-normal flex-shrink-0" style={{ opacity: 0.7 }}>
+                    <span
+                      className="min-w-[1.4rem] px-1.5 py-0.5 rounded-full text-xs font-semibold flex-shrink-0 text-center leading-none"
+                      style={{ backgroundColor: '#FFFFFF', color: '#08075C', boxShadow: '0 1px 4px rgba(8, 7, 92, 0.15)' }}
+                    >
                       {filterCounts[filter.id]}
                     </span>
                   )}
