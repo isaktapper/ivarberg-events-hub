@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/idag", "destination": "/api/landing?period=idag" },
     { "source": "/(.*)", "destination": "/" }
   ],
   "headers": [
