@@ -316,40 +316,69 @@ function renderPage(opts: {
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 ${jsonLdScript(events, period, title, metaDescription)}
 <style>
-  :root { --primary:#0A7FC2; --primary-dark:#065A8D; --pale:#E8F4F8; --text:#2D3748; --text-light:#757575; --border:#E0E0E0; }
+  /* Färger/typografi speglar src/index.css + Footer.tsx (navy #08075C, ocean-blå, sandbeige) */
+  :root { --navy:#08075C; --ocean:hsl(217 91% 42%); --beige:hsl(32 44% 96%); --text:hsl(215 25% 15%); --muted:hsl(215 15% 45%); --border:hsl(210 20% 90%); --accent:#4A90E2; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Poppins',-apple-system,sans-serif; color:var(--text); background:#FAFAFA; line-height:1.6; }
-  header { background:#fff; border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
-  header a.logo { font-weight:800; font-size:1.25rem; color:var(--primary); text-decoration:none; }
-  main { max-width:52rem; margin:0 auto; padding:2rem 1.5rem 3rem; }
-  h1 { font-size:2rem; line-height:1.25; margin-bottom:.25rem; }
-  .date { color:var(--text-light); margin-bottom:1.25rem; text-transform:capitalize; }
-  .intro { background:var(--pale); border-radius:1.25rem; padding:1.25rem 1.5rem; margin-bottom:2rem; font-size:1.05rem; }
-  h2 { font-size:1.4rem; margin:2rem 0 1rem; }
-  .card { background:#fff; border:1px solid var(--border); border-radius:1.25rem; padding:1.25rem 1.5rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-  .card h3 { font-size:1.15rem; margin:.35rem 0 .15rem; }
-  .card a { color:var(--primary-dark); text-decoration:none; }
-  .card a:hover { text-decoration:underline; }
-  .badge { display:inline-block; background:var(--primary); color:#fff; font-size:.75rem; font-weight:600; border-radius:9999px; padding:.15rem .75rem; }
-  .meta { color:var(--text-light); font-size:.9rem; margin-bottom:.35rem; }
-  ul.events { list-style:none; }
-  ul.events li { display:flex; gap:1rem; align-items:baseline; padding:.7rem .25rem; border-bottom:1px solid var(--border); }
-  ul.events .time { flex:0 0 7.5rem; font-weight:600; font-size:.9rem; color:var(--primary-dark); }
+  body { font-family:'Poppins',system-ui,sans-serif; color:var(--text); background:var(--beige); line-height:1.6; }
+  .nav { position:sticky; top:0; z-index:10; background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-bottom:1px solid rgba(8,7,92,.08); }
+  .nav-inner { max-width:64rem; margin:0 auto; display:flex; align-items:center; gap:1.5rem; padding:.65rem 1.5rem; }
+  .nav img { height:2rem; width:auto; display:block; }
+  .nav-links { display:flex; gap:1.25rem; margin-left:auto; }
+  .nav-links a { color:var(--navy); opacity:.85; text-decoration:none; font-size:.9rem; font-weight:500; }
+  .nav-links a:hover { color:var(--accent); opacity:1; }
+  .nav-cta { background:var(--navy); color:#fff; font-size:.85rem; font-weight:700; padding:.5rem 1rem; border-radius:.375rem; text-decoration:none; white-space:nowrap; }
+  main { max-width:52rem; margin:0 auto; padding:2.5rem 1.5rem 3rem; }
+  h1 { font-size:2.1rem; line-height:1.2; color:var(--navy); margin-bottom:.25rem; }
+  .date { color:var(--muted); margin-bottom:1.5rem; }
+  .intro { background:rgba(255,255,255,.9); border:1px solid rgba(255,255,255,.5); border-radius:1rem; box-shadow:0 2px 12px hsl(217 91% 42% / .1); padding:1.4rem 1.6rem; margin-bottom:2.25rem; font-size:1.02rem; }
+  h2 { font-size:1.35rem; color:var(--navy); margin:2.25rem 0 1rem; }
+  .card { background:rgba(255,255,255,.9); border:1px solid rgba(255,255,255,.5); border-radius:1rem; box-shadow:0 2px 12px hsl(217 91% 42% / .1); padding:1.25rem 1.5rem; margin-bottom:1rem; transition:box-shadow .2s; }
+  .card:hover { box-shadow:0 8px 32px hsl(217 91% 42% / .16); }
+  .badge { display:inline-block; background:#eff6ff; color:#2563eb; font-size:.75rem; font-weight:600; border-radius:9999px; padding:.25rem .75rem; }
+  .card h3 { font-size:1.12rem; margin:.5rem 0 .15rem; }
+  .card h3 a { color:var(--navy); text-decoration:none; }
+  .card h3 a:hover { color:var(--accent); }
+  .meta { color:var(--muted); font-size:.88rem; margin-bottom:.4rem; }
+  ul.events { list-style:none; background:rgba(255,255,255,.9); border:1px solid rgba(255,255,255,.5); border-radius:1rem; box-shadow:0 2px 12px hsl(217 91% 42% / .1); overflow:hidden; }
+  ul.events li { display:flex; gap:1rem; align-items:baseline; padding:.85rem 1.25rem; border-bottom:1px solid var(--border); }
+  ul.events li:last-child { border-bottom:none; }
+  ul.events .time { flex:0 0 7.5rem; font-weight:600; font-size:.88rem; color:var(--ocean); }
   ul.events .what { flex:1; }
-  ul.events .what a { color:var(--text); font-weight:600; text-decoration:none; }
-  ul.events .what a:hover { color:var(--primary); }
-  ul.events .venue { display:block; color:var(--text-light); font-size:.85rem; }
-  ul.events .price { flex:0 0 auto; color:var(--text-light); font-size:.85rem; }
-  .cta { display:inline-block; margin-top:2rem; background:var(--primary); color:#fff; font-weight:600; text-decoration:none; border-radius:9999px; padding:.85rem 2rem; }
-  footer { max-width:52rem; margin:0 auto; padding:1.5rem; color:var(--text-light); font-size:.85rem; border-top:1px solid var(--border); }
-  footer a { color:var(--primary-dark); }
+  ul.events .what a { color:var(--navy); font-weight:600; text-decoration:none; }
+  ul.events .what a:hover { color:var(--accent); }
+  ul.events .venue { display:block; color:var(--muted); font-size:.83rem; font-weight:400; }
+  ul.events .price { flex:0 0 auto; color:var(--muted); font-size:.83rem; }
+  .cta { display:inline-block; margin-top:2.25rem; background:linear-gradient(135deg,hsl(217 91% 42%),hsl(210 100% 56%)); color:#fff; font-weight:600; text-decoration:none; border-radius:9999px; padding:.9rem 2rem; box-shadow:0 4px 16px hsl(217 91% 42% / .12); }
+  .cta:hover { box-shadow:0 8px 32px hsl(217 91% 42% / .16); }
+  footer { background:#fff; border-top:1px solid rgba(8,7,92,.1); margin-top:4rem; }
+  .footer-grid { max-width:72rem; margin:0 auto; padding:3rem 1.5rem 0; display:grid; grid-template-columns:1fr; gap:2rem; }
+  @media (min-width:640px) { .footer-grid { grid-template-columns:1fr 1fr; } }
+  @media (min-width:1024px) { .footer-grid { grid-template-columns:repeat(5,1fr); } }
+  footer h3 { color:var(--navy); font-size:1.15rem; margin-bottom:.75rem; }
+  footer h4 { color:var(--navy); font-size:.95rem; margin-bottom:.75rem; }
+  footer p, footer li, footer a { color:rgba(8,7,92,.7); font-size:.85rem; }
+  footer ul { list-style:none; }
+  footer li { margin-bottom:.45rem; }
+  footer a { text-decoration:none; }
+  footer a:hover { color:var(--accent); }
+  .copyright { max-width:72rem; margin:2rem auto 0; padding:1.5rem; border-top:1px solid rgba(8,7,92,.1); text-align:center; font-size:.85rem; color:rgba(8,7,92,.7); }
+  @media (max-width:640px) { .nav-links { display:none; } h1 { font-size:1.7rem; } ul.events li { flex-wrap:wrap; } ul.events .time { flex-basis:100%; } }
 </style>
 </head>
 <body>
-<header><a class="logo" href="/">ivarberg.nu</a></header>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="/"><img src="/logo.png" alt="ivarberg.nu"></a>
+    <nav class="nav-links">
+      <a href="/">Alla evenemang</a>
+      <a href="/om-oss">Om oss</a>
+    </nav>
+    <a class="nav-cta" href="/tips">Tipsa oss om evenemang</a>
+  </div>
+</header>
 <main>
   <h1>${escapeHtml(period.h1)}</h1>
-  <p class="date">${escapeHtml(dateLabel)}</p>
+  <p class="date">${escapeHtml(dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1))}</p>
 ${
   fallback
     ? `  <div class="intro"><p>Inga evenemang är inplanerade i Varberg ${escapeHtml(period.intro)}. Här är i stället de närmaste kommande evenemangen – hela kalendern hittar du på <a href="/">startsidan</a>.</p></div>
@@ -365,10 +394,48 @@ ${events.map((e) => eventRow(e, multiDay || fallback)).join('\n')}
   <a class="cta" href="/">Se hela kalendern och filtrera på kategori</a>
 </main>
 <footer>
-  <p>ivarberg.nu samlar evenemang från alla arrangörer i Varbergs kommun på ett ställe.
-  Se även <a href="/evenemang-varberg">evenemang i Varberg</a>,
-  <a href="/att-gora-i-varberg">att göra i Varberg</a> och
-  <a href="/varberg-kalender">Varbergs kalender</a>.</p>
+  <div class="footer-grid">
+    <div>
+      <h3>ivarberg.nu</h3>
+      <p>Din kompletta guide till Varbergs puls. Missa aldrig ett evenemang igen!</p>
+    </div>
+    <div>
+      <h4>Snabblänkar</h4>
+      <ul>
+        <li><a href="/">Alla evenemang</a></li>
+        <li><a href="/evenemang-varberg">Evenemang Varberg</a></li>
+        <li><a href="/att-gora-i-varberg">Att göra i Varberg</a></li>
+        <li><a href="/varberg-kalender">Varberg Kalender</a></li>
+        <li><a href="/tips">Tipsa oss</a></li>
+        <li><a href="/om-oss">Om oss</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Kategorier</h4>
+      <ul>
+        <li><a href="/?category=Scen">Scen &amp; Teater</a></li>
+        <li><a href="/?category=Sport">Sport</a></li>
+        <li><a href="/?category=Mat%20%26%20Dryck">Mat &amp; Dryck</a></li>
+        <li><a href="/?category=Barn%20%26%20Familj">Barn &amp; Familj</a></li>
+        <li><a href="/?category=Nattliv">Nattliv</a></li>
+        <li><a href="/?category=Utst%C3%A4llningar">Utställningar</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Kontakt</h4>
+      <ul>
+        <li>info@ivarberg.nu</li>
+        <li>Fästningsgatan 5, 432 44 Varberg</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Följ oss</h4>
+      <ul>
+        <li><a href="https://instagram.com/ivarberg.nu" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="copyright">&copy; ${new Date().getFullYear()} ivarberg.nu - Alla rättigheter förbehållna</div>
 </footer>
 </body>
 </html>`;
