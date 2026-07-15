@@ -28,3 +28,6 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Claude Code (lokala worktrees och sessionsfiler)
+.claude/
