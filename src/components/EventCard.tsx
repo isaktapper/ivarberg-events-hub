@@ -62,12 +62,14 @@ export function EventCard({ event }: EventCardProps) {
             })}</span>
           </div>
           
-          <div className="flex items-center gap-3 text-sm text-gray-600">
-            <div className="flex items-center justify-center w-8 h-8 bg-blue-50 rounded-full">
-              <Clock className="h-4 w-4 text-blue-600" />
+          {event.time && (
+            <div className="flex items-center gap-3 text-sm text-gray-600">
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-50 rounded-full">
+                <Clock className="h-4 w-4 text-blue-600" />
+              </div>
+              <span className="font-medium">{event.time}</span>
             </div>
-            <span className="font-medium">{event.time}</span>
-          </div>
+          )}
           
           <div className="flex items-center gap-3 text-sm text-gray-600">
             <div className="flex items-center justify-center w-8 h-8 bg-blue-50 rounded-full">

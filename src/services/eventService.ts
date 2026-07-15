@@ -160,9 +160,12 @@ export function transformEventForDisplay(event: Event): EventDisplay {
     categories: event.categories,
     category_scores: event.category_scores,
     date: eventDate,
-    time: isAllDay ? 'Hela dagen' : eventDate.toLocaleTimeString('sv-SE', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    // Kl 00:00 betyder i praktiken "tid saknas i källan" - vi påstår inget
+    // (tidigare visades det som "Hela dagen", vilket oftast var fel).
+    // Tom sträng = okänd tid; UI:t utelämnar då klockslaget helt.
+    time: isAllDay ? '' : eventDate.toLocaleTimeString('sv-SE', {
+      hour: '2-digit',
+      minute: '2-digit'
     }),
     location: event.location,
     venue_name: event.venue_name,

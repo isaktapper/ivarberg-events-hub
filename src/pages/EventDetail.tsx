@@ -156,7 +156,7 @@ const EventDetail = () => {
   const handleShare = async () => {
     const shareData = {
       title: event.title,
-      text: `Kolla in: ${event.title} - ${event.date.toLocaleDateString('sv-SE')} ${event.time}\n\n${window.location.href}`,
+      text: `Kolla in: ${event.title} - ${event.date.toLocaleDateString('sv-SE')}${event.time ? ` ${event.time}` : ''}\n\n${window.location.href}`,
       url: window.location.href
     };
 
@@ -233,7 +233,7 @@ const EventDetail = () => {
 
   // SEO data
   const cleanDescription = event.description.replace(/[#*_\[\]`]/g, '').replace(/\n+/g, ' ');
-  const seoDescription = `${event.title} i Varberg - ${event.date.toLocaleDateString('sv-SE')} kl ${event.time}. ${cleanDescription.substring(0, 120)}...`;
+  const seoDescription = `${event.title} i Varberg - ${event.date.toLocaleDateString('sv-SE')}${event.time ? ` kl ${event.time}` : ''}. ${cleanDescription.substring(0, 120)}...`;
   const seoKeywords = `${event.title}, evenemang Varberg, ${getAllCategories(event).join(', ')}, event Varberg, Varberg evenemang`;
   const eventUrl = `https://ivarberg.nu/event/${id}`;
   
@@ -442,7 +442,7 @@ const EventDetail = () => {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'
-                    })} - {event.time}
+                    })}{event.time ? ` - ${event.time}` : ''}
                   </span>
                 </div>
                 <Button

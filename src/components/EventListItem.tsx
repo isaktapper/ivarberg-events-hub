@@ -91,7 +91,7 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
                 <Calendar className="h-3 w-3 flex-shrink-0" />
                 <span className="truncate">
                   {formatRelativeDate(event.date)}
-                  {event.time === 'Hela dagen' ? ', hela dagen' : `, kl ${event.time}`}
+                  {event.time ? `, kl ${event.time}` : ''}
                 </span>
               </div>
               <div className="flex items-center gap-1 min-w-0">

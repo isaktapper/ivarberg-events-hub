@@ -274,7 +274,7 @@ const Index = () => {
       return eventDate.getTime() === today.getTime();
     });
     const upcoming = allToday.filter(
-      (event) => event.time === 'Hela dagen' || event.date.getTime() >= now.getTime()
+      (event) => !event.time || event.date.getTime() >= now.getTime()
     );
     return { upcomingTodayEvents: upcoming, totalTodayCount: allToday.length };
   }, [events]);

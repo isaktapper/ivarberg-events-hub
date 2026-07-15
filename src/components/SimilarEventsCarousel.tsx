@@ -169,10 +169,10 @@ export function SimilarEventsCarousel({ events }: SimilarEventsCarouselProps) {
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3 flex-shrink-0" />
                         <span className="truncate">
-                          {event.date.toLocaleDateString('sv-SE', { 
-                            month: 'short', 
-                            day: 'numeric' 
-                          })} - {event.time}
+                          {event.date.toLocaleDateString('sv-SE', {
+                            month: 'short',
+                            day: 'numeric'
+                          })}{event.time ? ` - ${event.time}` : ''}
                         </span>
                       </div>
                       

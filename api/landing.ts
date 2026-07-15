@@ -355,7 +355,8 @@ function highlightCard(e: DbEvent, multiDay: boolean): string {
 function eventRow(e: DbEvent, multiDay: boolean): string {
   const t = eventTime(e);
   const date = e.date_time.slice(0, 10);
-  const timeLabel = t ? `${date} - ${t.replace('.', ':')}` : `${date} - Hela dagen`;
+  // Saknad tid (kl 00:00 i källan) utelämnas - vi påstår inte "Hela dagen"
+  const timeLabel = t ? `${date} - ${t.replace('.', ':')}` : date;
   return `<li><a class="litem" href="/event/${escapeHtml(e.event_id)}">
     <span class="litem-img">
       <img src="${eventImage(e)}" alt="${escapeHtml(imageAlt(e))}" loading="lazy">
