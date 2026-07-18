@@ -58,8 +58,29 @@ export default {
         },
         sunset: {
           DEFAULT: "hsl(var(--sunset-orange))",
-          light: "hsl(var(--sunset-light))",
         },
+        sand: {
+          DEFAULT: "hsl(var(--sand))",
+          deep: "hsl(var(--sand-deep))",
+        },
+        ink: {
+          DEFAULT: "hsl(var(--ink))",
+          soft: "hsl(var(--ink-soft))",
+        },
+        navy: "hsl(var(--navy-zone))",
+        sea: {
+          DEFAULT: "hsl(var(--sea))",
+          dark: "hsl(var(--sea-dark))",
+          light: "hsl(var(--sea-light))",
+          lightest: "hsl(var(--sea-lightest))",
+          mist: "hsl(var(--sea-mist))",
+        },
+        poppy: {
+          DEFAULT: "hsl(var(--poppy))",
+          light: "hsl(var(--poppy-light))",
+        },
+        seaglass: "hsl(var(--seaglass))",
+        success: "hsl(var(--success))",
       },
       fontFamily: {
         heading: ["Poppins", "system-ui", "sans-serif"],

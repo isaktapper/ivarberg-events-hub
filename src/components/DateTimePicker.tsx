@@ -124,7 +124,7 @@ export function DateTimePicker({ value, onChange, required }: DateTimePickerProp
                   disabled={!tempDate || !tempTime}
                   className="w-full"
                   style={{
-                    backgroundColor: tempDate && tempTime ? '#4A90E2' : undefined,
+                    backgroundColor: tempDate && tempTime ? '#0F5AA6' : undefined,
                     color: tempDate && tempTime ? '#FFFFFF' : undefined,
                   }}
                 >

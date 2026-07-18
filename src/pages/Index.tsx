@@ -10,7 +10,7 @@ import { LocationFilter } from "@/components/LocationFilter";
 import { Footer } from "@/components/Footer";
 import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { FAQSchema } from "@/components/FAQSchema";
-import { getPublishedEvents, getAllEvents } from "@/services/eventService";
+import { getPublishedEvents } from "@/services/eventService";
 import { EventCategory, EventDisplay, hasCategory, EVENT_AREAS, eventMatchesArea } from "@/types/event";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
 import { categoriesToUrl, urlToCategories } from "@/lib/categoryUrls";
@@ -89,8 +89,7 @@ const Index = () => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        // DEBUG: Använd getAllEvents för att se alla events
-        const eventsData = await getAllEvents();
+        const eventsData = await getPublishedEvents();
         
         // Lägg till test events i utvecklingsläge för multi-category testning
         if (eventsData.length === 0) {
@@ -434,7 +433,7 @@ const Index = () => {
       {/* Händer idag - teaser direkt under hero (visas bara utan aktiva filter) */}
       {!loading && !hasActiveFilters && upcomingTodayEvents.length > 0 && (
         <section className="container mx-auto px-4 pt-2 pb-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center" style={{ color: '#08075C' }}>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center" style={{ color: '#10214B' }}>
             Detta händer idag
           </h2>
           <EventList events={upcomingTodayEvents.slice(0, 3)} />
@@ -444,9 +443,9 @@ const Index = () => {
                 onClick={handleShowAllToday}
                 className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
                 style={{
-                  color: '#08075C',
+                  color: '#10214B',
                   backgroundColor: '#FFFFFF',
-                  border: '1px solid #08075C'
+                  border: '1px solid #10214B'
                 }}
               >
                 Visa alla {totalTodayCount} evenemang idag
@@ -458,7 +457,7 @@ const Index = () => {
 
       <main className="container mx-auto px-4 pt-6 pb-12" ref={resultsRef}>
         <div className="mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center" style={{ color: '#08075C' }}>{getH1Text()}</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center" style={{ color: '#10214B' }}>{getH1Text()}</h2>
           
           {/* Category Scroller */}
           <div>
@@ -502,8 +501,8 @@ const Index = () => {
               className="text-sm mt-3 transition-colors cursor-pointer"
               style={{
                 color: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm)
-                  ? '#4A90E2' 
-                  : '#08075C',
+                  ? '#0F5AA6' 
+                  : '#10214B',
                 opacity: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm)
                   ? 1 
                   : 0.5
@@ -516,13 +515,13 @@ const Index = () => {
         
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#4A90E2' }}></div>
-            <p className="mt-4" style={{ color: '#08075C' }}>Laddar evenemang...</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#0F5AA6' }}></div>
+            <p className="mt-4" style={{ color: '#10214B' }}>Laddar evenemang...</p>
           </div>
         ) : events.length === 0 ? (
           <div className="text-center py-12">
-            <p style={{ color: '#08075C' }}>Inga evenemang hittades.</p>
-            <p className="text-sm mt-2" style={{ color: '#08075C', opacity: 0.7 }}>
+            <p style={{ color: '#10214B' }}>Inga evenemang hittades.</p>
+            <p className="text-sm mt-2" style={{ color: '#10214B', opacity: 0.7 }}>
               Kontrollera att du har lagt till evenemang i databasen och att de har status 'published'.
             </p>
           </div>
@@ -540,16 +539,16 @@ const Index = () => {
                 disabled={currentPage === 1}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  color: '#08075C',
+                  color: '#10214B',
                   backgroundColor: '#FFFFFF',
-                  border: '1px solid #08075C'
+                  border: '1px solid #10214B'
                 }}
               >
                 ‹ Föregående
               </button>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm" style={{ color: '#08075C', opacity: 0.7 }}>
+                <span className="text-sm" style={{ color: '#10214B', opacity: 0.7 }}>
                   Sida {currentPage} av {totalPages}
                 </span>
               </div>
@@ -559,9 +558,9 @@ const Index = () => {
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  color: '#08075C',
+                  color: '#10214B',
                   backgroundColor: '#FFFFFF',
-                  border: '1px solid #08075C'
+                  border: '1px solid #10214B'
                 }}
               >
                 Nästa ›
@@ -575,9 +574,9 @@ const Index = () => {
                 disabled={currentPage === 1}
                 className="px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  color: '#08075C',
+                  color: '#10214B',
                   backgroundColor: '#FFFFFF',
-                  border: '1px solid #08075C'
+                  border: '1px solid #10214B'
                 }}
               >
                 Föregående
@@ -622,7 +621,7 @@ const Index = () => {
 
                   return pages.map((page, index) => (
                     page === '...' ? (
-                      <span key={`ellipsis-${index}`} className="px-2 text-sm" style={{ color: '#08075C', opacity: 0.5 }}>
+                      <span key={`ellipsis-${index}`} className="px-2 text-sm" style={{ color: '#10214B', opacity: 0.5 }}>
                         ...
                       </span>
                     ) : (
@@ -631,9 +630,9 @@ const Index = () => {
                         onClick={() => handlePageChange(page as number)}
                         className="w-10 h-10 text-sm font-medium rounded-lg transition-colors"
                         style={{
-                          backgroundColor: currentPage === page ? '#4A90E2' : '#FFFFFF',
-                          color: currentPage === page ? '#FFFFFF' : '#08075C',
-                          border: `1px solid ${currentPage === page ? '#4A90E2' : '#08075C'}`
+                          backgroundColor: currentPage === page ? '#0F5AA6' : '#FFFFFF',
+                          color: currentPage === page ? '#FFFFFF' : '#10214B',
+                          border: `1px solid ${currentPage === page ? '#0F5AA6' : '#10214B'}`
                         }}
                       >
                         {page}
@@ -648,9 +647,9 @@ const Index = () => {
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  color: '#08075C',
+                  color: '#10214B',
                   backgroundColor: '#FFFFFF',
-                  border: '1px solid #08075C'
+                  border: '1px solid #10214B'
                 }}
               >
                 Nästa
@@ -660,7 +659,7 @@ const Index = () => {
         )}
         
         {/* Results info */}
-        <div className="text-center text-sm mt-4" style={{ color: '#08075C', opacity: 0.7 }}>
+        <div className="text-center text-sm mt-4" style={{ color: '#10214B', opacity: 0.7 }}>
           Visar {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)} av {filteredEvents.length} evenemang
         </div>
       </main>

@@ -10,18 +10,38 @@ interface EventDescriptionProps {
   maxLength?: number; // Max längd innan "Visa mer" visas
 }
 
-export function EventDescription({ 
-  description, 
+// Klipp efter hel mening i stället för mitt i ett ord — en avhuggen rad om
+// insläppstider gör mer skada än en något längre teaser.
+function truncateAtSentence(text: string, max: number): string {
+  const slice = text.slice(0, max);
+  const lastEnd = Math.max(
+    slice.lastIndexOf('. '),
+    slice.lastIndexOf('! '),
+    slice.lastIndexOf('? '),
+    slice.lastIndexOf('.\n'),
+    slice.lastIndexOf('!\n'),
+    slice.lastIndexOf('?\n')
+  );
+  if (lastEnd > max * 0.4) {
+    return text.slice(0, lastEnd + 1);
+  }
+  // Ingen rimlig meningsgräns — falla tillbaka på ordgräns
+  const lastSpace = slice.lastIndexOf(' ');
+  return (lastSpace > 0 ? slice.slice(0, lastSpace) : slice) + '…';
+}
+
+export function EventDescription({
+  description,
   format = 'markdown',
   className = '',
   maxLength = 300
 }: EventDescriptionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Kolla om beskrivningen är lång nog för expand/collapse
   const shouldShowReadMore = description.length > maxLength;
-  const displayDescription = !isExpanded && shouldShowReadMore 
-    ? description.slice(0, maxLength) + '...' 
+  const displayDescription = !isExpanded && shouldShowReadMore
+    ? truncateAtSentence(description, maxLength)
     : description;
 
   // Fallback för gamla events med plain text
@@ -34,13 +54,10 @@ export function EventDescription({
         {shouldShowReadMore && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-3 text-sm font-medium transition-colors hover:underline px-2 py-1 rounded"
-            style={{ 
-              color: '#4A90E2',
-              backgroundColor: 'rgba(255, 255, 255, 0.5)'
-            }}
+            className="mt-3 inline-flex items-center gap-0.5 text-[15px] font-semibold text-sea hover:text-sea-dark transition-colors"
           >
             {isExpanded ? 'Visa mindre' : 'Visa mer'}
+            <span aria-hidden="true">{isExpanded ? ' ‹' : ' ›'}</span>
           </button>
         )}
       </div>
@@ -55,10 +72,10 @@ export function EventDescription({
     
     // Rubriker (h1 renderas som h2 – sidan ska bara ha en h1: eventtiteln)
     h1: ({ node, ...props }) => (
-      <h2 className="text-2xl font-bold mb-4 mt-6" style={{ color: '#08075C' }} {...props} />
+      <h2 className="text-2xl font-bold mb-4 mt-6" style={{ color: '#10214B' }} {...props} />
     ),
     h2: ({ node, ...props }) => (
-      <h2 className="text-xl font-semibold mb-3 mt-5" style={{ color: '#08075C' }} {...props} />
+      <h2 className="text-xl font-semibold mb-3 mt-5" style={{ color: '#10214B' }} {...props} />
     ),
     h3: ({ node, ...props }) => (
       <h3 className="text-lg font-semibold text-gray-800 mb-2 mt-4" {...props} />
@@ -77,7 +94,7 @@ export function EventDescription({
     
     // Fetstil och kursiv
     strong: ({ node, ...props }) => (
-      <strong className="font-semibold" style={{ color: '#08075C' }} {...props} />
+      <strong className="font-semibold" style={{ color: '#10214B' }} {...props} />
     ),
     em: ({ node, ...props }) => (
       <em className="italic text-gray-600" {...props} />
@@ -87,7 +104,7 @@ export function EventDescription({
     a: ({ node, ...props }) => (
       <a 
         className="font-medium hover:underline" 
-        style={{ color: '#4A90E2' }}
+        style={{ color: '#0F5AA6' }}
         target="_blank" 
         rel="noopener noreferrer"
         {...props} 
@@ -98,7 +115,7 @@ export function EventDescription({
     blockquote: ({ node, ...props }) => (
       <blockquote 
         className="italic text-gray-600 my-4 pl-4"
-        style={{ borderLeft: '4px solid #4A90E2' }}
+        style={{ borderLeft: '4px solid #0F5AA6' }}
         {...props} 
       />
     ),
@@ -124,26 +141,23 @@ export function EventDescription({
         
         {/* Fade-out gradient när text är kollapsad */}
         {!isExpanded && shouldShowReadMore && (
-          <div 
+          <div
             className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
             style={{
-              background: 'linear-gradient(to bottom, transparent, hsl(32, 44%, 96%))'
+              background: 'linear-gradient(to bottom, transparent, hsl(var(--background)))'
             }}
           />
         )}
       </div>
-      
+
       {/* Visa mer/mindre knapp */}
       {shouldShowReadMore && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-3 text-sm font-medium transition-colors hover:underline px-2 py-1 rounded"
-          style={{ 
-            color: '#4A90E2',
-            backgroundColor: '#F5F3F0'
-          }}
+          className="mt-3 inline-flex items-center gap-0.5 text-[15px] font-semibold text-sea hover:text-sea-dark transition-colors"
         >
           {isExpanded ? 'Visa mindre' : 'Visa mer'}
+          <span aria-hidden="true">{isExpanded ? ' ‹' : ' ›'}</span>
         </button>
       )}
     </div>

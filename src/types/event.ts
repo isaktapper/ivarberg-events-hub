@@ -120,6 +120,44 @@ export const categoryColors: Record<EventCategory, string> = {
   "Okategoriserad": "bg-gray-500",
 };
 
+// Kategorichips: 12 kategorier delar 6 hue-familjer (hav/tång/tegel/ljung/solgul/flint),
+// mörk text på egen ljus tintyta. Alla kombinationer klarar WCAG AA (5,3–7,8:1).
+export interface CategoryChipColor {
+  text: string;
+  bg: string;
+}
+
+const CHIP_HAV: CategoryChipColor = { text: '#0F4C81', bg: '#DCE9F7' };
+const CHIP_TANG: CategoryChipColor = { text: '#0B5F50', bg: '#DCEEE6' };
+const CHIP_TEGEL: CategoryChipColor = { text: '#A63A1B', bg: '#FBE3D6' };
+const CHIP_LJUNG: CategoryChipColor = { text: '#8A2455', bg: '#F9E2EC' };
+const CHIP_SOLGUL: CategoryChipColor = { text: '#7A5A00', bg: '#FBF0CE' };
+const CHIP_FLINT: CategoryChipColor = { text: '#4C3A78', bg: '#ECE5F4' };
+
+const CHIP_FALLBACK: CategoryChipColor = { text: '#4A566B', bg: '#EDEAE2' };
+
+export const categoryChipColors: Record<EventCategory, CategoryChipColor> = {
+  "Scen": CHIP_TEGEL,
+  "Mat & Dryck": CHIP_TEGEL,
+  "Jul": CHIP_TEGEL,
+  "Nattliv": CHIP_LJUNG,
+  "Sport": CHIP_TANG,
+  "Djur & Natur": CHIP_TANG,
+  "Utställningar": CHIP_FLINT,
+  "Föreläsningar": CHIP_FLINT,
+  "Barn & Familj": CHIP_SOLGUL,
+  "Marknader": CHIP_SOLGUL,
+  "Film & bio": CHIP_HAV,
+  "Guidade visningar": CHIP_HAV,
+  "Okategoriserad": CHIP_FALLBACK,
+};
+
+// Säker uppslagning: databasen kan innehålla kategorier utanför EventCategory-typen
+// (t.ex. "Konst") — då används neutral fallback i stället för att krascha.
+export function getCategoryChipColor(category: string): CategoryChipColor {
+  return categoryChipColors[category as EventCategory] ?? CHIP_FALLBACK;
+}
+
 // Helper functions för multi-category system
 export function getMainCategory(event: Event | EventDisplay): EventCategory {
   return event.categories?.[0] || event.category || 'Okategoriserad';

@@ -34,10 +34,10 @@ const About = () => {
         <div className="max-w-4xl mx-auto">
           {/* Hero Section */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#08075C' }}>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#10214B' }}>
               Om iVarberg.nu
             </h1>
-            <p className="text-lg md:text-xl leading-relaxed max-w-3xl mx-auto" style={{ color: '#08075C', opacity: 0.8 }}>
+            <p className="text-lg md:text-xl leading-relaxed max-w-3xl mx-auto" style={{ color: '#10214B', opacity: 0.8 }}>
               Din kompletta guide till allt som händer i Varberg. Vi samlar alla evenemang på ett ställe 
               så att du aldrig missar något spännande i vår vackra kuststad.
             </p>
@@ -48,12 +48,12 @@ const About = () => {
             {/* Vad vi gör */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <Calendar className="h-6 w-6" style={{ color: '#4A90E2' }} />
-                <h2 className="text-xl font-bold" style={{ color: '#08075C' }}>
+                <Calendar className="h-6 w-6" style={{ color: '#0F5AA6' }} />
+                <h2 className="text-xl font-bold" style={{ color: '#10214B' }}>
                   Vad vi gör
                 </h2>
               </div>
-              <p className="leading-relaxed" style={{ color: '#08075C', opacity: 0.7 }}>
+              <p className="leading-relaxed" style={{ color: '#10214B', opacity: 0.7 }}>
                 Vi samlar alla evenemang i Varberg, från stora konserter och teaterföreställningar 
                 till lokala föreningsaktiviteter och marknader. Vårt mål är att göra det enkelt 
                 för alla att upptäcka vad som händer i staden.
@@ -63,12 +63,12 @@ const About = () => {
             {/* Vår vision */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <Heart className="h-6 w-6" style={{ color: '#4A90E2' }} />
-                <h2 className="text-xl font-bold" style={{ color: '#08075C' }}>
+                <Heart className="h-6 w-6" style={{ color: '#0F5AA6' }} />
+                <h2 className="text-xl font-bold" style={{ color: '#10214B' }}>
                   Vår vision
                 </h2>
               </div>
-              <p className="leading-relaxed" style={{ color: '#08075C', opacity: 0.7 }}>
+              <p className="leading-relaxed" style={{ color: '#10214B', opacity: 0.7 }}>
                 Vi vill att Varberg ska vara en levande stad där alla känner sig välkomna att delta 
                 i det kulturella och sociala livet. Genom att samla all information på ett ställe 
                 gör vi det lättare för människor att hitta aktiviteter som passar dem.
@@ -78,12 +78,12 @@ const About = () => {
             {/* För arrangörer */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <Users className="h-6 w-6" style={{ color: '#4A90E2' }} />
-                <h2 className="text-xl font-bold" style={{ color: '#08075C' }}>
+                <Users className="h-6 w-6" style={{ color: '#0F5AA6' }} />
+                <h2 className="text-xl font-bold" style={{ color: '#10214B' }}>
                   För arrangörer
                 </h2>
               </div>
-              <p className="leading-relaxed mb-4" style={{ color: '#08075C', opacity: 0.7 }}>
+              <p className="leading-relaxed mb-4" style={{ color: '#10214B', opacity: 0.7 }}>
                 Arrangerar du evenemang i Varberg? Vi hjälper dig att nå ut till fler människor 
                 genom att visa ditt evenemang på vår plattform.
               </p>
@@ -91,7 +91,7 @@ const About = () => {
                 <Button
                   size="sm"
                   style={{
-                    backgroundColor: '#4A90E2',
+                    backgroundColor: '#0F5AA6',
                     color: '#FFFFFF',
                     border: 'none'
                   }}
@@ -104,12 +104,12 @@ const About = () => {
             {/* Kontakt */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <MapPin className="h-6 w-6" style={{ color: '#4A90E2' }} />
-                <h2 className="text-xl font-bold" style={{ color: '#08075C' }}>
+                <MapPin className="h-6 w-6" style={{ color: '#0F5AA6' }} />
+                <h2 className="text-xl font-bold" style={{ color: '#10214B' }}>
                   Kontakta oss
                 </h2>
               </div>
-              <div className="space-y-2" style={{ color: '#08075C', opacity: 0.7 }}>
+              <div className="space-y-2" style={{ color: '#10214B', opacity: 0.7 }}>
                 <p>📧 info@ivarberg.nu</p>
                 <p>📍 Varberg, Sverige</p>
               </div>
@@ -118,10 +118,10 @@ const About = () => {
 
           {/* Call to Action */}
           <div className="text-center bg-white rounded-xl p-8 shadow-sm">
-            <h2 className="text-2xl font-bold mb-4" style={{ color: '#08075C' }}>
+            <h2 className="text-2xl font-bold mb-4" style={{ color: '#10214B' }}>
               Hjälp oss göra Varberg ännu mer levande!
             </h2>
-            <p className="mb-6 max-w-2xl mx-auto" style={{ color: '#08075C', opacity: 0.7 }}>
+            <p className="mb-6 max-w-2xl mx-auto" style={{ color: '#10214B', opacity: 0.7 }}>
               Känner du till ett event som saknas? Eller har du förslag på hur vi kan förbättra sidan? 
               Vi uppskattar all feedback och alla tips!
             </p>
@@ -129,7 +129,7 @@ const About = () => {
               <Link to="/tips" target="_blank">
                 <Button
                   style={{
-                    backgroundColor: '#4A90E2',
+                    backgroundColor: '#0F5AA6',
                     color: '#FFFFFF',
                     border: 'none'
                   }}
@@ -142,8 +142,8 @@ const About = () => {
                   variant="outline"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    color: '#08075C',
-                    borderColor: '#08075C'
+                    color: '#10214B',
+                    borderColor: '#10214B'
                   }}
                 >
                   Tillbaka till evenemang

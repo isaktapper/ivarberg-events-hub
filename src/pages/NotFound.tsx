@@ -16,8 +16,8 @@ const NotFound = () => {
         <meta name="robots" content="noindex" />
       </Helmet>
       <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold" style={{ color: '#08075C' }}>404</h1>
-        <p className="mb-4 text-xl" style={{ color: '#08075C', opacity: 0.8 }}>Hoppsan! Sidan finns inte.</p>
+        <h1 className="mb-4 text-4xl font-bold" style={{ color: '#10214B' }}>404</h1>
+        <p className="mb-4 text-xl" style={{ color: '#10214B', opacity: 0.8 }}>Hoppsan! Sidan finns inte.</p>
         <Link to="/" className="text-blue-500 underline hover:text-blue-700">
           Tillbaka till startsidan
         </Link>

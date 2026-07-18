@@ -94,41 +94,41 @@ const Tips = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
             <div className="mb-8">
-              <CheckCircle className="h-16 w-16 mx-auto mb-4" style={{ color: '#4A90E2' }} />
-              <h1 className="text-3xl font-bold mb-4" style={{ color: '#08075C' }}>
+              <CheckCircle className="h-16 w-16 mx-auto mb-4" style={{ color: '#0F5AA6' }} />
+              <h1 className="text-3xl font-bold mb-4" style={{ color: '#10214B' }}>
                 Tack för ditt tips!
               </h1>
-              <p className="text-lg" style={{ color: '#08075C' }}>
+              <p className="text-lg" style={{ color: '#10214B' }}>
                 Ditt evenemang har skapats och kommer att granskas innan det publiceras.
               </p>
             </div>
 
             <div className="bg-white rounded-lg p-6 shadow-sm border">
-              <h2 className="text-xl font-semibold mb-4" style={{ color: '#08075C' }}>
+              <h2 className="text-xl font-semibold mb-4" style={{ color: '#10214B' }}>
                 Vad händer nu?
               </h2>
               <div className="text-left space-y-3">
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold" style={{ color: '#4A90E2' }}>1</span>
+                    <span className="text-xs font-bold" style={{ color: '#0F5AA6' }}>1</span>
                   </div>
-                  <p className="text-sm" style={{ color: '#08075C' }}>
+                  <p className="text-sm" style={{ color: '#10214B' }}>
                     Vi granskar ditt evenemang för att säkerställa kvalitet och korrekt information
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold" style={{ color: '#4A90E2' }}>2</span>
+                    <span className="text-xs font-bold" style={{ color: '#0F5AA6' }}>2</span>
                   </div>
-                  <p className="text-sm" style={{ color: '#08075C' }}>
+                  <p className="text-sm" style={{ color: '#10214B' }}>
                     Om allt ser bra ut publiceras evenemanget på vår sida
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold" style={{ color: '#4A90E2' }}>3</span>
+                    <span className="text-xs font-bold" style={{ color: '#0F5AA6' }}>3</span>
                   </div>
-                  <p className="text-sm" style={{ color: '#08075C' }}>
+                  <p className="text-sm" style={{ color: '#10214B' }}>
                     Du får en bekräftelse när evenemanget är live
                   </p>
                 </div>
@@ -139,7 +139,7 @@ const Tips = () => {
               <Button
                 onClick={() => window.location.href = '/'}
                 className="px-6 py-3"
-                style={{ backgroundColor: '#4A90E2', color: 'white' }}
+                style={{ backgroundColor: '#0F5AA6', color: 'white' }}
               >
                 Tillbaka till startsidan
               </Button>
@@ -179,11 +179,11 @@ const Tips = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <MessageCircle className="h-12 w-12 mx-auto mb-4" style={{ color: '#4A90E2' }} />
-            <h1 className="text-3xl font-bold mb-4" style={{ color: '#08075C' }}>
+            <MessageCircle className="h-12 w-12 mx-auto mb-4" style={{ color: '#0F5AA6' }} />
+            <h1 className="text-3xl font-bold mb-4" style={{ color: '#10214B' }}>
               Tipsa oss om ett evenemang
             </h1>
-            <p className="text-lg" style={{ color: '#08075C' }}>
+            <p className="text-lg" style={{ color: '#10214B' }}>
               Hjälp oss att hålla Varbergs evenemangskalender uppdaterad!
             </p>
           </div>
@@ -192,7 +192,7 @@ const Tips = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Namn på evenemang */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#10214B' }}>
                   Namn på evenemang *
                 </label>
                 <Input
@@ -206,7 +206,7 @@ const Tips = () => {
 
               {/* Datum och tid */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#10214B' }}>
                   Datum och tid *
                 </label>
                 <DateTimePicker
@@ -218,7 +218,7 @@ const Tips = () => {
 
               {/* Plats */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#10214B' }}>
                   Plats *
                 </label>
                 <AddressAutocomplete
@@ -235,7 +235,7 @@ const Tips = () => {
 
               {/* Beskrivning */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#10214B' }}>
                   Beskrivning *
                 </label>
                 <Textarea
@@ -249,7 +249,7 @@ const Tips = () => {
 
               {/* Kategorier */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#10214B' }}>
                   Kategori/er *
                 </label>
                 <CategoryMultiSelect
@@ -260,7 +260,7 @@ const Tips = () => {
 
               {/* Bild URL */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#10214B' }}>
                   Bild (via URL)
                 </label>
                 <Input
@@ -277,7 +277,7 @@ const Tips = () => {
 
               {/* Länk till hemsida */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#10214B' }}>
                   Länk till hemsida
                 </label>
                 <Input
@@ -294,7 +294,7 @@ const Tips = () => {
 
               {/* Din e-postadress */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#10214B' }}>
                   Din e-postadress *
                 </label>
                 <Input
@@ -312,7 +312,7 @@ const Tips = () => {
 
               {/* Din namn (valfritt) */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#08075C' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#10214B' }}>
                   Ditt namn (valfritt)
                 </label>
                 <Input
@@ -338,7 +338,7 @@ const Tips = () => {
                 type="submit"
                 disabled={isSubmitting}
                 className="w-full py-3"
-                style={{ backgroundColor: '#4A90E2', color: 'white' }}
+                style={{ backgroundColor: '#0F5AA6', color: 'white' }}
               >
                 {isSubmitting ? 'Skickar in tips...' : 'Skicka in tips'}
               </Button>

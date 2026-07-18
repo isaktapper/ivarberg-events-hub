@@ -75,20 +75,20 @@ export function CategoryScroller({ selectedCategories, onCategoryToggle }: Categ
               <div
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border flex items-center justify-center transition-all duration-200 active:scale-95 backdrop-blur-md shadow-lg"
                 style={{
-                  backgroundColor: isSelected ? 'rgba(74, 144, 226, 0.25)' : 'rgba(255, 255, 255, 0.25)',
-                  borderColor: isSelected ? 'rgba(74, 144, 226, 0.5)' : 'rgba(255, 255, 255, 0.5)',
-                  color: '#08075C',
+                  backgroundColor: isSelected ? 'rgba(15, 90, 166, 0.25)' : 'rgba(255, 255, 255, 0.25)',
+                  borderColor: isSelected ? 'rgba(15, 90, 166, 0.5)' : 'rgba(255, 255, 255, 0.5)',
+                  color: '#10214B',
                   backdropFilter: 'blur(12px)'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.3)';
-                  e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.5)';
+                  e.currentTarget.style.backgroundColor = 'rgba(15, 90, 166, 0.3)';
+                  e.currentTarget.style.borderColor = 'rgba(15, 90, 166, 0.5)';
                   e.currentTarget.style.color = '#FFFFFF';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isSelected ? 'rgba(74, 144, 226, 0.25)' : 'rgba(255, 255, 255, 0.25)';
-                  e.currentTarget.style.borderColor = isSelected ? 'rgba(74, 144, 226, 0.5)' : 'rgba(255, 255, 255, 0.5)';
-                  e.currentTarget.style.color = '#08075C';
+                  e.currentTarget.style.backgroundColor = isSelected ? 'rgba(15, 90, 166, 0.25)' : 'rgba(255, 255, 255, 0.25)';
+                  e.currentTarget.style.borderColor = isSelected ? 'rgba(15, 90, 166, 0.5)' : 'rgba(255, 255, 255, 0.5)';
+                  e.currentTarget.style.color = '#10214B';
                 }}
               >
                 <IconComponent
@@ -102,7 +102,7 @@ export function CategoryScroller({ selectedCategories, onCategoryToggle }: Categ
                   maxWidth: (isForelasning || isUtstallningar || isMarknader) ? '80px' : '65px',
                   wordWrap: 'break-word',
                   hyphens: 'auto',
-                  color: isSelected ? '#4A90E2' : '#08075C'
+                  color: isSelected ? '#0F5AA6' : '#10214B'
                 }}
               >
                 {category.label}
@@ -114,7 +114,7 @@ export function CategoryScroller({ selectedCategories, onCategoryToggle }: Categ
       
       {/* Scroll hint text - bara på mobil */}
       <div className="text-center mt-2 sm:hidden">
-        <span className="text-xs" style={{ color: '#08075C', opacity: 0.6 }}>
+        <span className="text-xs" style={{ color: '#10214B', opacity: 0.6 }}>
           Skrolla →
         </span>
       </div>

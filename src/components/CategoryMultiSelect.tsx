@@ -118,7 +118,7 @@ export function CategoryMultiSelect({ selectedCategories, onCategoriesChange, re
         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
           <ChevronDown
             className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-            style={{ color: '#08075C' }}
+            style={{ color: '#10214B' }}
           />
         </div>
 
@@ -141,7 +141,7 @@ export function CategoryMultiSelect({ selectedCategories, onCategoriesChange, re
                     isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                   }`}
                 >
-                  <span className="text-sm" style={{ color: '#08075C' }}>{option.label}</span>
+                  <span className="text-sm" style={{ color: '#10214B' }}>{option.label}</span>
                   {isSelected && <Check className="h-4 w-4 text-blue-600" />}
                 </button>
               );

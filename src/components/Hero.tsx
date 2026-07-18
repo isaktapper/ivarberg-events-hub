@@ -213,7 +213,7 @@ export function Hero({ onFilterApply, onScrollToResults, events }: HeroProps) {
           </div>
 
           {/* Rubrik med drop-shadow */}
-          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-4 sm:mb-6 tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.8)]" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-4 sm:mb-6 tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.8)]">
             Vad händer i Varberg?
           </h1>
 
@@ -236,13 +236,13 @@ export function Hero({ onFilterApply, onScrollToResults, events }: HeroProps) {
                   className="flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 sm:py-4 h-auto transition-all duration-200 shadow-lg hover:shadow-xl border w-full text-sm sm:text-base backdrop-blur-md"
                   style={{
                     backgroundColor: 'rgba(215, 235, 255, 0.45)', // Mer blåtonad glas-effekt
-                    color: '#08075C',
+                    color: '#10214B',
                     borderColor: 'rgba(255, 255, 255, 0.7)',
                     backdropFilter: 'blur(16px)',
                     boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.9)'; // Starkare blå vid hover
+                    e.currentTarget.style.backgroundColor = 'rgba(15, 90, 166, 0.9)'; // Starkare blå vid hover
                     e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.9)';
                     e.currentTarget.style.color = '#FFFFFF';
                     e.currentTarget.style.transform = 'scale(1.02)'; // Liten förstoring
@@ -250,7 +250,7 @@ export function Hero({ onFilterApply, onScrollToResults, events }: HeroProps) {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = 'rgba(215, 235, 255, 0.45)'; // Tillbaka till blåtonad glas
                     e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.7)';
-                    e.currentTarget.style.color = '#08075C';
+                    e.currentTarget.style.color = '#10214B';
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
@@ -268,7 +268,7 @@ export function Hero({ onFilterApply, onScrollToResults, events }: HeroProps) {
                   {(filterCounts[filter.id] ?? 0) > 0 && (
                     <span
                       className="min-w-[1.4rem] px-1.5 py-0.5 rounded-full text-xs font-semibold flex-shrink-0 text-center leading-none"
-                      style={{ backgroundColor: '#FFFFFF', color: '#08075C', boxShadow: '0 1px 4px rgba(8, 7, 92, 0.15)' }}
+                      style={{ backgroundColor: '#FFFFFF', color: '#10214B', boxShadow: '0 1px 4px rgba(16, 33, 75, 0.15)' }}
                     >
                       {filterCounts[filter.id]}
                     </span>

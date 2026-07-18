@@ -8,44 +8,62 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Ocean & Beach Inspired Colors */
-    --ocean-deep: 217 91% 42%;
+    /* Sand & hav-paletten (designöversyn juli 2026, docs/designoversyn-eventdetalj-2026-07.md)
+       Sand är basen, havet är handlingen (enbart interaktion), navy är en yta. Alla textbärande
+       kombinationer klarar WCAG AA — inför ingen accentvariant under 4,5:1 som textbärare. */
+    --sand: 32 44% 96%;           /* #F7F2EA-ish — sidbakgrund, samma som tidigare */
+    --sand-deep: 40 42% 89%;      /* sektionsband, alternerande ytor */
+    --ink: 223 65% 18%;           /* #10214B — rubrik & brödtext, 14:1 på sand */
+    --ink-soft: 218 18% 35%;      /* #4A566B — sekundär text, 6,6:1 på sand */
+    --navy-zone: 220 68% 14%;     /* #0B1B3A — mörka zoner: footer, sticky bar */
+    --sea: 210 83% 35%;           /* #0F5AA6 — CTA, länkar, aktiva ikoner. 6,2:1 på sand */
+    --sea-dark: 210 84% 29%;      /* #0C4A8A — hover/pressed, vit text 8,9:1 */
+    --sea-light: 211 63% 92%;     /* #DCE9F7 — sekundärknappar, valda filter */
+    --sea-lightest: 210 67% 96%;  /* #F0F6FC — infoband ("Fler datum") */
+    --sea-mist: 211 81% 79%;      /* #9DC8F5 — länkar/ikoner på mörk zon */
+    --poppy: 20 80% 40%;          /* #B84A14 — varm signal ("Idag!", "Marknadsfört"), 4,7:1 */
+    --poppy-light: 21 82% 91%;    /* #FBE3D6 — tonad badge-yta */
+    --seaglass: 173 47% 66%;      /* #7FD1C8 — accent ENDAST i mörka zoner, 9,6:1 på navy */
+    --success: 155 61% 27%;       /* #1B6E4B — bekräftelser, 5,6:1 */
+
+    /* Legacy-alias (används av gradients/äldre klasser) */
+    --ocean-deep: 210 83% 35%;
     --ocean-light: 210 100% 56%;
-    --sandy-beige: 32 44% 96%; /* Matchar vågens färg exakt */
+    --sandy-beige: 32 44% 96%;
     --sandy-light: 32 44% 97%;
-    --sunset-orange: 18 85% 65%; /* Ny accentfärg */
-    --dark-navy: 240 89% 20%;
-    --dark-navy-light: 240 89% 30%;
-    
+    --sunset-orange: 18 85% 65%;
+    --dark-navy: 220 68% 14%;
+    --dark-navy-light: 223 65% 25%;
+
     /* Core Design System */
-    --background: 32 44% 96%; /* Använder den justerade beigea */
-    --foreground: 215 25% 15%;
+    --background: var(--sand);
+    --foreground: var(--ink);
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
-    
+    --card-foreground: var(--ink);
+
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: var(--ink);
 
-    --primary: 217 91% 42%;
+    --primary: var(--sea);
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 217 91% 35%;
+    --primary-hover: var(--sea-dark);
 
-    --secondary: 32 44% 89%;
-    --secondary-foreground: 215 25% 15%;
+    --secondary: var(--sea-light);
+    --secondary-foreground: var(--sea-dark);
 
     --muted: 210 20% 95%;
-    --muted-foreground: 215 15% 45%;
+    --muted-foreground: var(--ink-soft);
 
-    --accent: 240 89% 20%;
+    --accent: var(--navy-zone);
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 4 72% 41%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 90%;
-    --ring: 217 91% 42%;
+    --border: 38 30% 84%;
+    --input: 38 30% 84%;
+    --ring: var(--sea);
 
     --radius: 0.75rem;
     --radius-sm: 0.5rem;

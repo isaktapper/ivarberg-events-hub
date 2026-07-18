@@ -47,18 +47,18 @@ export function LocationFilter({ selectedLocation, onLocationChange, areaCounts 
           style={{
             backgroundColor: 'rgba(255, 255, 255, 0.25)',
             borderColor: 'rgba(255, 255, 255, 0.5)',
-            color: '#08075C',
+            color: '#10214B',
             backdropFilter: 'blur(12px)'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(74, 144, 226, 0.7)';
-            e.currentTarget.style.borderColor = 'rgba(74, 144, 226, 0.8)';
+            e.currentTarget.style.backgroundColor = 'rgba(15, 90, 166, 0.7)';
+            e.currentTarget.style.borderColor = 'rgba(15, 90, 166, 0.8)';
             e.currentTarget.style.color = '#FFFFFF';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
             e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-            e.currentTarget.style.color = '#08075C';
+            e.currentTarget.style.color = '#10214B';
           }}
         >
           <MapPin className="h-4 w-4" />

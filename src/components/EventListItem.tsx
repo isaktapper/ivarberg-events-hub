@@ -53,7 +53,7 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
 
   return (
     <Link to={eventUrl} className="block" onClick={handleClick}>
-      <div className="bg-card border border-border rounded-lg overflow-hidden hover:border-[#4A90E2]/50 active:scale-[0.99] transition-all duration-200 cursor-pointer">
+      <div className="bg-card border border-border rounded-lg overflow-hidden hover:border-[#0F5AA6]/50 active:scale-[0.99] transition-all duration-200 cursor-pointer">
         <div className="flex h-28 sm:h-32">
           {/* Image - Fixed width on left */}
           <div className="w-28 sm:w-36 flex-shrink-0 relative">
@@ -79,7 +79,7 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
             <div>
               <h3 className="text-sm sm:text-base font-semibold leading-snug line-clamp-2">{event.title}</h3>
               {event.isFeatured && (
-                <p className="text-xs italic mt-1" style={{ color: '#4A90E2' }}>
+                <p className="text-xs italic mt-1" style={{ color: '#0F5AA6' }}>
                   Marknadsfört event
                 </p>
               )}

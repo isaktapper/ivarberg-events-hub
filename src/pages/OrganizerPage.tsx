@@ -110,8 +110,8 @@ const OrganizerPage = () => {
         <Header />
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#4A90E2' }}></div>
-            <p className="mt-4" style={{ color: '#08075C' }}>Laddar arrangör...</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#0F5AA6' }}></div>
+            <p className="mt-4" style={{ color: '#10214B' }}>Laddar arrangör...</p>
           </div>
         </main>
         <Footer />
@@ -129,15 +129,15 @@ const OrganizerPage = () => {
         <Header />
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4" style={{ color: '#08075C' }}>Arrangör hittades inte</h1>
-            <p className="mb-4" style={{ color: '#08075C', opacity: 0.7 }}>Slug: {slug}</p>
+            <h1 className="text-2xl font-bold mb-4" style={{ color: '#10214B' }}>Arrangör hittades inte</h1>
+            <p className="mb-4" style={{ color: '#10214B', opacity: 0.7 }}>Slug: {slug}</p>
             <Link to="/">
               <Button 
                 variant="outline"
                 style={{
                   backgroundColor: '#FFFFFF',
-                  color: '#08075C',
-                  borderColor: '#08075C'
+                  color: '#10214B',
+                  borderColor: '#10214B'
                 }}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -198,8 +198,8 @@ const OrganizerPage = () => {
             <div className="lg:col-span-2">
               {/* Description */}
               <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-                <h2 className="text-2xl font-bold mb-4" style={{ color: '#08075C' }}>Om {organizer.name}</h2>
-                <div className="prose max-w-none" style={{ color: '#08075C', opacity: 0.8 }}>
+                <h2 className="text-2xl font-bold mb-4" style={{ color: '#10214B' }}>Om {organizer.name}</h2>
+                <div className="prose max-w-none" style={{ color: '#10214B', opacity: 0.8 }}>
                   <p className="text-lg mb-4">{organizer.description}</p>
                   {organizer.content && (
                     <div 
@@ -213,7 +213,7 @@ const OrganizerPage = () => {
               {/* Gallery */}
               {organizer.gallery_images && organizer.gallery_images.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-                  <h3 className="text-xl font-bold mb-4" style={{ color: '#08075C' }}>Bilder från {organizer.name}</h3>
+                  <h3 className="text-xl font-bold mb-4" style={{ color: '#10214B' }}>Bilder från {organizer.name}</h3>
                   <ImageGallery images={organizer.gallery_images} />
                 </div>
               )}
@@ -221,7 +221,7 @@ const OrganizerPage = () => {
               {/* Events section - only show if there are events */}
               {!eventsLoading && events.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h3 className="text-xl font-bold mb-4" style={{ color: '#08075C' }}>
+                  <h3 className="text-xl font-bold mb-4" style={{ color: '#10214B' }}>
                     Kommande evenemang hos {organizer.name}
                   </h3>
                   <div className="relative">
@@ -244,8 +244,8 @@ const OrganizerPage = () => {
                             className="gap-2"
                             style={{
                               backgroundColor: '#FFFFFF',
-                              color: '#08075C',
-                              borderColor: '#08075C'
+                              color: '#10214B',
+                              borderColor: '#10214B'
                             }}
                           >
                             Visa fler evenemang ({events.length - 3} till)
@@ -264,8 +264,8 @@ const OrganizerPage = () => {
                           className="gap-2"
                           style={{
                             backgroundColor: '#FFFFFF',
-                            color: '#08075C',
-                            borderColor: '#08075C'
+                            color: '#10214B',
+                            borderColor: '#10214B'
                           }}
                         >
                           Visa färre evenemang
@@ -282,15 +282,15 @@ const OrganizerPage = () => {
             <div className="space-y-6">
               {/* Contact info */}
               <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold mb-4" style={{ color: '#08075C' }}>Kontakt</h3>
+                <h3 className="text-lg font-bold mb-4" style={{ color: '#10214B' }}>Kontakt</h3>
                 <div className="space-y-3">
                   {organizer.contact_info.email && (
                     <div className="flex items-center gap-3">
-                      <Mail className="h-4 w-4" style={{ color: '#4A90E2' }} />
+                      <Mail className="h-4 w-4" style={{ color: '#0F5AA6' }} />
                       <a 
                         href={`mailto:${organizer.contact_info.email}`}
                         className="text-sm hover:underline"
-                        style={{ color: '#08075C', opacity: 0.8 }}
+                        style={{ color: '#10214B', opacity: 0.8 }}
                       >
                         {organizer.contact_info.email}
                       </a>
@@ -298,11 +298,11 @@ const OrganizerPage = () => {
                   )}
                   {organizer.contact_info.phone && (
                     <div className="flex items-center gap-3">
-                      <Phone className="h-4 w-4" style={{ color: '#4A90E2' }} />
+                      <Phone className="h-4 w-4" style={{ color: '#0F5AA6' }} />
                       <a 
                         href={`tel:${organizer.contact_info.phone}`}
                         className="text-sm hover:underline"
-                        style={{ color: '#08075C', opacity: 0.8 }}
+                        style={{ color: '#10214B', opacity: 0.8 }}
                       >
                         {organizer.contact_info.phone}
                       </a>
@@ -310,13 +310,13 @@ const OrganizerPage = () => {
                   )}
                   {organizer.contact_info.website && (
                     <div className="flex items-center gap-3">
-                      <Globe className="h-4 w-4" style={{ color: '#4A90E2' }} />
+                      <Globe className="h-4 w-4" style={{ color: '#0F5AA6' }} />
                       <a 
                         href={organizer.contact_info.website}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm hover:underline flex items-center gap-1"
-                        style={{ color: '#08075C', opacity: 0.8 }}
+                        style={{ color: '#10214B', opacity: 0.8 }}
                       >
                         Besök webbplats
                         <ExternalLink className="h-3 w-3" />
@@ -325,8 +325,8 @@ const OrganizerPage = () => {
                   )}
                   {organizer.contact_info.address && (
                     <div className="flex items-center gap-3">
-                      <MapPin className="h-4 w-4" style={{ color: '#4A90E2' }} />
-                      <span className="text-sm" style={{ color: '#08075C', opacity: 0.8 }}>
+                      <MapPin className="h-4 w-4" style={{ color: '#0F5AA6' }} />
+                      <span className="text-sm" style={{ color: '#10214B', opacity: 0.8 }}>
                         {organizer.contact_info.address}
                       </span>
                     </div>
@@ -337,7 +337,7 @@ const OrganizerPage = () => {
               {/* Social links */}
               {(organizer.social_links.facebook || organizer.social_links.instagram || organizer.social_links.twitter) && (
                 <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold mb-4" style={{ color: '#08075C' }}>Följ oss</h3>
+                  <h3 className="text-lg font-bold mb-4" style={{ color: '#10214B' }}>Följ oss</h3>
                   <div className="flex gap-3">
                     {organizer.social_links.facebook && (
                       <a
@@ -346,7 +346,7 @@ const OrganizerPage = () => {
                         rel="noopener noreferrer"
                         className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                       >
-                        <Facebook className="h-5 w-5" style={{ color: '#4A90E2' }} />
+                        <Facebook className="h-5 w-5" style={{ color: '#0F5AA6' }} />
                       </a>
                     )}
                     {organizer.social_links.instagram && (
@@ -356,7 +356,7 @@ const OrganizerPage = () => {
                         rel="noopener noreferrer"
                         className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                       >
-                        <Instagram className="h-5 w-5" style={{ color: '#4A90E2' }} />
+                        <Instagram className="h-5 w-5" style={{ color: '#0F5AA6' }} />
                       </a>
                     )}
                     {organizer.social_links.twitter && (
@@ -366,7 +366,7 @@ const OrganizerPage = () => {
                         rel="noopener noreferrer"
                         className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                       >
-                        <Twitter className="h-5 w-5" style={{ color: '#4A90E2' }} />
+                        <Twitter className="h-5 w-5" style={{ color: '#0F5AA6' }} />
                       </a>
                     )}
                   </div>
@@ -375,15 +375,15 @@ const OrganizerPage = () => {
 
               {/* CTA */}
               <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold mb-4" style={{ color: '#08075C' }}>Vill du arrangera evenemang?</h3>
-                <p className="text-sm mb-4" style={{ color: '#08075C', opacity: 0.7 }}>
+                <h3 className="text-lg font-bold mb-4" style={{ color: '#10214B' }}>Vill du arrangera evenemang?</h3>
+                <p className="text-sm mb-4" style={{ color: '#10214B', opacity: 0.7 }}>
                   Tipsa oss om ditt evenemang så lägger vi upp det på ivarberg.nu!
                 </p>
                 <Link to="/tips">
                   <Button 
                     className="w-full"
                     style={{
-                      backgroundColor: '#4A90E2',
+                      backgroundColor: '#0F5AA6',
                       color: '#FFFFFF',
                       border: 'none'
                     }}

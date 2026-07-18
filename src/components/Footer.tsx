@@ -55,66 +55,63 @@ export function Footer() {
   };
 
   return (
-    <footer className="mt-16" style={{ backgroundColor: '#FFFFFF', borderTop: '1px solid rgba(8, 7, 92, 0.1)' }}>
+    <footer className="mt-16 bg-navy text-sand">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4" style={{ color: '#08075C' }}>
+            <h3 className="text-xl font-bold mb-4 text-sand">
               ivarberg.nu
             </h3>
-            <p className="text-sm" style={{ color: '#08075C', opacity: 0.7 }}>
+            <p className="text-sm text-sand/70">
               Din kompletta guide till Varbergs puls. Missa aldrig ett evenemang igen!
             </p>
           </div>
-          
+
           <div>
-            <h4 className="font-semibold mb-4" style={{ color: '#08075C' }}>Snabblänkar</h4>
+            <h4 className="font-semibold mb-4 text-sand">Snabblänkar</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Alla evenemang</a></li>
-              <li><a href="/evenemang-varberg" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Evenemang Varberg</a></li>
-              <li><a href="/att-gora-i-varberg" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Att göra i Varberg</a></li>
-              <li><a href="/varberg-kalender" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Varberg Kalender</a></li>
-              <li><a href="/tips" target="_blank" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Tipsa oss</a></li>
-              <li><a href="/om-oss" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Om oss</a></li>
+              <li><a href="/" className="text-sand/70 hover:text-seaglass transition-colors">Alla evenemang</a></li>
+              <li><a href="/evenemang-varberg" className="text-sand/70 hover:text-seaglass transition-colors">Evenemang Varberg</a></li>
+              <li><a href="/att-gora-i-varberg" className="text-sand/70 hover:text-seaglass transition-colors">Att göra i Varberg</a></li>
+              <li><a href="/varberg-kalender" className="text-sand/70 hover:text-seaglass transition-colors">Varberg Kalender</a></li>
+              <li><a href="/tips" target="_blank" className="text-sand/70 hover:text-seaglass transition-colors">Tipsa oss</a></li>
+              <li><a href="/om-oss" className="text-sand/70 hover:text-seaglass transition-colors">Om oss</a></li>
             </ul>
           </div>
-          
+
           <div>
-            <h4 className="font-semibold mb-4" style={{ color: '#08075C' }}>Kategorier</h4>
+            <h4 className="font-semibold mb-4 text-sand">Kategorier</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/?category=Scen" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Scen & Teater</a></li>
-              <li><a href="/?category=Sport" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Sport</a></li>
-              <li><a href={`/?category=${encodeURIComponent('Mat & Dryck')}`} className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Mat & Dryck</a></li>
-              <li><a href={`/?category=${encodeURIComponent('Barn & Familj')}`} className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Barn & Familj</a></li>
-              <li><a href="/?category=Nattliv" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Nattliv</a></li>
-              <li><a href="/?category=Utställningar" className="transition-colors" style={{ color: '#08075C', opacity: 0.7 }} onMouseEnter={(e) => e.currentTarget.style.color = '#4A90E2'} onMouseLeave={(e) => { e.currentTarget.style.color = '#08075C'; e.currentTarget.style.opacity = '0.7'; }}>Utställningar</a></li>
+              <li><a href="/?category=Scen" className="text-sand/70 hover:text-seaglass transition-colors">Scen & Teater</a></li>
+              <li><a href="/?category=Sport" className="text-sand/70 hover:text-seaglass transition-colors">Sport</a></li>
+              <li><a href={`/?category=${encodeURIComponent('Mat & Dryck')}`} className="text-sand/70 hover:text-seaglass transition-colors">Mat & Dryck</a></li>
+              <li><a href={`/?category=${encodeURIComponent('Barn & Familj')}`} className="text-sand/70 hover:text-seaglass transition-colors">Barn & Familj</a></li>
+              <li><a href="/?category=Nattliv" className="text-sand/70 hover:text-seaglass transition-colors">Nattliv</a></li>
+              <li><a href="/?category=Utställningar" className="text-sand/70 hover:text-seaglass transition-colors">Utställningar</a></li>
             </ul>
           </div>
-          
+
           <div>
-            <h4 className="font-semibold mb-4" style={{ color: '#08075C' }}>Kontakt</h4>
-            <ul className="space-y-2 text-sm" style={{ color: '#08075C', opacity: 0.7 }}>
+            <h4 className="font-semibold mb-4 text-sand">Kontakt</h4>
+            <ul className="space-y-2 text-sm text-sand/70">
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4" style={{ color: '#4A90E2' }} />
+                <Mail className="h-4 w-4 text-sea-mist" />
                 <span>info@ivarberg.nu</span>
               </li>
               <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" style={{ color: '#4A90E2' }} />
+                <MapPin className="h-4 w-4 text-sea-mist" />
                 <span>Fästningsgatan 5, 432 44 Varberg</span>
               </li>
             </ul>
           </div>
-          
+
           <div>
-            <h4 className="font-semibold mb-4" style={{ color: '#08075C' }}>Följ oss</h4>
+            <h4 className="font-semibold mb-4 text-sand">Följ oss</h4>
             <div className="flex gap-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full transition-colors"
-                style={{ color: '#08075C' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#4A90E2'; e.currentTarget.style.color = '#FFFFFF'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#08075C'; }}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full text-sand hover:bg-sand/10 hover:text-seaglass transition-colors"
                 asChild
               >
                 <a href="https://instagram.com/ivarberg.nu" target="_blank" rel="noopener noreferrer">
@@ -123,22 +120,17 @@ export function Footer() {
               </Button>
             </div>
             <div className="mt-4">
-              <Button 
-                className="rounded-full"
+              <Button
+                className="rounded-full bg-seaglass text-navy font-semibold hover:bg-seaglass/85"
                 onClick={() => setIsDialogOpen(true)}
-                style={{
-                  backgroundColor: '#4A90E2',
-                  color: '#FFFFFF',
-                  border: 'none'
-                }}
               >
                 Nyhetsbrev
               </Button>
             </div>
           </div>
         </div>
-        
-        <div className="mt-8 pt-8 text-center text-sm" style={{ borderTop: '1px solid rgba(8, 7, 92, 0.1)', color: '#08075C', opacity: 0.7 }}>
+
+        <div className="mt-8 pt-8 text-center text-sm border-t border-sand/15 text-sand/70">
           <p>&copy; {new Date().getFullYear()} ivarberg.nu - Alla rättigheter förbehållna</p>
         </div>
       </div>
@@ -147,8 +139,8 @@ export function Footer() {
       <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle style={{ color: '#08075C' }}>Prenumerera på nyhetsbrev</DialogTitle>
-            <DialogDescription style={{ color: '#08075C', opacity: 0.7 }}>
+            <DialogTitle style={{ color: '#10214B' }}>Prenumerera på nyhetsbrev</DialogTitle>
+            <DialogDescription style={{ color: '#10214B', opacity: 0.7 }}>
               Få de senaste evenemangen och nyheterna från Varberg direkt till din inkorg.
             </DialogDescription>
           </DialogHeader>
@@ -164,7 +156,7 @@ export function Footer() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="newsletter-name" style={{ color: '#08075C' }}>
+                <Label htmlFor="newsletter-name" style={{ color: '#10214B' }}>
                   Ditt namn *
                 </Label>
                 <Input
@@ -179,7 +171,7 @@ export function Footer() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="newsletter-email" style={{ color: '#08075C' }}>
+                <Label htmlFor="newsletter-email" style={{ color: '#10214B' }}>
                   Din e-postadress *
                 </Label>
                 <Input
@@ -204,7 +196,7 @@ export function Footer() {
                 disabled={isSubmitting}
                 className="w-full"
                 style={{
-                  backgroundColor: '#4A90E2',
+                  backgroundColor: '#0F5AA6',
                   color: '#FFFFFF',
                   border: 'none'
                 }}

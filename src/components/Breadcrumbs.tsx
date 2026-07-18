@@ -12,11 +12,11 @@ interface BreadcrumbsProps {
 }
 
 /**
- * Breadcrumbs component with Schema.org BreadcrumbList
- * Improves navigation and SEO
+ * Schema-only variant: BreadcrumbList JSON-LD utan synligt UI.
+ * Används på sidor (t.ex. eventdetalj på mobil) där synliga brödsmulor
+ * tagits bort men SEO-schemat ska behållas.
  */
-export function Breadcrumbs({ items }: BreadcrumbsProps) {
-  // Generate BreadcrumbList schema
+export function BreadcrumbSchema({ items }: BreadcrumbsProps) {
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -37,17 +37,27 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
   };
 
   return (
+    <Helmet>
+      <script type="application/ld+json">
+        {JSON.stringify(breadcrumbSchema)}
+      </script>
+    </Helmet>
+  );
+}
+
+/**
+ * Breadcrumbs component with Schema.org BreadcrumbList
+ * Improves navigation and SEO
+ */
+export function Breadcrumbs({ items }: BreadcrumbsProps) {
+  return (
     <>
-      <Helmet>
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbSchema)}
-        </script>
-      </Helmet>
+      <BreadcrumbSchema items={items} />
 
       <nav 
         className="flex items-center gap-2 text-sm mb-6 flex-wrap" 
         aria-label="Breadcrumb"
-        style={{ color: '#08075C' }}
+        style={{ color: '#10214B' }}
       >
         <Link 
           to="/" 
@@ -62,7 +72,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
           <div key={index} className="flex items-center gap-2">
             <ChevronRight className="h-4 w-4" style={{ opacity: 0.4 }} />
             {index === items.length - 1 ? (
-              <span className="font-medium" style={{ color: '#08075C' }}>
+              <span className="font-medium" style={{ color: '#10214B' }}>
                 {item.label}
               </span>
             ) : (

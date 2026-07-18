@@ -568,32 +568,56 @@ export async function getEventsByOrganizerId(organizerId: number): Promise<Event
   }
 }
 
-// Hämta liknande events (alla kategorier som eventet har, +/- 1 dag)
-export async function getSimilarEvents(currentEvent: EventDisplay): Promise<EventDisplay[]> {
-  try {
-    // Beräkna datumintervall (+/- 1 dag) - hela dagar
-    const eventDate = new Date(currentEvent.date);
+// Normalisera titel för seriedetektering: "Sommarkväll på Societén 12/7" och
+// "Sommarkväll på Societén 19/7" ska räknas som samma eventserie.
+function normalizeSeriesTitle(title: string): string {
+  const dateWords = [
+    'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag', 'söndag',
+    'januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti',
+    'september', 'oktober', 'november', 'december', 'kl'
+  ];
+  let normalized = title.toLowerCase()
+    .replace(/\d+/g, ' ')
+    .replace(/[^a-zåäöéü\s]/g, ' ');
+  for (const word of dateWords) {
+    normalized = normalized.replace(new RegExp(`\\b${word}\\b`, 'g'), ' ');
+  }
+  return normalized.replace(/\s+/g, ' ').trim();
+}
 
-    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
+// Samma eventserie = samma normaliserade titel + samma arrangör.
+// Saknar båda arrangör krävs samma plats (annars matchar t.ex. två
+// orelaterade "Julmarknad" i olika byar).
+function isSameSeries(a: EventDisplay, b: EventDisplay): boolean {
+  const keyA = normalizeSeriesTitle(a.title);
+  if (!keyA || keyA !== normalizeSeriesTitle(b.title)) return false;
+  const orgA = a.organizer?.name;
+  const orgB = b.organizer?.name;
+  if (orgA && orgB) return orgA === orgB;
+  return (a.venue_name || a.location) === (b.venue_name || b.location);
+}
+
+export interface SimilarEventsResult {
+  sameSeries: EventDisplay[];   // Samma event på andra datum ("Fler datum")
+  similar: EventDisplay[];      // Poängsatt relaterade event
+  similarIsFallback: boolean;   // true = inga relevanta träffar, listan är utfyllnad
+}
+
+// Hämta liknande events: en query för alla kommande event (45 dagar),
+// sedan poängsättning i klienten på kategoriöverlapp, datumnärhet,
+// område och gratis-status. Eventserier (samma event, annat datum)
+// separeras ut till sameSeries i stället för att förorena listan.
+export async function getSimilarEvents(currentEvent: EventDisplay): Promise<SimilarEventsResult> {
+  const emptyResult: SimilarEventsResult = { sameSeries: [], similar: [], similarIsFallback: false };
+  try {
+    // Kandidatfönster: idag (svensk tid) och 45 dagar framåt
     const today = new Date();
     const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
     stockholmTime.setHours(0, 0, 0, 0);
+    const windowEnd = new Date(stockholmTime);
+    windowEnd.setDate(windowEnd.getDate() + 45);
+    windowEnd.setHours(23, 59, 59, 999);
 
-    // Startdatum: 1 dag före, från början av dagen (00:00:00)
-    // Men aldrig tidigare än idag
-    const startDate = new Date(eventDate);
-    startDate.setDate(eventDate.getDate() - 1);
-    startDate.setHours(0, 0, 0, 0);
-
-    // Använd dagens datum som minimum startdatum
-    const actualStartDate = startDate < stockholmTime ? stockholmTime : startDate;
-
-    // Slutdatum: 1 dag efter, till slutet av dagen (23:59:59)
-    const endDate = new Date(eventDate);
-    endDate.setDate(eventDate.getDate() + 1);
-    endDate.setHours(23, 59, 59, 999);
-
-    // Formatera datum för Supabase query
     const formatDateForQuery = (date: Date): string => {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -604,73 +628,111 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Even
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
-    // Hämta alla kategorier för det aktuella eventet
-    const eventCategories = getAllCategories(currentEvent);
+    const { data, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        organizer:organizers(*)
+      `)
+      .eq('status', 'published')
+      .neq('event_id', currentEvent.id)
+      .gte('date_time', formatDateForQuery(stockholmTime))
+      .lte('date_time', formatDateForQuery(windowEnd))
+      .order('date_time', { ascending: true })
+      .limit(400);
 
-    console.log(`🔍 Searching for similar events:`, {
-      currentEvent: currentEvent.title,
-      currentDate: eventDate.toISOString(),
-      categories: eventCategories,
-      today: stockholmTime.toISOString(),
-      searchRange: {
-        originalStart: startDate.toISOString(),
-        actualStart: actualStartDate.toISOString(),
-        end: endDate.toISOString()
-      }
-    });
+    if (error) {
+      console.error('Error fetching similar event candidates:', error);
+      return emptyResult;
+    }
 
-    // Hämta events för varje kategori och kombinera resultaten
-    const allSimilarEvents: Event[] = [];
-    
-    for (const category of eventCategories) {
-      const { data: categoryData, error: categoryError } = await supabase
-        .from('events')
-        .select(`
-          *,
-          organizer:organizers(*)
-        `)
-        .eq('status', 'published')
-        .eq('category', category) // Huvudkategori måste matcha
-        .neq('event_id', currentEvent.id) // Exkludera nuvarande event
-        .gte('date_time', formatDateForQuery(actualStartDate))
-        .lte('date_time', formatDateForQuery(endDate))
-        .order('featured', { ascending: false })
-        .order('date_time', { ascending: true })
-        .limit(6);
+    const candidates = (data || []).map(transformEventForDisplay);
+    const currentCategories = getAllCategories(currentEvent);
+    const currentMain = currentCategories[0];
+    const currentTime = currentEvent.date.getTime();
 
-      if (categoryError) {
-        console.error(`Error fetching events for category ${category}:`, categoryError);
+    const sameSeries: EventDisplay[] = [];
+    const scored: { event: EventDisplay; score: number }[] = [];
+
+    for (const candidate of candidates) {
+      if (isSameSeries(currentEvent, candidate)) {
+        sameSeries.push(candidate);
         continue;
       }
 
-      // Lägg till events som inte redan finns i listan
-      if (categoryData) {
-        for (const event of categoryData) {
-          if (!allSimilarEvents.find(e => e.event_id === event.event_id)) {
-            allSimilarEvents.push(event);
-          }
-        }
+      const candidateCategories = getAllCategories(candidate);
+      let score = 0;
+
+      // Kategoriöverlapp: huvudkategori mot huvudkategori väger tyngst
+      const mainMatch = currentMain && currentMain !== 'Okategoriserad' && candidateCategories[0] === currentMain;
+      if (mainMatch) score += 3;
+      const sharedCount = candidateCategories.filter(
+        c => c !== 'Okategoriserad' && currentCategories.includes(c)
+      ).length;
+      score += Math.max(0, sharedCount - (mainMatch ? 1 : 0)) * 1.5;
+
+      // Datumnärhet till det aktuella eventet, avtar linjärt till 0 vid 14 dagar
+      const diffDays = Math.abs(candidate.date.getTime() - currentTime) / 86400000;
+      score += 2 * Math.max(0, 1 - diffDays / 14);
+
+      // Samma kända område ("Övriga kommunen" är geografiskt spritt och räknas inte)
+      if (currentEvent.area && candidate.area === currentEvent.area && currentEvent.area !== 'Övriga kommunen') {
+        score += 1;
+      }
+
+      // Samma gratis-status (endast när den är känd för båda)
+      if (currentEvent.is_free != null && candidate.is_free === currentEvent.is_free) {
+        score += 0.5;
+      }
+
+      scored.push({ event: candidate, score });
+    }
+
+    // Relevanta träffar, bästa först; featured och datum som tiebreakers
+    const RELEVANCE_THRESHOLD = 2.5;
+    const strong = scored
+      .filter(s => s.score >= RELEVANCE_THRESHOLD)
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (a.event.isFeatured !== b.event.isFeatured) return a.event.isFeatured ? -1 : 1;
+        return getSortableDate(a.event.date) - getSortableDate(b.event.date);
+      });
+
+    // Max 2 event per arrangör så en aktiv arrangör inte fyller hela karusellen,
+    // och varje eventserie visas bara en gång (bästa/närmaste datumet)
+    const perOrganizer = new Map<string, number>();
+    const similar: EventDisplay[] = [];
+    for (const { event } of strong) {
+      const organizerKey = event.organizer?.name || event.id;
+      const count = perOrganizer.get(organizerKey) || 0;
+      if (count >= 2) continue;
+      if (similar.some(picked => isSameSeries(picked, event))) continue;
+      perOrganizer.set(organizerKey, count + 1);
+      similar.push(event);
+      if (similar.length >= 6) break;
+    }
+
+    const similarIsFallback = similar.length === 0;
+
+    // Fallback: fyll upp med närmast kommande event så sektionen aldrig är tom
+    if (similar.length < 3) {
+      const usedIds = new Set([...similar, ...sameSeries].map(e => e.id));
+      for (const candidate of candidates) {
+        if (usedIds.has(candidate.id)) continue;
+        if (similar.some(picked => isSameSeries(picked, candidate))) continue;
+        similar.push(candidate);
+        usedIds.add(candidate.id);
+        if (similar.length >= 6) break;
       }
     }
 
-    // Transformera och sortera events
-    const transformedEvents = allSimilarEvents.map(transformEventForDisplay);
-    
-    // Sortera: featured först, sedan efter datum (00:00 behandlas som 12:00)
-    const sortedEvents = transformedEvents
-      .sort((a, b) => {
-        if (a.isFeatured && !b.isFeatured) return -1;
-        if (!a.isFeatured && b.isFeatured) return 1;
-        return getSortableDate(a.date) - getSortableDate(b.date);
-      })
-      .slice(0, 6);
+    // Hela serien returneras (max ~45 st i fönstret) — UI:t visar 6 och expanderar resten
+    sameSeries.sort((a, b) => getSortableDate(a.date) - getSortableDate(b.date));
 
-    console.log(`📊 Similar events found:`, sortedEvents.length, sortedEvents);
-
-    return sortedEvents;
+    return { sameSeries, similar, similarIsFallback };
   } catch (error) {
     console.error('Error in getSimilarEvents:', error);
-    return [];
+    return emptyResult;
   }
 }
 
