@@ -128,6 +128,27 @@ function validateEventSubmission(eventData: {
   return { isValid: true };
 }
 
+// Hur länge ett event med känd starttid fortsätter visas efter start.
+// Nollställ inte helt vid starttid: den som letar kl 19:07 ska fortfarande
+// se konserten som började 19:00 (insläpp pågår), men inte förmiddagens event.
+const STARTED_EVENT_GRACE_MS = 60 * 60 * 1000; // 1 timme
+
+// Event utan känd tid (kl 00:00 = "tid saknas i källan") räknas som
+// dagaktivitet och döljs från denna timme på eventdagen.
+const UNKNOWN_TIME_HIDE_HOUR = 18;
+
+// Avgör om ett event fortfarande ska visas i listor/tips.
+// Detaljsidan påverkas inte - den nås via direktlänk och visar PASSERAT-badge.
+export function isEventStillRelevant(event: EventDisplay, now: Date = new Date()): boolean {
+  const hasKnownTime = event.time !== '';
+  if (hasKnownTime) {
+    return now.getTime() < event.date.getTime() + STARTED_EVENT_GRACE_MS;
+  }
+  const hideAt = new Date(event.date);
+  hideAt.setHours(UNKNOWN_TIME_HIDE_HOUR, 0, 0, 0);
+  return now.getTime() < hideAt.getTime();
+}
+
 // Helper function för sortering - behandlar 00:00 som 12:00 för sortering
 function getSortableDate(date: Date): number {
   const sortDate = new Date(date);
@@ -224,7 +245,7 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
     }
 
     console.log(`✅ Found ${data?.length || 0} current/future events`);
-    const transformedEvents = (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
@@ -281,7 +302,7 @@ export async function getAllEvents(): Promise<EventDisplay[]> {
     }
 
     console.log(`✅ DEBUG: Found ${data?.length || 0} current/future events`);
-    const transformedEvents = (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
@@ -328,7 +349,7 @@ export async function getFeaturedEvents(): Promise<EventDisplay[]> {
       return [];
     }
 
-    const transformedEvents = (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
@@ -373,7 +394,7 @@ export async function getEventsByCategory(category: EventCategory): Promise<Even
       return [];
     }
 
-    const transformedEvents = (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
@@ -409,7 +430,7 @@ export async function getEventsByDateRange(startDate: Date, endDate: Date): Prom
       return [];
     }
 
-    const transformedEvents = (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
@@ -458,7 +479,7 @@ export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> 
       return [];
     }
 
-    const transformedEvents = (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
@@ -503,7 +524,7 @@ export async function getEventsByOrganizer(organizerName: string): Promise<Event
       return [];
     }
 
-    const transformedEvents = (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
@@ -554,7 +575,7 @@ export async function getEventsByOrganizerId(organizerId: number): Promise<Event
     }
 
     console.log(`✅ Found ${data?.length || 0} upcoming events for organizer_id ${organizerId}`);
-    const transformedEvents = (data || []).map(transformEventForDisplay);
+    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
@@ -646,7 +667,7 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Simi
       return emptyResult;
     }
 
-    const candidates = (data || []).map(transformEventForDisplay);
+    const candidates = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     const currentCategories = getAllCategories(currentEvent);
     const currentMain = currentCategories[0];
     const currentTime = currentEvent.date.getTime();

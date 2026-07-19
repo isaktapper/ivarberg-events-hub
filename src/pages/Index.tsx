@@ -10,7 +10,7 @@ import { LocationFilter } from "@/components/LocationFilter";
 import { Footer } from "@/components/Footer";
 import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { FAQSchema } from "@/components/FAQSchema";
-import { getPublishedEvents } from "@/services/eventService";
+import { getPublishedEvents, isEventStillRelevant } from "@/services/eventService";
 import { EventCategory, EventDisplay, hasCategory, EVENT_AREAS, eventMatchesArea } from "@/types/event";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
 import { categoriesToUrl, urlToCategories } from "@/lib/categoryUrls";
@@ -258,13 +258,12 @@ const Index = () => {
     // as it's likely being called alongside onDateChange
   };
 
-  // Dagens events för "Händer idag"-sektionen. Korten visar endast events
-  // som inte redan passerat tidsmässigt (heldagsevent, kl 00:00, visas hela
-  // dagen) - finns inga kvar renderas inte sektionen alls. totalToday räknar
-  // hela dagen och styr "Visa alla"-knappen, eftersom Idag-filtret den
-  // applicerar visar dagens samtliga events.
+  // Dagens events för "Händer idag"-sektionen. Korten visar endast events som
+  // fortfarande är relevanta (samma regel som listorna: starttid + 1h grace,
+  // event utan tid döljs från kl 18) - finns inga kvar renderas inte sektionen
+  // alls. totalToday räknar hela dagen och styr "Visa alla"-knappen, eftersom
+  // Idag-filtret den applicerar visar dagens samtliga events.
   const { upcomingTodayEvents, totalTodayCount } = useMemo(() => {
-    const now = new Date();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const allToday = events.filter((event) => {
@@ -272,9 +271,7 @@ const Index = () => {
       eventDate.setHours(0, 0, 0, 0);
       return eventDate.getTime() === today.getTime();
     });
-    const upcoming = allToday.filter(
-      (event) => !event.time || event.date.getTime() >= now.getTime()
-    );
+    const upcoming = allToday.filter((event) => isEventStillRelevant(event));
     return { upcomingTodayEvents: upcoming, totalTodayCount: allToday.length };
   }, [events]);
 
