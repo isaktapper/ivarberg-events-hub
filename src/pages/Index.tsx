@@ -10,6 +10,9 @@ import { LocationFilter } from "@/components/LocationFilter";
 import { Footer } from "@/components/Footer";
 import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { FAQSchema } from "@/components/FAQSchema";
+import { InstagramPromoCard } from "@/components/InstagramPromoCard";
+import { InstagramPromoDialog } from "@/components/InstagramPromoDialog";
+import { useInstagramPromo } from "@/hooks/useInstagramPromo";
 import { getPublishedEvents, isEventStillRelevant } from "@/services/eventService";
 import { EventCategory, EventDisplay, hasCategory, EVENT_AREAS, eventMatchesArea } from "@/types/event";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
@@ -28,6 +31,14 @@ const Index = () => {
   const eventsPerPage = 10;
   const resultsRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
+
+  // Instagram-promo A/B-test (inline-kort vs popup)
+  const promo = useInstagramPromo();
+  const [promoPopupOpen, setPromoPopupOpen] = useState(false);
+  const promoSentinelRef = useRef<HTMLDivElement>(null);
+  const popupTriggeredRef = useRef(false); // max en popup-visning per sidladdning
+  const popupClickedRef = useRef(false); // exakt ett av clicked/dismissed per visning
+  const inlineShownRef = useRef(false); // max en shown-event per sidladdning
 
   // Handle URL parameters - restore filters from URL on page load
   useEffect(() => {
@@ -108,6 +119,41 @@ const Index = () => {
 
     fetchEvents();
   }, []);
+
+  // Popup-varianten: öppna dialogen först när besökaren scrollat till promo-punkten
+  // (samma plats i flödet som inline-kortet, för en rättvis A/B-jämförelse)
+  useEffect(() => {
+    if (!promo.showPopup || loading || popupTriggeredRef.current) return;
+
+    const el = promoSentinelRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting) && !popupTriggeredRef.current) {
+        popupTriggeredRef.current = true;
+        setPromoPopupOpen(true);
+        promo.trackShown("home_feed");
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [promo.showPopup, promo.trackShown, loading, currentPage]);
+
+  const handlePromoPopupOpenChange = (open: boolean) => {
+    if (open) return;
+    setPromoPopupOpen(false);
+    if (!popupClickedRef.current) {
+      promo.trackDismissed("home_feed");
+    }
+  };
+
+  const handlePromoPopupClick = () => {
+    popupClickedRef.current = true;
+    promo.trackClicked("home_feed");
+    setPromoPopupOpen(false);
+  };
 
   const handleCategoryToggle = (category: EventCategory) => {
     const newCategories = selectedCategories.includes(category)
@@ -523,7 +569,27 @@ const Index = () => {
             </p>
           </div>
         ) : (
-          <EventList events={paginatedEvents} activeFilter={selectedCategories.length === 1 ? selectedCategories[0] : null} />
+          <EventList
+            events={paginatedEvents}
+            activeFilter={selectedCategories.length === 1 ? selectedCategories[0] : null}
+            promoSlot={
+              currentPage !== 1 ? undefined : promo.showInline ? (
+                <InstagramPromoCard
+                  onShown={() => {
+                    if (!inlineShownRef.current) {
+                      inlineShownRef.current = true;
+                      promo.trackShown("home_feed");
+                    }
+                  }}
+                  onClick={() => promo.trackClicked("home_feed")}
+                />
+              ) : promo.showPopup ? (
+                // Osynlig sentinel på inline-kortets plats – triggar popupen vid scroll.
+                // !mt-0 så att space-y-4 inte skapar ett dubbelt mellanrum runt den.
+                <div ref={promoSentinelRef} aria-hidden className="h-0 !mt-0" />
+              ) : undefined
+            }
+          />
         )}
         
         {/* Pagination - Mobile First */}
@@ -660,7 +726,13 @@ const Index = () => {
           Visar {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)} av {filteredEvents.length} evenemang
         </div>
       </main>
-      
+
+      <InstagramPromoDialog
+        open={promoPopupOpen}
+        onOpenChange={handlePromoPopupOpenChange}
+        onClick={handlePromoPopupClick}
+      />
+
       <Footer />
       </div>
     </>

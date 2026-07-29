@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { INSTAGRAM_URL } from '@/lib/constants';
 
 /**
  * LocalBusiness Schema for ivarberg.nu
@@ -34,7 +35,7 @@ export function LocalBusinessSchema() {
     },
     "priceRange": "Gratis",
     "sameAs": [
-      "https://instagram.com/ivarberg.nu"
+      INSTAGRAM_URL
     ]
   };
 

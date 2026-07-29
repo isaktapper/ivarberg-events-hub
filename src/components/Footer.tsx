@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { subscribeToNewsletter } from "@/services/eventService";
+import { INSTAGRAM_URL } from "@/lib/constants";
 
 export function Footer() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -114,7 +115,7 @@ export function Footer() {
                 className="rounded-full text-sand hover:bg-sand/10 hover:text-seaglass transition-colors"
                 asChild
               >
-                <a href="https://instagram.com/ivarberg.nu" target="_blank" rel="noopener noreferrer">
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
                   <Instagram className="h-5 w-5" />
                 </a>
               </Button>
