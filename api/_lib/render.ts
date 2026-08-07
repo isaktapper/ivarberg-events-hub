@@ -1,8 +1,8 @@
-import { SITE, PERIOD_PILLS, CATEGORIES, AREAS } from './constants';
-import type { DbEvent } from './supabase';
-import type { Recommendation } from './recommendations';
-import { escapeHtml, plainText, eventTime, eventDayLabel, mainCategory } from './events';
-import { svDateLabel } from './dates';
+import { SITE, PERIOD_PILLS, CATEGORIES, AREAS } from './constants.js';
+import type { DbEvent } from './supabase.js';
+import type { Recommendation } from './recommendations.js';
+import { escapeHtml, plainText, eventTime, eventDayLabel, mainCategory } from './events.js';
+import { svDateLabel } from './dates.js';
 
 // HTML-rendering för de serverrenderade sidorna. Layout, CSS och kort/list-
 // komponenter flyttade från api/landing.ts; layout() är generaliserad så att

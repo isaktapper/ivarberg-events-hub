@@ -1,4 +1,4 @@
-import { TZ } from './constants';
+import { TZ } from './constants.js';
 
 // Datumhjälpare för de serverrenderade sidorna. Flyttade oförändrade från api/landing.ts.
 

@@ -6,11 +6,11 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 //   /varberg-kalender   -> /api/guide?page=varberg-kalender    (dag för dag)
 // Rewrites i vercel.json. Ersätter de gamla statiska React-sidorna.
 
-import { SITE, CATEGORIES } from './_lib/constants';
-import { stockholmToday, addDays } from './_lib/dates';
-import { fetchEvents, organizerSlug, type DbEvent } from './_lib/supabase';
-import { escapeHtml, pickHighlights, dedupeByName } from './_lib/events';
-import { pageJsonLd, type FaqItem } from './_lib/jsonld';
+import { SITE, CATEGORIES } from './_lib/constants.js';
+import { stockholmToday, addDays } from './_lib/dates.js';
+import { fetchEvents, organizerSlug, type DbEvent } from './_lib/supabase.js';
+import { escapeHtml, pickHighlights, dedupeByName } from './_lib/events.js';
+import { pageJsonLd, type FaqItem } from './_lib/jsonld.js';
 import {
   layout,
   highlightCard,
@@ -22,8 +22,8 @@ import {
   chipRow,
   proseSection,
   dayGroupedList,
-} from './_lib/render';
-import { RESTAURANTS, BEACHES, SIGHTS, ACTIVITIES } from './_lib/recommendations';
+} from './_lib/render.js';
+import { RESTAURANTS, BEACHES, SIGHTS, ACTIVITIES } from './_lib/recommendations.js';
 import {
   ATT_GORA_INTRO,
   SEASONS_HTML,
@@ -33,7 +33,7 @@ import {
   VARFOR_HTML,
   KALENDER_INTRO,
   KALENDER_HOW_HTML,
-} from './_lib/copy';
+} from './_lib/copy.js';
 
 function introBlock(text: string): string {
   return `  <div class="intro">

@@ -2,10 +2,10 @@
 // /omrade/:slug). Handlarna i api/kategori.ts och api/omrade.ts hämtar data
 // och anropar buildTaxonomyPage – allt innehåll/rendering ligger här.
 
-import { SITE, CATEGORIES, AREAS, type TaxonomyEntry } from './constants';
-import { organizerSlug, type DbEvent } from './supabase';
-import { escapeHtml, eventDayLabel, pickHighlights, dedupeByName } from './events';
-import { pageJsonLd } from './jsonld';
+import { SITE, CATEGORIES, AREAS, type TaxonomyEntry } from './constants.js';
+import { organizerSlug, type DbEvent } from './supabase.js';
+import { escapeHtml, eventDayLabel, pickHighlights, dedupeByName } from './events.js';
+import { pageJsonLd } from './jsonld.js';
 import {
   layout,
   highlightCard,
@@ -14,8 +14,8 @@ import {
   areaChipRow,
   periodChipRow,
   chipRow,
-} from './render';
-import { recsForCategory, recsForArea, type Recommendation } from './recommendations';
+} from './render.js';
+import { recsForCategory, recsForArea, type Recommendation } from './recommendations.js';
 
 export type TaxonomyKind = 'kategori' | 'omrade';
 

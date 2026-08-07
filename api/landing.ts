@@ -5,12 +5,12 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 // Renderas per request så innehållet alltid är dagsfärskt – ingen cron behövs.
 // Delad rendering/hämtning ligger i api/_lib/ (används även av guide/kategori/område).
 
-import { SITE } from './_lib/constants';
-import { addDays, weekdayIndex, rangeLabel, weekendRange, stockholmToday, svDateLabel } from './_lib/dates';
-import { fetchEvents, type DbEvent } from './_lib/supabase';
-import { escapeHtml, eventTime, eventDayLabel, mainCategory, parsePrice, pickHighlights } from './_lib/events';
-import { pageJsonLd } from './_lib/jsonld';
-import { layout, highlightCard, eventRow } from './_lib/render';
+import { SITE } from './_lib/constants.js';
+import { addDays, weekdayIndex, rangeLabel, weekendRange, stockholmToday, svDateLabel } from './_lib/dates.js';
+import { fetchEvents, type DbEvent } from './_lib/supabase.js';
+import { escapeHtml, eventTime, eventDayLabel, mainCategory, parsePrice, pickHighlights } from './_lib/events.js';
+import { pageJsonLd } from './_lib/jsonld.js';
+import { layout, highlightCard, eventRow } from './_lib/render.js';
 
 interface PeriodConfig {
   slug: string;

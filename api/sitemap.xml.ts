@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { CATEGORIES, AREAS } from './_lib/constants';
+import { CATEGORIES, AREAS } from './_lib/constants.js';
 
 // Denna funktion genererar en dynamisk sitemap med alla events
 export default async function handler(req: VercelRequest, res: VercelResponse) {

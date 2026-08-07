@@ -1,5 +1,5 @@
-import type { DbEvent } from './supabase';
-import { svDateLabel } from './dates';
+import type { DbEvent } from './supabase.js';
+import { svDateLabel } from './dates.js';
 
 // Event-/texthjälpare för de serverrenderade sidorna. Flyttade oförändrade från api/landing.ts.
 

@@ -2,7 +2,7 @@
 // gamla React-sidorna (EvenemangVarberg/AttGoraVarberg/VarbergKalender) –
 // länkarna pekar nu på riktiga landningssidor i stället för döda filter.
 
-import type { FaqItem } from './jsonld';
+import type { FaqItem } from './jsonld.js';
 
 // ---------- /att-gora-i-varberg ----------
 

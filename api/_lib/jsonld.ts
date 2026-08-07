@@ -1,6 +1,6 @@
-import { SITE } from './constants';
-import type { DbEvent } from './supabase';
-import { parsePrice, plainText } from './events';
+import { SITE } from './constants.js';
+import type { DbEvent } from './supabase.js';
+import { parsePrice, plainText } from './events.js';
 
 // JSON-LD-byggare för de serverrenderade sidorna.
 // eventJsonLd flyttad oförändrad från api/landing.ts; pageJsonLd är en

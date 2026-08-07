@@ -3,10 +3,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 // Serverrenderad områdessida: /omrade/:slug -> /api/omrade?slug=:slug
 // (rewrite i vercel.json). Kurerade områdestips + kommande event i området.
 
-import { areaBySlug } from './_lib/constants';
-import { stockholmToday, addDays } from './_lib/dates';
-import { fetchEvents } from './_lib/supabase';
-import { buildTaxonomyPage, taxonomy404 } from './_lib/taxonomy-page';
+import { areaBySlug } from './_lib/constants.js';
+import { stockholmToday, addDays } from './_lib/dates.js';
+import { fetchEvents } from './_lib/supabase.js';
+import { buildTaxonomyPage, taxonomy404 } from './_lib/taxonomy-page.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
