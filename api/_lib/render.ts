@@ -191,7 +191,13 @@ const CSS = `  /* Speglar startsidans design: Hero.tsx, EventCard.tsx, EventList
   .prose-card a:hover { text-decoration:underline; }
   /* Dag-grupperad kalenderlista */
   .day-h3 { max-width:64rem; margin:2.25rem auto .9rem; color:var(--navy); font-size:1.15rem; font-weight:700; border-bottom:2px solid hsl(217 91% 42% / .15); padding-bottom:.4rem; }
-  .day-h3 span { color:var(--muted); font-weight:500; font-size:.85rem; margin-left:.5rem; }`;
+  .day-h3 span { color:var(--muted); font-weight:500; font-size:.85rem; margin-left:.5rem; }
+  /* Vertikal rytm: block som följer på annat innehåll får luft ovanför.
+     Första blocket i main (intro-rutan mot heron) påverkas inte. */
+  main * + .prose-card { margin-top:2.5rem; }
+  main * + .intro { margin-top:2rem; }
+  main * + .rec-grid, main * + .tile-grid, main * + .chip-row, main * + ul.events, main * + .grid3 { margin-top:1.5rem; }
+  main h2 + .rec-grid, main h2 + .tile-grid, main h2 + .chip-row, main h2 + ul.events, main h2 + .grid3, main .day-h3 + ul.events { margin-top:0; }`;
 
 // Kurerade tipskort – bild eller gradient+emoji, länkar alltid internt
 export function recommendationGrid(recs: Recommendation[], currentPath?: string): string {
