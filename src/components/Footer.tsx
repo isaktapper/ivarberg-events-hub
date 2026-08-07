@@ -58,7 +58,7 @@ export function Footer() {
   return (
     <footer className="mt-16 bg-navy text-sand">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4 text-sand">
               ivarberg.nu
@@ -72,6 +72,8 @@ export function Footer() {
             <h4 className="font-semibold mb-4 text-sand">Snabblänkar</h4>
             <ul className="space-y-2 text-sm">
               <li><a href="/" className="text-sand/70 hover:text-seaglass transition-colors">Alla evenemang</a></li>
+              <li><a href="/idag" className="text-sand/70 hover:text-seaglass transition-colors">Idag</a></li>
+              <li><a href="/i-helgen" className="text-sand/70 hover:text-seaglass transition-colors">I helgen</a></li>
               <li><a href="/evenemang-varberg" className="text-sand/70 hover:text-seaglass transition-colors">Evenemang Varberg</a></li>
               <li><a href="/att-gora-i-varberg" className="text-sand/70 hover:text-seaglass transition-colors">Att göra i Varberg</a></li>
               <li><a href="/varberg-kalender" className="text-sand/70 hover:text-seaglass transition-colors">Varberg Kalender</a></li>
@@ -83,12 +85,23 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4 text-sand">Kategorier</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/?category=Scen" className="text-sand/70 hover:text-seaglass transition-colors">Scen & Teater</a></li>
-              <li><a href="/?category=Sport" className="text-sand/70 hover:text-seaglass transition-colors">Sport</a></li>
-              <li><a href={`/?category=${encodeURIComponent('Mat & Dryck')}`} className="text-sand/70 hover:text-seaglass transition-colors">Mat & Dryck</a></li>
-              <li><a href={`/?category=${encodeURIComponent('Barn & Familj')}`} className="text-sand/70 hover:text-seaglass transition-colors">Barn & Familj</a></li>
-              <li><a href="/?category=Nattliv" className="text-sand/70 hover:text-seaglass transition-colors">Nattliv</a></li>
-              <li><a href="/?category=Utställningar" className="text-sand/70 hover:text-seaglass transition-colors">Utställningar</a></li>
+              <li><a href="/kategori/scen" className="text-sand/70 hover:text-seaglass transition-colors">Scen</a></li>
+              <li><a href="/kategori/sport" className="text-sand/70 hover:text-seaglass transition-colors">Sport</a></li>
+              <li><a href="/kategori/mat-dryck" className="text-sand/70 hover:text-seaglass transition-colors">Mat & Dryck</a></li>
+              <li><a href="/kategori/barn-familj" className="text-sand/70 hover:text-seaglass transition-colors">Barn & Familj</a></li>
+              <li><a href="/kategori/nattliv" className="text-sand/70 hover:text-seaglass transition-colors">Nattliv</a></li>
+              <li><a href="/kategori/utstallningar" className="text-sand/70 hover:text-seaglass transition-colors">Utställningar</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4 text-sand">Områden</h4>
+            <ul className="space-y-2 text-sm">
+              <li><a href="/omrade/centrala-varberg" className="text-sand/70 hover:text-seaglass transition-colors">Centrala Varberg</a></li>
+              <li><a href="/omrade/apelviken" className="text-sand/70 hover:text-seaglass transition-colors">Apelviken</a></li>
+              <li><a href="/omrade/getteron" className="text-sand/70 hover:text-seaglass transition-colors">Getterön</a></li>
+              <li><a href="/omrade/traslovslage" className="text-sand/70 hover:text-seaglass transition-colors">Träslövsläge</a></li>
+              <li><a href="/omrade/bua" className="text-sand/70 hover:text-seaglass transition-colors">Bua</a></li>
             </ul>
           </div>
 

@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { CATEGORIES, AREAS } from './_lib/constants';
 
 // Denna funktion genererar en dynamisk sitemap med alla events
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -72,22 +73,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       {
         url: 'https://ivarberg.nu/evenemang-varberg',
         priority: '0.9',
-        changefreq: 'weekly',
+        changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
-      { 
-        url: 'https://ivarberg.nu/att-gora-i-varberg', 
-        priority: '0.9', 
-        changefreq: 'weekly',
+      {
+        url: 'https://ivarberg.nu/att-gora-i-varberg',
+        priority: '0.9',
+        changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
-      { 
-        url: 'https://ivarberg.nu/varberg-kalender', 
-        priority: '0.9', 
-        changefreq: 'weekly',
+      {
+        url: 'https://ivarberg.nu/varberg-kalender',
+        priority: '0.9',
+        changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
-      { 
+      // Kategori- och områdessidor (serverrenderade, dagsfärsk eventdata)
+      ...CATEGORIES.map((c) => ({
+        url: `https://ivarberg.nu/kategori/${c.slug}`,
+        priority: '0.8',
+        changefreq: 'daily',
+        lastmod: new Date().toISOString().split('T')[0]
+      })),
+      ...AREAS.map((a) => ({
+        url: `https://ivarberg.nu/omrade/${a.slug}`,
+        priority: '0.7',
+        changefreq: 'daily',
+        lastmod: new Date().toISOString().split('T')[0]
+      })),
+      {
         url: 'https://ivarberg.nu/om-oss', 
         priority: '0.7', 
         changefreq: 'monthly',
@@ -149,6 +163,16 @@ ${events && events.length > 0 ? events.map((event: any) => `  <url>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+${CATEGORIES.map((c) => `  <url>
+    <loc>https://ivarberg.nu/kategori/${c.slug}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('\n')}
+${AREAS.map((a) => `  <url>
+    <loc>https://ivarberg.nu/omrade/${a.slug}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
   <url>
     <loc>https://ivarberg.nu/om-oss</loc>
     <changefreq>monthly</changefreq>

@@ -21,6 +21,18 @@ export default function NavbarDemo() {
       link: "/",
     },
     {
+      name: "Idag",
+      link: "/idag",
+    },
+    {
+      name: "I helgen",
+      link: "/i-helgen",
+    },
+    {
+      name: "Att göra",
+      link: "/att-gora-i-varberg",
+    },
+    {
       name: "Om oss",
       link: "/om-oss",
     },

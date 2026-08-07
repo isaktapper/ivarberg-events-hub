@@ -10,9 +10,6 @@ import OrganizerPage from "./pages/OrganizerPage";
 import Tips from "./pages/Tips";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
-import EvenemangVarberg from "./pages/EvenemangVarberg";
-import AttGoraVarberg from "./pages/AttGoraVarberg";
-import VarbergKalender from "./pages/VarbergKalender";
 
 const queryClient = new QueryClient();
 
@@ -29,9 +26,9 @@ const App = () => (
             <Route path="/arrangor/:slug" element={<OrganizerPage />} />
             <Route path="/tips" element={<Tips />} />
             <Route path="/om-oss" element={<About />} />
-            <Route path="/evenemang-varberg" element={<EvenemangVarberg />} />
-            <Route path="/att-gora-i-varberg" element={<AttGoraVarberg />} />
-            <Route path="/varberg-kalender" element={<VarbergKalender />} />
+            {/* /evenemang-varberg, /att-gora-i-varberg, /varberg-kalender,
+                /kategori/* och /omrade/* serverrenderas av api/guide|kategori|omrade
+                via rewrites i vercel.json och når aldrig SPA:n */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

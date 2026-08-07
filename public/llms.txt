@@ -9,11 +9,38 @@
 - [Vad händer i Varberg imorgon](https://ivarberg.nu/imorgon): Morgondagens evenemang – uppdateras dagligen
 - [Vad händer i Varberg i helgen](https://ivarberg.nu/i-helgen): Helgens evenemang fredag till söndag – uppdateras dagligen
 - [Vad händer i Varberg i veckan](https://ivarberg.nu/i-veckan): Veckans evenemang – uppdateras dagligen
-- [Evenemang Varberg](https://ivarberg.nu/evenemang-varberg): Guide till evenemang i Varberg
-- [Att göra i Varberg](https://ivarberg.nu/att-gora-i-varberg): Aktiviteter och upplevelser i Varberg
-- [Varberg Kalender](https://ivarberg.nu/varberg-kalender): Eventkalender för Varberg
+- [Evenemang Varberg](https://ivarberg.nu/evenemang-varberg): Guide till alla evenemang i Varberg – kategorier, områden och veckans höjdpunkter, uppdateras dagligen
+- [Att göra i Varberg](https://ivarberg.nu/att-gora-i-varberg): Kurerade tips på restauranger, stränder, sevärdheter och aktiviteter – plus det som händer just nu
+- [Varberg Kalender](https://ivarberg.nu/varberg-kalender): Eventkalender dag för dag, kommande 14 dagar – uppdateras dagligen
 - [Om oss](https://ivarberg.nu/om-oss): Om ivarberg.nu
 - [Sitemap](https://ivarberg.nu/api/sitemap.xml): Alla sidor inklusive enskilda evenemang
+
+## Kategorier
+
+- [Scen i Varberg](https://ivarberg.nu/kategori/scen): Teater, konserter och shower – kommande evenemang
+- [Nattliv i Varberg](https://ivarberg.nu/kategori/nattliv): Barer, klubbar och kvällsnöjen
+- [Sport i Varberg](https://ivarberg.nu/kategori/sport): Matcher, lopp och sportaktiviteter
+- [Utställningar i Varberg](https://ivarberg.nu/kategori/utstallningar): Museer och gallerier
+- [Konst i Varberg](https://ivarberg.nu/kategori/konst): Vernissager och konstupplevelser
+- [Föreläsningar i Varberg](https://ivarberg.nu/kategori/forelasningar): Föredrag och samtal
+- [Barn & familj i Varberg](https://ivarberg.nu/kategori/barn-familj): Aktiviteter för alla åldrar
+- [Mat & dryck i Varberg](https://ivarberg.nu/kategori/mat-dryck): Provningar, matkvällar och restaurangtips
+- [Jul i Varberg](https://ivarberg.nu/kategori/jul): Julmarknader och julkonserter
+- [Film & bio i Varberg](https://ivarberg.nu/kategori/film-bio): Visningar och filmkvällar
+- [Djur & natur i Varberg](https://ivarberg.nu/kategori/djur-natur): Naturupplevelser och vandringar
+- [Guidade visningar i Varberg](https://ivarberg.nu/kategori/guidade-visningar): Stadsvandringar och turer
+- [Marknader i Varberg](https://ivarberg.nu/kategori/marknader): Loppisar, torgdagar och marknadsliv
+
+## Områden
+
+- [Centrala Varberg](https://ivarberg.nu/omrade/centrala-varberg): Evenemang i stadskärnan och kring fästningen
+- [Getterön](https://ivarberg.nu/omrade/getteron): Naturum och fågelreservatet
+- [Apelviken](https://ivarberg.nu/omrade/apelviken): Surf, strand och strandliv
+- [Träslövsläge](https://ivarberg.nu/omrade/traslovslage): Fiskeläget och hamnen
+- [Tvååker](https://ivarberg.nu/omrade/tvaaker): Inlandets största ort
+- [Veddige](https://ivarberg.nu/omrade/veddige): Viskadalen
+- [Bua](https://ivarberg.nu/omrade/bua): Fiskeläget i norr
+- [Övriga kommunen](https://ivarberg.nu/omrade/ovriga-kommunen): Landsbygden runt Varberg
 
 ## Fakta
 
