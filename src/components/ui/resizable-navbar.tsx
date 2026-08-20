@@ -55,22 +55,14 @@ export const Navbar = ({ children, className }: NavbarProps) => {
     offset: ["start start", "end start"],
   });
   const [visible, setVisible] = useState<boolean>(false);
-  const [hidden, setHidden] = useState<boolean>(false);
-  const lastScrollY = useRef(0);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setVisible(latest > 100);
-    // Dölj headern vid scroll nedåt (läsläge), visa direkt vid scroll uppåt —
-    // annars flyter den in som ett kort mitt i läsytan.
-    setHidden(latest > 150 && latest > lastScrollY.current);
-    lastScrollY.current = latest;
   });
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      animate={{ y: hidden ? "-130%" : 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 40 }}
       className={cn("sticky inset-x-0 top-0 z-50 w-full", className)}
     >
       {React.Children.map(children, (child) =>
@@ -81,7 +73,7 @@ export const Navbar = ({ children, className }: NavbarProps) => {
             )
           : child,
       )}
-    </motion.div>
+    </div>
   );
 };
 
