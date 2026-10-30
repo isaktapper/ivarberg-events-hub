@@ -17,6 +17,7 @@ import { getPublishedEvents, isEventStillRelevant } from "@/services/eventServic
 import { EventCategory, EventDisplay, hasCategory, EVENT_AREAS, eventMatchesArea } from "@/types/event";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
 import { categoriesToUrl, urlToCategories } from "@/lib/categoryUrls";
+import { HALLOWEEN_THEME, isHalloweenEvent } from "@/lib/seasonal";
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,6 +28,8 @@ const Index = () => {
   const [dateRange, setDateRange] = useState<{ start: Date; end: Date } | undefined>(undefined);
   const [selectedLocation, setSelectedLocation] = useState("Hela Varberg");
   const [searchTerm, setSearchTerm] = useState("");
+  // Temafilter läses direkt från URL:en (?tema=halloween)
+  const theme = searchParams.get('tema');
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 10;
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -172,6 +175,11 @@ const Index = () => {
   const preLocationEvents = useMemo(() => {
     let filteredEvents = [...events];
 
+    // Temafilter (?tema=halloween)
+    if (theme === HALLOWEEN_THEME) {
+      filteredEvents = filteredEvents.filter((event) => isHalloweenEvent(event));
+    }
+
     // Search filter - söker i eventnamn, platsnamn, och arrangör
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase().trim();
@@ -220,7 +228,7 @@ const Index = () => {
     }
 
     return filteredEvents;
-  }, [events, selectedCategories, selectedDate, dateRange, searchTerm]);
+  }, [events, selectedCategories, selectedDate, dateRange, searchTerm, theme]);
 
   // Location filter ("Hela Varberg" = inget filter)
   const filteredEvents = useMemo(() => {
@@ -322,7 +330,7 @@ const Index = () => {
   }, [events]);
 
   const hasActiveFilters =
-    selectedCategories.length > 0 || !!selectedDate || !!dateRange || !!searchTerm.trim() ||
+    selectedCategories.length > 0 || !!selectedDate || !!dateRange || !!searchTerm.trim() || !!theme ||
     selectedLocation !== "Hela Varberg";
 
   const handleShowAllToday = () => {
@@ -348,7 +356,8 @@ const Index = () => {
       'date': null,
       'dateStart': null,
       'dateEnd': null,
-      'location': null
+      'location': null,
+      'tema': null
     };
     
     if (filter.type === 'date' && filter.dateRange) {
@@ -362,6 +371,24 @@ const Index = () => {
     
     updateUrlParams(newParams);
     resetPagination();
+  };
+
+  // Temafilter från hero (t.ex. halloween) – rensar övriga filter och sätter ?tema=
+  const handleThemeSelect = (theme: string) => {
+    setSelectedCategories([]);
+    setSelectedDate(undefined);
+    setDateRange(undefined);
+    setSearchTerm("");
+    updateUrlParams({
+      'cat': null,
+      'search': null,
+      'date': null,
+      'dateStart': null,
+      'dateEnd': null,
+      'tema': theme
+    });
+    resetPagination();
+    setTimeout(() => scrollToResults(), 100);
   };
 
   const scrollToResults = () => {
@@ -428,6 +455,9 @@ const Index = () => {
   };
 
   const getH1Text = () => {
+    if (theme === HALLOWEEN_THEME) {
+      return 'Halloween i Varberg';
+    }
     if (selectedCategories.length === 1) {
       return `${selectedCategories[0]} Evenemang i Varberg`;
     }
@@ -470,6 +500,7 @@ const Index = () => {
       <Hero
         onFilterApply={handleQuickFilter}
         onScrollToResults={scrollToResults}
+        onThemeSelect={handleThemeSelect}
         events={events}
       />
       
@@ -543,10 +574,10 @@ const Index = () => {
               }}
               className="text-sm mt-3 transition-colors cursor-pointer"
               style={{
-                color: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm)
+                color: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm || theme)
                   ? '#0F5AA6' 
                   : '#10214B',
-                opacity: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm)
+                opacity: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm || theme)
                   ? 1 
                   : 0.5
               }}

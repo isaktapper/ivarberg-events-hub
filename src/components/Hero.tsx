@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { EventCategory, EventDisplay } from "@/types/event";
 import { useMemo } from "react";
 import { usePostHog } from "posthog-js/react";
+import { HALLOWEEN_THEME, isHalloweenEvent, isHalloweenSeason } from "@/lib/seasonal";
 
 interface QuickFilter {
   id: string;
@@ -16,11 +17,28 @@ interface QuickFilter {
 interface HeroProps {
   onFilterApply: (filter: QuickFilter) => void;
   onScrollToResults: () => void;
+  onThemeSelect: (theme: string) => void;
   events: EventDisplay[];
 }
 
-export function Hero({ onFilterApply, onScrollToResults, events }: HeroProps) {
+export function Hero({ onFilterApply, onScrollToResults, onThemeSelect, events }: HeroProps) {
   const posthog = usePostHog();
+  const halloween = isHalloweenSeason();
+
+  // Samma matchning som halloweenfiltret på startsidan, så att siffran stämmer med träffarna
+  const halloweenCount = useMemo(
+    () => (halloween ? events.filter((e) => isHalloweenEvent(e)).length : 0),
+    [events, halloween]
+  );
+
+  const handleHalloweenClick = () => {
+    posthog?.capture('quick_filter_clicked', {
+      filter_id: 'halloween',
+      filter_label: 'Halloween',
+      filter_type: 'theme',
+    });
+    onThemeSelect(HALLOWEEN_THEME);
+  };
 
   // Beräkna helgens datum (fredag, lördag, söndag)
   const getWeekendDates = () => {
@@ -176,7 +194,7 @@ export function Hero({ onFilterApply, onScrollToResults, events }: HeroProps) {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('/hero_spring.webp')",
+          backgroundImage: halloween ? "url('/hero_halloween.webp')" : "url('/hero_host.webp')",
         }}
       >
         {/* Solid overlay that fades to background color - Mörkare i toppen för läsbarhet */}
@@ -219,11 +237,26 @@ export function Hero({ onFilterApply, onScrollToResults, events }: HeroProps) {
 
           {/* Ny underrubrik för bättre balans */}
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-8 sm:mb-12 font-medium drop-shadow-md leading-relaxed">
-          Hitta evenemang som får hjärtat att slå lite snabbare.
+            {halloween
+              ? 'Det spökar i Varberg. Hitta något läskigt – eller mysigt – att göra.'
+              : 'Hitta evenemang som får hjärtat att slå lite snabbare.'}
           </p>
 
           {/* Quick Filters */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-sm sm:max-w-2xl mx-auto">
+            {halloween && halloweenCount > 0 && (
+              <button
+                onClick={handleHalloweenClick}
+                className="col-span-2 flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 sm:py-4 rounded-full font-medium text-sm sm:text-base text-white transition-colors bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)] border border-white/40"
+              >
+                <span aria-hidden="true">🎃</span>
+                <span>Halloween i Varberg</span>
+                <span className="min-w-[1.4rem] px-1.5 py-0.5 rounded-full text-xs font-semibold text-center leading-none bg-white text-[hsl(var(--poppy))]">
+                  {halloweenCount}
+                </span>
+              </button>
+            )}
+
             {quickFilters.map((filter) => {
               const IconComponent = filter.icon;
 
