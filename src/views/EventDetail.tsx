@@ -1,5 +1,6 @@
 "use client";
 
+import { optimizedImage, optimizedSrcSet } from "@/lib/images";
 import { useParams, Link } from "@/lib/router";
 import { useEffect, useRef, useState } from "react";
 import { Calendar, MapPin, ArrowLeft, ExternalLink, Mail, Phone, ChevronRight, CalendarPlus, Share2 } from "lucide-react";
@@ -354,7 +355,9 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
           <div className="relative mb-5 -mx-4 sm:mx-0">
             {hasImage ? (
               <img
-                src={event.image}
+                src={optimizedImage(event.image, 960)}
+                srcSet={optimizedSrcSet(event.image, [640, 960, 1280, 1600])}
+                sizes="(min-width: 640px) 896px, 100vw"
                 alt={imageAlt}
                 className="w-full aspect-video object-cover sm:rounded-xl"
               />

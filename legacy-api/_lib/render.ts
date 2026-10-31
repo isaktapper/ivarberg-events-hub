@@ -3,6 +3,7 @@ import type { DbEvent } from './supabase';
 import type { Recommendation } from './recommendations';
 import { escapeHtml, plainText, eventTime, eventDayLabel, mainCategory } from './events';
 import { svDateLabel } from './dates';
+import { optimizedImage } from '../../src/lib/images';
 
 // HTML-rendering för de serverrenderade sidorna. Layout, CSS och kort/list-
 // komponenter flyttade från api/landing.ts; layout() är generaliserad så att
@@ -21,8 +22,9 @@ export function imageAlt(e: DbEvent): string {
   return `${e.name} - ${mainCategory(e)} evenemang i Varberg`;
 }
 
+// Nedskalad WebP via /api/bild (originalen är ibland flera MB stora)
 export function eventImage(e: DbEvent): string {
-  return e.image_url ? escapeHtml(e.image_url) : '/placeholder.svg';
+  return e.image_url ? escapeHtml(optimizedImage(e.image_url, 640)) : '/placeholder.svg';
 }
 
 // Grid-kort som speglar EventCard.tsx (bild överst, badge, ikon-cirklar, Läs mer)
