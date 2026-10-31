@@ -577,7 +577,7 @@ export async function getEventsByOrganizerId(organizerId: number): Promise<Event
 
 // Normalisera titel för seriedetektering: "Sommarkväll på Societén 12/7" och
 // "Sommarkväll på Societén 19/7" ska räknas som samma eventserie.
-function normalizeSeriesTitle(title: string): string {
+export function normalizeSeriesTitle(title: string): string {
   const dateWords = [
     'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag', 'söndag',
     'januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti',

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { Fragment, useState, useMemo, useEffect, useRef } from "react";
+import { usePostHog } from "posthog-js/react";
 import { useSearchParams } from "@/lib/router";
 import { Helmet } from "@/lib/helmet";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
-import { CategoryScroller } from "@/components/CategoryScroller";
-import { EventList } from "@/components/EventList";
+import { EventRow } from "@/components/home/EventRow";
+import { EventListRow } from "@/components/home/EventListRow";
+import { addDays, dayHeading, startOfDay, ymd, type HomeRow } from "@/lib/homeRows";
 import { DateFilter } from "@/components/DateFilter";
 import { LocationFilter } from "@/components/LocationFilter";
 import { Footer } from "@/components/Footer";
@@ -15,18 +17,38 @@ import { FAQSchema } from "@/components/FAQSchema";
 import { InstagramPromoCard } from "@/components/InstagramPromoCard";
 import { InstagramPromoDialog } from "@/components/InstagramPromoDialog";
 import { useInstagramPromo } from "@/hooks/useInstagramPromo";
-import { isEventStillRelevant } from "@/services/eventService";
+import { getSortableDate, isEventStillRelevant } from "@/services/eventService";
 import { EventCategory, EventDisplay, hasCategory, EVENT_AREAS, eventMatchesArea } from "@/types/event";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
 import { categoriesToUrl, urlToCategories } from "@/lib/categoryUrls";
 import { HALLOWEEN_THEME, isHalloweenEvent } from "@/lib/seasonal";
 
+// Antal evenemang i listan innan "Visa fler"
+const LIST_PAGE_SIZE = 20;
+
+// Kategorifiltret i "Alla evenemang" (samma urval som den tidigare kategoriraden)
+const CATEGORY_FILTERS: { id: EventCategory; label: string }[] = [
+  { id: "Barn & Familj", label: "Barn & familj" },
+  { id: "Scen", label: "Scen" },
+  { id: "Sport", label: "Sport" },
+  { id: "Nattliv", label: "Nattliv" },
+  { id: "Mat & Dryck", label: "Mat & dryck" },
+  { id: "Utställningar", label: "Utställningar" },
+  { id: "Föreläsningar", label: "Föreläsningar" },
+  { id: "Film & bio", label: "Film & bio" },
+  { id: "Djur & Natur", label: "Djur & natur" },
+  { id: "Marknader", label: "Marknader" },
+  { id: "Guidade visningar", label: "Guidade visningar" },
+];
+
 interface IndexProps {
   // Hämtas på servern (src/app/page.tsx) så att listan finns i HTML:en direkt
   initialEvents: EventDisplay[];
+  // Startsidans rader, framräknade på servern (src/lib/homeRows.ts)
+  rows: HomeRow[];
 }
 
-const Index = ({ initialEvents }: IndexProps) => {
+const Index = ({ initialEvents, rows }: IndexProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [events, setEvents] = useState<EventDisplay[]>(initialEvents);
   const [loading, setLoading] = useState(false);
@@ -481,6 +503,121 @@ const Index = ({ initialEvents }: IndexProps) => {
     return 'Evenemang i Varberg - Upptäck vad som händer';
   };
 
+  // ---- Nya startsidan: rader per period + "Alla evenemang" ----
+
+  const posthog = usePostHog();
+  const listRef = useRef<HTMLDivElement>(null);
+  const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE);
+
+  // Ny filtrering → börja om från första sidan av listan
+  useEffect(() => {
+    setVisibleCount(LIST_PAGE_SIZE);
+  }, [selectedCategories, selectedDate, dateRange, searchTerm, theme, selectedLocation]);
+
+  // Listan sorteras per dag och klockslag (raderna ovanför lyfter fram
+  // utvalda). Evenemang utan känd tid hamnar sist under sin dag.
+  const listEvents = useMemo(
+    () =>
+      [...filteredEvents].sort((a, b) => {
+        const day = startOfDay(a.date).getTime() - startOfDay(b.date).getTime();
+        if (day !== 0) return day;
+        if (!a.time !== !b.time) return a.time ? -1 : 1;
+        return getSortableDate(a.date) - getSortableDate(b.date);
+      }),
+    [filteredEvents]
+  );
+
+  const listGroups = useMemo(() => {
+    const now = new Date();
+    const groups: { key: string; label: string; dateShort: string; events: EventDisplay[] }[] = [];
+    for (const event of listEvents.slice(0, visibleCount)) {
+      const key = ymd(event.date);
+      let group = groups[groups.length - 1];
+      if (!group || group.key !== key) {
+        group = { key, ...dayHeading(event.date, now), events: [] };
+        groups.push(group);
+      }
+      group.events.push(event);
+    }
+    return groups;
+  }, [listEvents, visibleCount]);
+
+  const scrollToList = () => {
+    setTimeout(() => listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+  };
+
+  // Datumintervall med lokala datum i URL:en (YYYY-MM-DD)
+  const applyDateRange = (start: Date, end: Date) => {
+    setSelectedDate(undefined);
+    setDateRange({ start, end });
+    updateUrlParams({ date: null, dateStart: ymd(start), dateEnd: ymd(end) });
+  };
+
+  const clearDates = () => {
+    setSelectedDate(undefined);
+    setDateRange(undefined);
+    updateUrlParams({ date: null, dateStart: null, dateEnd: null });
+  };
+
+  const handleSeeAll = (row: HomeRow) => {
+    applyDateRange(new Date(`${row.start}T00:00:00`), new Date(`${row.end}T00:00:00`));
+    posthog?.capture("home_row_see_all_clicked", { row: row.key, count: row.count });
+    scrollToList();
+  };
+
+  const today = startOfDay(new Date());
+  const weekday = today.getDay();
+  const weekendStart = weekday === 6 || weekday === 0 ? today : addDays(today, 5 - weekday);
+  const weekendEnd = weekday === 0 ? today : addDays(weekendStart, weekday === 6 ? 1 : 2);
+  const nextMonday = addDays(today, ((8 - weekday) % 7) || 7);
+  const datePresets = [
+    { key: "idag", label: "Idag", start: today, end: today },
+    { key: "imorgon", label: "Imorgon", start: addDays(today, 1), end: addDays(today, 1) },
+    { key: "helgen", label: "I helgen", start: weekendStart, end: weekendEnd },
+    { key: "nasta-vecka", label: "Nästa vecka", start: nextMonday, end: addDays(nextMonday, 6) },
+  ];
+  const activePreset = dateRange
+    ? datePresets.find((p) => ymd(p.start) === ymd(dateRange.start) && ymd(p.end) === ymd(dateRange.end))?.key
+    : undefined;
+  const noDateFilter = !dateRange && !selectedDate;
+
+  const toggleCategory = (category: EventCategory) => {
+    const selected = !selectedCategories.includes(category);
+    posthog?.capture("category_clicked", {
+      category,
+      action: selected ? "selected" : "deselected",
+      selected_categories_count: selectedCategories.length + (selected ? 1 : -1),
+    });
+    handleCategoryToggle(category);
+  };
+
+  const clearCategories = () => {
+    setSelectedCategories([]);
+    updateUrlParams({ cat: null });
+  };
+
+  const pillClass = (active: boolean) =>
+    `min-h-9 shrink-0 whitespace-nowrap rounded-full px-3.5 text-[13.5px] font-semibold transition-colors ${
+      active ? "bg-ink text-white" : "bg-[#F4F5F7] text-ink hover:bg-[#E9ECF0]"
+    }`;
+
+  const listTitle = theme === HALLOWEEN_THEME ? "Halloween i Varberg" : "Alla evenemang";
+
+  const promoSlot = promo.showInline ? (
+    <InstagramPromoCard
+      onShown={() => {
+        if (!inlineShownRef.current) {
+          inlineShownRef.current = true;
+          promo.trackShown("home_feed");
+        }
+      }}
+      onClick={() => promo.trackClicked("home_feed")}
+    />
+  ) : promo.showPopup ? (
+    // Osynlig sentinel på inline-kortets plats – triggar popupen vid scroll
+    <div ref={promoSentinelRef} aria-hidden className="h-0" />
+  ) : null;
+
   return (
     <>
       <Helmet>
@@ -509,276 +646,182 @@ const Index = ({ initialEvents }: IndexProps) => {
       <LocalBusinessSchema />
       <FAQSchema />
 
-      <div className="min-h-screen bg-texture">
+      <div className="min-h-screen bg-white">
         <Header />
-      <Hero
-        onFilterApply={handleQuickFilter}
-        onScrollToResults={scrollToResults}
-        onThemeSelect={handleThemeSelect}
-        events={events}
-      />
-      
-      {/* Händer idag - teaser direkt under hero (visas bara utan aktiva filter) */}
-      {!loading && !hasActiveFilters && upcomingTodayEvents.length > 0 && (
-        <section className="container mx-auto px-4 pt-2 pb-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center" style={{ color: '#10214B' }}>
-            Detta händer idag
-          </h2>
-          <EventList events={upcomingTodayEvents.slice(0, 3)} />
-          {totalTodayCount > 3 && (
-            <div className="text-center mt-4">
-              <button
-                onClick={handleShowAllToday}
-                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-                style={{
-                  color: '#10214B',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #10214B'
-                }}
-              >
-                Visa alla {totalTodayCount} evenemang idag
-              </button>
-            </div>
-          )}
-        </section>
-      )}
+        <Hero
+          onFilterApply={handleQuickFilter}
+          onScrollToResults={scrollToList}
+          onThemeSelect={handleThemeSelect}
+          events={events}
+        />
 
-      <main className="container mx-auto px-4 pt-6 pb-12" ref={resultsRef}>
-        <div className="mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center" style={{ color: '#10214B' }}>{getH1Text()}</h2>
-          
-          {/* Category Scroller */}
-          <div>
-            <CategoryScroller
-              selectedCategories={selectedCategories}
-              onCategoryToggle={handleCategoryToggle}
-            />
-          </div>
-          
-          {/* Date and Location Filters */}
-          <div ref={filtersRef} className="flex flex-col items-center mt-6">
-            <div className="flex items-center gap-3">
-              <DateFilter 
-                selectedDate={selectedDate}
-                dateRange={dateRange}
-                onDateChange={handleDateChange}
-                onDateRangeChange={handleDateRangeChange}
-              />
-              <LocationFilter
-                selectedLocation={selectedLocation}
-                areaCounts={areaCounts}
-                onLocationChange={(location) => {
-                  setSelectedLocation(location);
-                  updateUrlParams({ 'location': location !== "Hela Varberg" ? location : null });
-                  resetPagination();
-                }}
-              />
-            </div>
-            
-            {/* Clear Filters */}
-            <button
-              onClick={() => {
-                setSelectedCategories([]);
-                setSelectedDate(undefined);
-                setDateRange(undefined);
-                setSelectedLocation("Hela Varberg");
-                setSearchTerm("");
-                setSearchParams({}); // Clear all URL parameters
-                resetPagination();
-              }}
-              className="text-sm mt-3 transition-colors cursor-pointer"
-              style={{
-                color: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm || theme)
-                  ? '#0F5AA6' 
-                  : '#10214B',
-                opacity: (selectedCategories.length > 0 || selectedDate || dateRange || selectedLocation !== "Hela Varberg" || searchTerm || theme)
-                  ? 1 
-                  : 0.5
-              }}
-            >
-              Rensa filter
-            </button>
-          </div>
-        </div>
-        
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#0F5AA6' }}></div>
-            <p className="mt-4" style={{ color: '#10214B' }}>Laddar evenemang...</p>
-          </div>
-        ) : events.length === 0 ? (
-          <div className="text-center py-12">
-            <p style={{ color: '#10214B' }}>Inga evenemang hittades.</p>
-            <p className="text-sm mt-2" style={{ color: '#10214B', opacity: 0.7 }}>
-              Kontrollera att du har lagt till evenemang i databasen och att de har status 'published'.
-            </p>
-          </div>
-        ) : (
-          <EventList
-            events={paginatedEvents}
-            activeFilter={selectedCategories.length === 1 ? selectedCategories[0] : null}
-            promoSlot={
-              currentPage !== 1 ? undefined : promo.showInline ? (
-                <InstagramPromoCard
-                  onShown={() => {
-                    if (!inlineShownRef.current) {
-                      inlineShownRef.current = true;
-                      promo.trackShown("home_feed");
-                    }
+        <main className="flex flex-col gap-8 pb-12 pt-6 lg:gap-12 lg:pt-10">
+          {/* Rader per period – döljs när man filtrerar eller söker */}
+          {!hasActiveFilters &&
+            rows.map((row) => <EventRow key={row.key} row={row} onSeeAll={handleSeeAll} />)}
+
+          {/* Alla evenemang */}
+          <section
+            id="alla-evenemang"
+            ref={listRef}
+            className="mx-auto flex w-full max-w-[1280px] scroll-mt-24 flex-col gap-3.5 pt-2 lg:gap-6 lg:px-10 lg:pt-4"
+          >
+            <div className="flex items-baseline justify-between gap-4 px-4 lg:px-0" ref={resultsRef}>
+              <h2 className="text-2xl font-bold leading-tight text-ink lg:text-[28px]">
+                {listTitle} <span className="font-medium text-ink-soft">{filteredEvents.length}</span>
+              </h2>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategories([]);
+                    setSelectedDate(undefined);
+                    setDateRange(undefined);
+                    setSelectedLocation("Hela Varberg");
+                    setSearchTerm("");
+                    setSearchParams({});
                   }}
-                  onClick={() => promo.trackClicked("home_feed")}
-                />
-              ) : promo.showPopup ? (
-                // Osynlig sentinel på inline-kortets plats – triggar popupen vid scroll.
-                // !mt-0 så att space-y-4 inte skapar ett dubbelt mellanrum runt den.
-                <div ref={promoSentinelRef} aria-hidden className="h-0 !mt-0" />
-              ) : undefined
-            }
-          />
-        )}
-        
-        {/* Pagination - Mobile First */}
-        {totalPages > 1 && (
-          <div className="mt-8 space-y-4">
-            {/* Mobile: Simple navigation */}
-            <div className="flex items-center justify-between sm:hidden px-4">
-              <button
-                onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                disabled={currentPage === 1}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  color: '#10214B',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #10214B'
-                }}
-              >
-                ‹ Föregående
-              </button>
+                  className="shrink-0 text-sm font-semibold text-sea hover:text-sea-dark"
+                >
+                  Rensa filter
+                </button>
+              )}
+            </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm" style={{ color: '#10214B', opacity: 0.7 }}>
-                  Sida {currentPage} av {totalPages}
-                </span>
+            {searchTerm.trim() && (
+              <p className="px-4 text-sm text-ink-soft lg:px-0">
+                Sökresultat för <span className="font-semibold text-ink">”{searchTerm.trim()}”</span>
+              </p>
+            )}
+
+            <div className="flex flex-col gap-3.5 lg:flex-row lg:items-start lg:gap-10">
+              {/* Filter: knappar + kategorirad på mobil, panel till vänster på dator */}
+              <div className="flex gap-2 px-4 lg:hidden" ref={filtersRef}>
+                <div className="flex-1">
+                  <DateFilter
+                    variant="plain"
+                    selectedDate={selectedDate}
+                    dateRange={dateRange}
+                    onDateChange={handleDateChange}
+                    onDateRangeChange={handleDateRangeChange}
+                  />
+                </div>
+                <div className="flex-1">
+                  <LocationFilter
+                    variant="plain"
+                    selectedLocation={selectedLocation}
+                    areaCounts={areaCounts}
+                    onLocationChange={(location) => {
+                      setSelectedLocation(location);
+                      updateUrlParams({ location: location !== "Hela Varberg" ? location : null });
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 lg:hidden">
+                <button type="button" className={pillClass(selectedCategories.length === 0)} onClick={clearCategories}>
+                  Alla
+                </button>
+                {CATEGORY_FILTERS.map((c) => (
+                  <button key={c.id} type="button" className={pillClass(selectedCategories.includes(c.id))} onClick={() => toggleCategory(c.id)}>
+                    {c.label}
+                  </button>
+                ))}
               </div>
 
-              <button
-                onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  color: '#10214B',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #10214B'
-                }}
-              >
-                Nästa ›
-              </button>
-            </div>
-            
-            {/* Desktop: Traditional pagination */}
-            <div className="hidden sm:flex justify-center items-center gap-3">
-              <button
-                onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  color: '#10214B',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #10214B'
-                }}
-              >
-                Föregående
-              </button>
-
-              <div className="flex items-center gap-2">
-                {(() => {
-                  const pages = [];
-                  const maxVisible = 5;
-
-                  if (totalPages <= maxVisible) {
-                    for (let i = 1; i <= totalPages; i++) {
-                      pages.push(i);
-                    }
-                  } else {
-                    // Alltid visa första sidan
-                    pages.push(1);
-
-                    if (currentPage > 3) {
-                      pages.push('...');
-                    }
-
-                    // Visa sidor runt current page
-                    const start = Math.max(2, currentPage - 1);
-                    const end = Math.min(totalPages - 1, currentPage + 1);
-
-                    for (let i = start; i <= end; i++) {
-                      if (!pages.includes(i)) {
-                        pages.push(i);
-                      }
-                    }
-
-                    if (currentPage < totalPages - 2) {
-                      pages.push('...');
-                    }
-
-                    // Alltid visa sista sidan
-                    if (!pages.includes(totalPages)) {
-                      pages.push(totalPages);
-                    }
-                  }
-
-                  return pages.map((page, index) => (
-                    page === '...' ? (
-                      <span key={`ellipsis-${index}`} className="px-2 text-sm" style={{ color: '#10214B', opacity: 0.5 }}>
-                        ...
-                      </span>
-                    ) : (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page as number)}
-                        className="w-10 h-10 text-sm font-medium rounded-lg transition-colors"
-                        style={{
-                          backgroundColor: currentPage === page ? '#0F5AA6' : '#FFFFFF',
-                          color: currentPage === page ? '#FFFFFF' : '#10214B',
-                          border: `1px solid ${currentPage === page ? '#0F5AA6' : '#10214B'}`
-                        }}
-                      >
-                        {page}
+              <aside className="hidden w-[260px] shrink-0 flex-col gap-7 lg:flex">
+                <div className="flex flex-col gap-2.5">
+                  <h3 className="text-[15px] font-bold leading-5 text-ink">Datum</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" className={pillClass(noDateFilter)} onClick={clearDates}>
+                      Alla datum
+                    </button>
+                    {datePresets.map((p) => (
+                      <button key={p.key} type="button" className={pillClass(activePreset === p.key)} onClick={() => applyDateRange(p.start, p.end)}>
+                        {p.label}
                       </button>
-                    )
-                  ));
-                })()}
+                    ))}
+                  </div>
+                  <DateFilter
+                    variant="plain"
+                    plainLabel={noDateFilter || activePreset ? "Välj datum…" : undefined}
+                    selectedDate={selectedDate}
+                    dateRange={dateRange}
+                    onDateChange={handleDateChange}
+                    onDateRangeChange={handleDateRangeChange}
+                  />
+                </div>
+                <div className="flex flex-col gap-2.5">
+                  <h3 className="text-[15px] font-bold leading-5 text-ink">Område</h3>
+                  <LocationFilter
+                    variant="plain"
+                    selectedLocation={selectedLocation}
+                    areaCounts={areaCounts}
+                    onLocationChange={(location) => {
+                      setSelectedLocation(location);
+                      updateUrlParams({ location: location !== "Hela Varberg" ? location : null });
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-2.5">
+                  <h3 className="text-[15px] font-bold leading-5 text-ink">Kategori</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" className={pillClass(selectedCategories.length === 0)} onClick={clearCategories}>
+                      Alla
+                    </button>
+                    {CATEGORY_FILTERS.map((c) => (
+                      <button key={c.id} type="button" className={pillClass(selectedCategories.includes(c.id))} onClick={() => toggleCategory(c.id)}>
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+
+              {/* Listan, grupperad per dag */}
+              <div className="flex min-w-0 flex-1 flex-col gap-[18px] px-4 pt-1.5 lg:gap-7 lg:px-0 lg:pt-0">
+                {listGroups.length === 0 ? (
+                  <p className="py-12 text-center text-ink-soft">Inga evenemang matchar filtret.</p>
+                ) : (
+                  listGroups.map((group, groupIndex) => (
+                    <div key={group.key} className="flex flex-col gap-2 lg:gap-3">
+                      <h3 className="text-[15px] font-bold leading-5 text-ink lg:text-lg lg:leading-6">
+                        {group.label} <span className="font-medium text-ink-soft">{group.dateShort}</span>
+                      </h3>
+                      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-3">
+                        {group.events.map((event, index) => (
+                          <Fragment key={event.id}>
+                            <EventListRow event={event} />
+                            {groupIndex === 0 && index === Math.min(2, group.events.length - 1) && promoSlot && (
+                              <div className="lg:col-span-2">{promoSlot}</div>
+                            )}
+                          </Fragment>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+                {listEvents.length > visibleCount && (
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((n) => n + LIST_PAGE_SIZE)}
+                    className="mt-1.5 flex min-h-12 items-center justify-center self-stretch rounded-xl bg-ink px-8 text-[15px] font-semibold text-white transition-colors hover:bg-navy lg:self-center"
+                  >
+                    Visa fler evenemang
+                  </button>
+                )}
               </div>
-
-              <button
-                onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  color: '#10214B',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #10214B'
-                }}
-              >
-                Nästa
-              </button>
             </div>
-          </div>
-        )}
-        
-        {/* Results info */}
-        <div className="text-center text-sm mt-4" style={{ color: '#10214B', opacity: 0.7 }}>
-          Visar {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)} av {filteredEvents.length} evenemang
-        </div>
-      </main>
+          </section>
+        </main>
 
-      <InstagramPromoDialog
-        open={promoPopupOpen}
-        onOpenChange={handlePromoPopupOpenChange}
-        onClick={handlePromoPopupClick}
-      />
+        <InstagramPromoDialog
+          open={promoPopupOpen}
+          onOpenChange={handlePromoPopupOpenChange}
+          onClick={handlePromoPopupClick}
+        />
 
-      <Footer />
+        <Footer />
       </div>
     </>
   );

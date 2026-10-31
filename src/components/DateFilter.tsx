@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar } from "lucide-react";
+import { ChevronDown, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -12,14 +12,40 @@ import {
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addWeeks } from "date-fns";
 import { sv } from "date-fns/locale";
 
+// "glass" = ursprungliga triggern (frostat glas). "plain" = nya startsidans
+// ljusgrå knapp i "Alla evenemang".
+export type FilterVariant = "glass" | "plain";
+const PLAIN_TRIGGER = "h-11 w-full justify-between gap-2 rounded-xl border-0 bg-[#F4F5F7] px-3.5 text-sm font-semibold text-ink shadow-none hover:bg-[#E9ECF0] hover:text-ink";
+const GLASS_TRIGGER = {
+  style: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    color: '#10214B',
+    backdropFilter: 'blur(12px)',
+  },
+  onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.backgroundColor = 'rgba(15, 90, 166, 0.7)';
+    e.currentTarget.style.borderColor = 'rgba(15, 90, 166, 0.8)';
+    e.currentTarget.style.color = '#FFFFFF';
+  },
+  onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+    e.currentTarget.style.color = '#10214B';
+  },
+};
+
 interface DateFilterProps {
   selectedDate: Date | undefined;
   dateRange: { start: Date; end: Date } | undefined;
   onDateChange: (date: Date | undefined) => void;
   onDateRangeChange: (range: { start: Date; end: Date } | undefined) => void;
+  variant?: FilterVariant;
+  /** Fast text på plain-knappen (t.ex. "Välj datum…"); annars valt datum */
+  plainLabel?: string;
 }
 
-export function DateFilter({ selectedDate, dateRange, onDateChange, onDateRangeChange }: DateFilterProps) {
+export function DateFilter({ selectedDate, dateRange, onDateChange, onDateRangeChange, variant = "glass", plainLabel }: DateFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -92,26 +118,23 @@ export function DateFilter({ selectedDate, dateRange, onDateChange, onDateRangeC
       <PopoverTrigger asChild>
         <Button
           variant="filter"
-          className="justify-start text-left font-normal w-40 sm:w-44 transition-all duration-200 backdrop-blur-md shadow-lg"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.25)',
-            borderColor: 'rgba(255, 255, 255, 0.5)',
-            color: '#10214B',
-            backdropFilter: 'blur(12px)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(15, 90, 166, 0.7)';
-            e.currentTarget.style.borderColor = 'rgba(15, 90, 166, 0.8)';
-            e.currentTarget.style.color = '#FFFFFF';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-            e.currentTarget.style.color = '#10214B';
-          }}
+          className={variant === "plain" ? PLAIN_TRIGGER : "justify-start text-left font-normal w-40 sm:w-44 transition-all duration-200 backdrop-blur-md shadow-lg"}
+          {...(variant === "plain" ? {} : GLASS_TRIGGER)}
         >
-          <Calendar className="mr-2 h-4 w-4" />
-          {getDateText()}
+          {variant === "plain" ? (
+            <>
+              <span className="flex min-w-0 items-center gap-2">
+                <Calendar className="h-4 w-4 shrink-0" />
+                <span className="truncate">{plainLabel ?? getDateText()}</span>
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-ink-soft" />
+            </>
+          ) : (
+            <>
+              <Calendar className="mr-2 h-4 w-4" />
+              {getDateText()}
+            </>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent 

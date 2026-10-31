@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Index from "@/views/Index";
 import { getHomeEvents } from "@/lib/server-data";
+import { buildHomeRows } from "@/lib/homeRows";
 
 // Renderas per request: listan är alltid färsk och filtren i URL:en
 // (?cat=, ?date=, ?search= …) följer med i serverrenderingen
@@ -34,5 +35,6 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const events = await getHomeEvents();
-  return <Index initialEvents={events} />;
+  const rows = buildHomeRows(events, new Date());
+  return <Index initialEvents={events} rows={rows} />;
 }

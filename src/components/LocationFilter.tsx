@@ -13,14 +13,38 @@ import { EVENT_AREAS } from "@/types/event";
 
 const locations = ["Hela Varberg", ...EVENT_AREAS];
 
+// "glass" = ursprungliga triggern (frostat glas). "plain" = nya startsidans
+// ljusgrå knapp i "Alla evenemang".
+type FilterVariant = "glass" | "plain";
+const PLAIN_TRIGGER = "h-11 w-full justify-between gap-2 rounded-xl border-0 bg-[#F4F5F7] px-3.5 text-sm font-semibold text-ink shadow-none hover:bg-[#E9ECF0] hover:text-ink";
+const GLASS_TRIGGER = {
+  style: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    color: '#10214B',
+    backdropFilter: 'blur(12px)',
+  },
+  onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.backgroundColor = 'rgba(15, 90, 166, 0.7)';
+    e.currentTarget.style.borderColor = 'rgba(15, 90, 166, 0.8)';
+    e.currentTarget.style.color = '#FFFFFF';
+  },
+  onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+    e.currentTarget.style.color = '#10214B';
+  },
+};
+
 interface LocationFilterProps {
   selectedLocation: string;
   onLocationChange: (location: string) => void;
   // Antal events per område (beräknat med övriga filter applicerade)
   areaCounts?: Record<string, number>;
+  variant?: FilterVariant;
 }
 
-export function LocationFilter({ selectedLocation, onLocationChange, areaCounts }: LocationFilterProps) {
+export function LocationFilter({ selectedLocation, onLocationChange, areaCounts, variant = "glass" }: LocationFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const posthog = usePostHog();
 
@@ -45,26 +69,11 @@ export function LocationFilter({ selectedLocation, onLocationChange, areaCounts 
         <Button
           variant="filter"
           onClick={handleClick}
-          className="flex items-center justify-between gap-2 h-10 px-4 font-normal w-40 sm:w-44 transition-all duration-200 backdrop-blur-md shadow-lg"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.25)',
-            borderColor: 'rgba(255, 255, 255, 0.5)',
-            color: '#10214B',
-            backdropFilter: 'blur(12px)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(15, 90, 166, 0.7)';
-            e.currentTarget.style.borderColor = 'rgba(15, 90, 166, 0.8)';
-            e.currentTarget.style.color = '#FFFFFF';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-            e.currentTarget.style.color = '#10214B';
-          }}
+          className={variant === "plain" ? PLAIN_TRIGGER : "flex items-center justify-between gap-2 h-10 px-4 font-normal w-40 sm:w-44 transition-all duration-200 backdrop-blur-md shadow-lg"}
+          {...(variant === "plain" ? {} : GLASS_TRIGGER)}
         >
           <MapPin className="h-4 w-4" />
-          <span className="text-sm truncate flex-1 text-center">{selectedLocation}</span>
+          <span className={variant === "plain" ? "text-sm truncate flex-1 text-left" : "text-sm truncate flex-1 text-center"}>{selectedLocation}</span>
           <ChevronDown className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
