@@ -613,7 +613,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
           events={events}
         />
 
-        <main className="flex flex-col gap-8 pb-12 pt-6 lg:gap-12 lg:pt-10">
+        <main className="flex flex-col gap-8 pb-12 lg:gap-12 lg:pt-2">
           {/* Rader per period – döljs när man filtrerar eller söker */}
           {!hasActiveFilters &&
             rows.map((row) => <EventRow key={row.key} row={row} onSeeAll={handleSeeAll} />)}

@@ -10,7 +10,7 @@ interface HeroProps {
   events: EventDisplay[];
 }
 
-// Kompakt bildbanner överst på startsidan. Snabbfiltren är ersatta av raderna under.
+// Bild kant till kant överst på startsidan som tonar ut i vitt. Snabbfiltren är ersatta av raderna under.
 export function Hero({ onThemeSelect, events }: HeroProps) {
   const posthog = usePostHog();
   const halloween = isHalloweenSeason();
@@ -31,20 +31,28 @@ export function Hero({ onThemeSelect, events }: HeroProps) {
   };
 
   return (
-    <section className="mx-auto w-full max-w-[1280px] px-4 pt-3 lg:px-10 lg:pt-6">
+    <section className="relative overflow-hidden bg-white">
+      {/* Bilden slutar en bit ovanför kanten så att övergången alltid landar i rent vitt */}
       <div
-        className="relative flex min-h-[240px] flex-col justify-end overflow-hidden rounded-3xl bg-ink bg-cover bg-center p-5 sm:min-h-[300px] lg:min-h-[340px] lg:p-10"
+        className="absolute inset-x-0 top-0 bottom-6 bg-cover bg-center"
         style={{
           backgroundImage: halloween ? "url('/hero_halloween.webp')" : "url('/hero_host.webp')",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/5" />
+        {/* Mörkt upptill för läsbarhet, tonar sedan ut i sidans vita bakgrund */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/0" />
+        <div
+          className="absolute inset-x-0 -bottom-px h-1/2"
+          style={{ background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.75) 55%, #fff 90%)" }}
+        />
+      </div>
 
-        <div className="relative flex flex-col items-start gap-2 lg:gap-3">
-          <h1 className="text-[32px] font-bold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl">
+      <div className="relative mx-auto max-w-[1280px] px-4 pb-24 pt-12 text-center sm:pb-32 sm:pt-16 lg:pb-40 lg:pt-20">
+        <div className="flex flex-col items-center gap-3 lg:gap-4">
+          <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)] sm:text-5xl lg:text-7xl">
             Vad händer i Varberg?
           </h1>
-          <p className="max-w-xl text-base font-medium leading-snug text-white/90 lg:text-lg">
+          <p className="max-w-xl text-base font-medium leading-snug text-white/90 drop-shadow-md lg:text-xl">
             {halloween
               ? 'Det spökar i Varberg. Hitta något läskigt – eller mysigt – att göra.'
               : 'Hitta evenemang som får hjärtat att slå lite snabbare.'}
