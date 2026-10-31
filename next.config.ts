@@ -15,8 +15,22 @@ const env = {
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? process.env.VITE_GOOGLE_MAPS_API_KEY ?? "",
 };
 
+// sharp (bildtjänsten /api/bild) laddar sina Linux-binärer dynamiskt och
+// spåras inte av Next - utan detta ERR_DLOPEN_FAILED (libvips saknas) på
+// Vercel. Globbarna måste peka på de riktiga paketkatalogerna i .pnpm, inte
+// pnpm:s symlänkar (samma lösning som i ivarberg_admin).
+const SHARP_LINUX_FILES = [
+  "./node_modules/.pnpm/sharp@*/node_modules/sharp/**",
+  "./node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/**",
+  "./node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**",
+];
+
 const nextConfig: NextConfig = {
   env,
+  serverExternalPackages: ["sharp"],
+  outputFileTracingIncludes: {
+    "/api/bild": SHARP_LINUX_FILES,
+  },
   turbopack: { root: process.cwd() },
   async rewrites() {
     // Serverrenderade landningssidor (tidigare rewrites i vercel.json → api/*)
