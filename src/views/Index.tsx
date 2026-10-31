@@ -369,46 +369,6 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
     selectedCategories.length > 0 || !!selectedDate || !!dateRange || !!searchTerm.trim() || !!theme ||
     selectedLocation !== "Hela Varberg";
 
-  const handleShowAllToday = () => {
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    const end = new Date();
-    end.setHours(23, 59, 59, 999);
-    handleQuickFilter({ id: 'today', type: 'date', dateRange: { start, end } });
-    setTimeout(() => scrollToResults(), 100);
-  };
-
-  const handleQuickFilter = (filter: any) => {
-    // Rensa andra filter först (inklusive sökning)
-    setSelectedCategories([]);
-    setSelectedDate(undefined);
-    setDateRange(undefined);
-    setSearchTerm("");
-    
-    // Build new URL params
-    const newParams: Record<string, string | null> = {
-      'cat': null,
-      'search': null,
-      'date': null,
-      'dateStart': null,
-      'dateEnd': null,
-      'location': null,
-      'tema': null
-    };
-    
-    if (filter.type === 'date' && filter.dateRange) {
-      setDateRange(filter.dateRange);
-      newParams['dateStart'] = filter.dateRange.start.toISOString().split('T')[0];
-      newParams['dateEnd'] = filter.dateRange.end.toISOString().split('T')[0];
-    } else if (filter.type === 'category' && filter.value) {
-      setSelectedCategories([filter.value]);
-      newParams['cat'] = categoriesToUrl([filter.value]);
-    }
-    
-    updateUrlParams(newParams);
-    resetPagination();
-  };
-
   // Temafilter från hero (t.ex. halloween) – rensar övriga filter och sätter ?tema=
   const handleThemeSelect = (theme: string) => {
     setSelectedCategories([]);
@@ -649,8 +609,6 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
       <div className="min-h-screen bg-white">
         <Header />
         <Hero
-          onFilterApply={handleQuickFilter}
-          onScrollToResults={scrollToList}
           onThemeSelect={handleThemeSelect}
           events={events}
         />
