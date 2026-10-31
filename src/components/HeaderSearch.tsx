@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router";
 import { Search, Tag, MapPin, Ticket } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import { EventCategory, EventDisplay } from "@/types/event";

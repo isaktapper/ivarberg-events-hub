@@ -1,4 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+"use client";
+
+import { Helmet } from "@/lib/helmet";
 import { INSTAGRAM_URL } from '@/lib/constants';
 
 /**

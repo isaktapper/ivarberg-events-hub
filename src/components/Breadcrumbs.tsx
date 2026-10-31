@@ -1,6 +1,8 @@
-import { Link } from 'react-router-dom';
+"use client";
+
+import { Link } from "@/lib/router";
 import { ChevronRight, Home } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "@/lib/helmet";
 
 export interface BreadcrumbItem {
   label: string;

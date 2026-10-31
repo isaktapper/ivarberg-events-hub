@@ -1,3 +1,5 @@
+"use client";
+
 import { Fragment, ReactNode } from "react";
 import { EventDisplay, EventCategory } from "@/types/event";
 import { EventListItem } from "./EventListItem";

@@ -1,3 +1,5 @@
+"use client";
+
 import { Calendar, MapPin, Clock } from "lucide-react";
 import { EventDisplay, getMainCategory, getCategoryChipColor } from "@/types/event";
 import { Button } from "@/components/ui/button";

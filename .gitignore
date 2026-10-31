@@ -31,3 +31,10 @@ dist-ssr
 
 # Claude Code (lokala worktrees och sessionsfiler)
 .claude/
+.env*.local
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo

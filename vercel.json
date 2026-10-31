@@ -1,24 +1,3 @@
 {
-  "rewrites": [
-    { "source": "/idag", "destination": "/api/landing?period=idag" },
-    { "source": "/imorgon", "destination": "/api/landing?period=imorgon" },
-    { "source": "/i-helgen", "destination": "/api/landing?period=i-helgen" },
-    { "source": "/i-veckan", "destination": "/api/landing?period=i-veckan" },
-    { "source": "/evenemang-varberg", "destination": "/api/guide?page=evenemang-varberg" },
-    { "source": "/att-gora-i-varberg", "destination": "/api/guide?page=att-gora-i-varberg" },
-    { "source": "/varberg-kalender", "destination": "/api/guide?page=varberg-kalender" },
-    { "source": "/kategori/:slug", "destination": "/api/kategori?slug=:slug" },
-    { "source": "/omrade/:slug", "destination": "/api/omrade?slug=:slug" },
-    { "source": "/(.*)", "destination": "/" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    }
-  ]
+  "framework": "nextjs"
 }

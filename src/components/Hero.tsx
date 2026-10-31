@@ -1,3 +1,5 @@
+"use client";
+
 import { Calendar, Clock, MessageCircle, Sunrise } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventCategory, EventDisplay } from "@/types/event";

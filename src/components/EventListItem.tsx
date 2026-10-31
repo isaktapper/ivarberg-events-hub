@@ -1,8 +1,10 @@
+"use client";
+
 import { Calendar, ChevronRight, MapPin } from "lucide-react";
 import { EventDisplay, getMainCategory, getAllCategories, EventCategory } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "@/lib/router";
 import { formatLocation } from "@/lib/locationUtils";
 import { formatRelativeDate } from "@/lib/dateUtils";
 import { usePostHog } from "posthog-js/react";

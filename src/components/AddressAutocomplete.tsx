@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 
@@ -23,7 +25,7 @@ export function AddressAutocomplete({ value, onChange, onPlaceSelect, placeholde
         return;
       }
 
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
       if (!apiKey) {
         console.error('VITE_GOOGLE_MAPS_API_KEY environment variable is not set');
         return;

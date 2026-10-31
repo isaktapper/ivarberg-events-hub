@@ -1,8 +1,10 @@
+"use client";
+
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Calendar, MapPin, ArrowRight } from "lucide-react";
 import { EventDisplay, getMainCategory, getCategoryChipColor } from "@/types/event";
 import { Button } from "@/components/ui/button";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "@/lib/router";
 import { formatLocation } from "@/lib/locationUtils";
 
 interface SimilarEventsCarouselProps {

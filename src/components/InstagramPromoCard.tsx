@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { Instagram } from "lucide-react";
 import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/constants";
