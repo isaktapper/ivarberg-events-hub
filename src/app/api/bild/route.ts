@@ -1,6 +1,6 @@
 import sharp from "sharp";
 import { supabase } from "@/lib/supabase";
-import { IMAGE_WIDTHS, type ImageWidth } from "@/lib/images";
+import { IMAGE_WIDTHS, fromBase64Url, type ImageWidth } from "@/lib/images";
 
 // Skalar ner en eventbild och gör om den till WebP. Svaret cachas i Vercels
 // CDN, så varje bild och bredd räknas bara om en gång. Se src/lib/images.ts.
@@ -28,7 +28,12 @@ function fallback(url: string) {
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
-  const url = params.get("url") ?? "";
+  let url = "";
+  try {
+    url = fromBase64Url(params.get("src") ?? "");
+  } catch {
+    return new Response("Bad request", { status: 400 });
+  }
   const width = Number(params.get("w")) as ImageWidth;
 
   if (!/^https?:\/\//i.test(url) || !IMAGE_WIDTHS.includes(width)) {
