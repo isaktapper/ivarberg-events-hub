@@ -1,8 +1,11 @@
+"use client";
+
+import { optimizedImage } from "@/lib/images";
 import { Calendar, ChevronRight, MapPin } from "lucide-react";
 import { EventDisplay, getMainCategory, getAllCategories, EventCategory } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "@/lib/router";
 import { formatLocation } from "@/lib/locationUtils";
 import { formatRelativeDate } from "@/lib/dateUtils";
 import { usePostHog } from "posthog-js/react";
@@ -58,7 +61,8 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
           {/* Image - Fixed width on left */}
           <div className="w-28 sm:w-36 flex-shrink-0 relative">
             <img
-              src={event.image}
+              src={optimizedImage(event.image, 480)}
+              decoding="async"
               alt={imageAlt}
               loading="lazy"
               className="w-full h-full object-cover"

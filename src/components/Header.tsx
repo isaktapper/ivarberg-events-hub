@@ -1,3 +1,5 @@
+"use client";
+
 import NavbarDemo from "@/components/resizable-navbar-demo";
 
 export function Header() {

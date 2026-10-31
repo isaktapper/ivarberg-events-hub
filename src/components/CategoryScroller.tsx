@@ -1,3 +1,5 @@
+"use client";
+
 import { Drama, Users, Image, PartyPopper, Trophy, UtensilsCrossed, GraduationCap, Film, TreePine, Compass, Store } from 'lucide-react';
 import { EventCategory } from '@/types/event';
 import { usePostHog } from "posthog-js/react";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Mail, MapPin, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";

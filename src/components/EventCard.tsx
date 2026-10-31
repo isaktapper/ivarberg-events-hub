@@ -1,3 +1,6 @@
+"use client";
+
+import { optimizedImage } from "@/lib/images";
 import { Calendar, MapPin, Clock } from "lucide-react";
 import { EventDisplay, getMainCategory, getCategoryChipColor } from "@/types/event";
 import { Button } from "@/components/ui/button";
@@ -30,7 +33,8 @@ export function EventCard({ event }: EventCardProps) {
     <div className="event-card group cursor-pointer">
       <div className="relative h-48 overflow-hidden">
         <img
-          src={event.image}
+          src={optimizedImage(event.image, 640)}
+          decoding="async"
           alt={imageAlt}
           loading="lazy"
           className="event-card-image group-hover:scale-105 transition-transform duration-500 ease-out"

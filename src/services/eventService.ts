@@ -16,7 +16,6 @@ export async function submitEventTip(eventData: {
   submitter_name?: string;
 }): Promise<{ success: boolean; tip_id?: number; error?: string }> {
   try {
-    console.log('Submitting event tip via API:', eventData);
 
     // Client-side validering (för snabb feedback till användaren)
     const validationResult = validateEventSubmission({
@@ -49,7 +48,6 @@ export async function submitEventTip(eventData: {
       return { success: false, error: result.error || 'Ett fel uppstod vid inlämning' };
     }
 
-    console.log('Tip submitted successfully via API:', result);
     return { success: true, tip_id: result.tip_id };
 
   } catch (error) {
@@ -150,7 +148,7 @@ export function isEventStillRelevant(event: EventDisplay, now: Date = new Date()
 }
 
 // Helper function för sortering - behandlar 00:00 som 12:00 för sortering
-function getSortableDate(date: Date): number {
+export function getSortableDate(date: Date): number {
   const sortDate = new Date(date);
   const hours = sortDate.getHours();
   const minutes = sortDate.getMinutes();
@@ -212,7 +210,6 @@ export function transformEventForDisplay(event: Event): EventDisplay {
 // Hämta alla publicerade events
 export async function getPublishedEvents(): Promise<EventDisplay[]> {
   try {
-    console.log('🔍 Fetching events from Supabase...');
 
     // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
@@ -236,15 +233,12 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
       .order('featured', { ascending: false })
       .order('date_time', { ascending: true });
 
-    console.log('📊 Supabase response:', { data, error });
-    console.log('📅 Current date filter (Swedish time):', filterDate);
 
     if (error) {
       console.error('❌ Error fetching events:', error);
       return [];
     }
 
-    console.log(`✅ Found ${data?.length || 0} current/future events`);
     const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
@@ -257,7 +251,6 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
       return getSortableDate(a.date) - getSortableDate(b.date);
     });
     
-    console.log('🔄 Transformed and sorted events:', transformedEvents);
 
     return transformedEvents;
   } catch (error) {
@@ -269,7 +262,6 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
 // DEBUG: Hämta alla events utan datum-filter
 export async function getAllEvents(): Promise<EventDisplay[]> {
   try {
-    console.log('🔍 DEBUG: Fetching ALL events (with current date filter)...');
 
     // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
@@ -293,15 +285,12 @@ export async function getAllEvents(): Promise<EventDisplay[]> {
       .order('featured', { ascending: false })
       .order('date_time', { ascending: true });
 
-    console.log('📊 DEBUG: All events response:', { data, error });
-    console.log('📅 DEBUG: Date filter (Swedish time):', filterDate);
 
     if (error) {
       console.error('❌ DEBUG: Error fetching all events:', error);
       return [];
     }
 
-    console.log(`✅ DEBUG: Found ${data?.length || 0} current/future events`);
     const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
@@ -543,7 +532,6 @@ export async function getEventsByOrganizer(organizerName: string): Promise<Event
 // Hämta events för en specifik arrangör (by organizer_id)
 export async function getEventsByOrganizerId(organizerId: number): Promise<EventDisplay[]> {
   try {
-    console.log('🔍 Fetching events for organizer_id:', organizerId);
 
     // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
@@ -567,14 +555,12 @@ export async function getEventsByOrganizerId(organizerId: number): Promise<Event
       .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .order('date_time', { ascending: true }); // Sortera på datum (tidigast först)
 
-    console.log('📊 Events by organizer_id response:', { data, error });
 
     if (error) {
       console.error('Error fetching events by organizer_id:', error);
       return [];
     }
 
-    console.log(`✅ Found ${data?.length || 0} upcoming events for organizer_id ${organizerId}`);
     const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     
     // Sortera events efter datum (00:00 behandlas som 12:00)
@@ -789,7 +775,6 @@ export async function subscribeToNewsletter(email: string, name: string): Promis
       return { success: false, error: `Fel vid registrering: ${error.message}` };
     }
 
-    console.log('Newsletter subscription successful');
     return { success: true };
 
   } catch (error) {

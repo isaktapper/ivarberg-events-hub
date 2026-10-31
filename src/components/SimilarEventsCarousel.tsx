@@ -1,8 +1,11 @@
+"use client";
+
+import { optimizedImage } from "@/lib/images";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Calendar, MapPin, ArrowRight } from "lucide-react";
 import { EventDisplay, getMainCategory, getCategoryChipColor } from "@/types/event";
 import { Button } from "@/components/ui/button";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "@/lib/router";
 import { formatLocation } from "@/lib/locationUtils";
 
 interface SimilarEventsCarouselProps {
@@ -126,7 +129,8 @@ export function SimilarEventsCarousel({ events, title = 'Liknande evenemang', on
                   {/* Image */}
                   <div className="relative h-36 overflow-hidden">
                     <img
-                      src={event.image}
+                      src={optimizedImage(event.image, 640)}
+                      decoding="async"
                       alt={imageAlt}
                       loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
