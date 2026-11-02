@@ -209,55 +209,78 @@ export function transformEventForDisplay(event: Event): EventDisplay {
   };
 }
 
-// Hämta alla publicerade events
+// ---------------------------------------------------------------------------
+// Kommande event för listorna (startsidan, sökningen, liknande event,
+// arrangörssidor) hämtas EN gång via /api/events, som cachas i Vercels CDN och
+// bara innehåller fälten listorna visar. Tidigare gick varje sidladdning direkt
+// mot Supabase med select(*) - det sprängde Supabase-egressen på gratisplanen.
+// Eventsidans eget event (med beskrivning) hämtas fortfarande direkt.
+// ---------------------------------------------------------------------------
+
+// Samma fält som api/events.ts - används bara som reserv om API:t inte svarar
+// (t.ex. lokalt med `vite dev`, där /api-funktionerna inte körs)
+const LIST_SELECT =
+  'event_id,name,categories,date_time,location,venue_name,area,price,is_free,image_url,featured,organizer_id,organizer:organizers(name)';
+
+// Delas mellan sidor i samma besök; hämtas om när den blivit gammal
+const UPCOMING_TTL_MS = 5 * 60 * 1000;
+let upcomingCache: { promise: Promise<Event[]>; fetchedAt: number } | null = null;
+
+function stockholmTodayStart(): Date {
+  const stockholmTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+  stockholmTime.setHours(0, 0, 0, 0);
+  return stockholmTime;
+}
+
+async function loadUpcomingEvents(): Promise<Event[]> {
+  try {
+    const preview = new URLSearchParams(window.location.search).get('halloween') === '1';
+    const res = await fetch(`/api/events${preview ? '?halloween=1' : ''}`);
+    if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+      const body = await res.json();
+      if (Array.isArray(body.events)) return body.events as Event[];
+    }
+  } catch (error) {
+    console.warn('Kunde inte hämta /api/events, hämtar direkt från Supabase:', error);
+  }
+
+  const today = stockholmTodayStart();
+  const filterDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')} 00:00:00`;
+  const { data, error } = await supabase
+    .from('events')
+    .select(LIST_SELECT)
+    .eq('status', 'published')
+    .gte('date_time', filterDate)
+    .order('date_time', { ascending: true });
+  if (error) throw error;
+  return (data || []) as unknown as Event[];
+}
+
+/** Alla kommande publicerade event (råa rader, sorterade på datum) */
+function getUpcomingEventRows(): Promise<Event[]> {
+  if (!upcomingCache || Date.now() - upcomingCache.fetchedAt > UPCOMING_TTL_MS) {
+    const promise = loadUpcomingEvents();
+    upcomingCache = { promise, fetchedAt: Date.now() };
+    // Ett misslyckat försök ska inte cachas
+    promise.catch(() => {
+      if (upcomingCache?.promise === promise) upcomingCache = null;
+    });
+  }
+  return upcomingCache.promise;
+}
+
+// Hämta alla publicerade events (featured först, sedan datum)
 export async function getPublishedEvents(): Promise<EventDisplay[]> {
   try {
-    console.log('🔍 Fetching events from Supabase...');
+    const rows = await getUpcomingEventRows();
+    const transformedEvents = rows.map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
 
-    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
-    const today = new Date();
-    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
-    stockholmTime.setHours(0, 0, 0, 0);
-
-    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
-    const year = stockholmTime.getFullYear();
-    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
-    const day = String(stockholmTime.getDate()).padStart(2, '0');
-    const filterDate = `${year}-${month}-${day} 00:00:00`;
-
-    const { data, error } = await supabase
-      .from('events')
-      .select(`
-        *,
-        organizer:organizers(*)
-      `)
-      .eq('status', 'published')
-      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
-      .order('featured', { ascending: false })
-      .order('date_time', { ascending: true });
-
-    console.log('📊 Supabase response:', { data, error });
-    console.log('📅 Current date filter (Swedish time):', filterDate);
-
-    if (error) {
-      console.error('❌ Error fetching events:', error);
-      return [];
-    }
-
-    console.log(`✅ Found ${data?.length || 0} current/future events`);
-    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
-    
     // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
-      // Featured events först
       if (a.isFeatured && !b.isFeatured) return -1;
       if (!a.isFeatured && b.isFeatured) return 1;
-      
-      // Sedan sortera efter datum (00:00 behandlas som 12:00 för sortering)
       return getSortableDate(a.date) - getSortableDate(b.date);
     });
-    
-    console.log('🔄 Transformed and sorted events:', transformedEvents);
 
     return transformedEvents;
   } catch (error) {
@@ -266,56 +289,9 @@ export async function getPublishedEvents(): Promise<EventDisplay[]> {
   }
 }
 
-// DEBUG: Hämta alla events utan datum-filter
+// Samma lista som getPublishedEvents (används av sökningen i headern)
 export async function getAllEvents(): Promise<EventDisplay[]> {
-  try {
-    console.log('🔍 DEBUG: Fetching ALL events (with current date filter)...');
-
-    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
-    const today = new Date();
-    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
-    stockholmTime.setHours(0, 0, 0, 0);
-
-    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
-    const year = stockholmTime.getFullYear();
-    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
-    const day = String(stockholmTime.getDate()).padStart(2, '0');
-    const filterDate = `${year}-${month}-${day} 00:00:00`;
-
-    const { data, error } = await supabase
-      .from('events')
-      .select(`
-        *,
-        organizer:organizers(*)
-      `)
-      .eq('status', 'published')
-      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
-      .order('featured', { ascending: false })
-      .order('date_time', { ascending: true });
-
-    console.log('📊 DEBUG: All events response:', { data, error });
-    console.log('📅 DEBUG: Date filter (Swedish time):', filterDate);
-
-    if (error) {
-      console.error('❌ DEBUG: Error fetching all events:', error);
-      return [];
-    }
-
-    console.log(`✅ DEBUG: Found ${data?.length || 0} current/future events`);
-    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
-    
-    // Sortera events: featured först, sedan efter datum (00:00 behandlas som 12:00)
-    transformedEvents.sort((a, b) => {
-      if (a.isFeatured && !b.isFeatured) return -1;
-      if (!a.isFeatured && b.isFeatured) return 1;
-      return getSortableDate(a.date) - getSortableDate(b.date);
-    });
-    
-    return transformedEvents;
-  } catch (error) {
-    console.error('💥 DEBUG: Error in getAllEvents:', error);
-    return [];
-  }
+  return getPublishedEvents();
 }
 
 // Hämta featured events
@@ -543,45 +519,17 @@ export async function getEventsByOrganizer(organizerName: string): Promise<Event
 // Hämta events för en specifik arrangör (by organizer_id)
 export async function getEventsByOrganizerId(organizerId: number): Promise<EventDisplay[]> {
   try {
-    console.log('🔍 Fetching events for organizer_id:', organizerId);
+    const rows = await getUpcomingEventRows();
+    const transformedEvents = rows
+      .filter(e => e.organizer_id === organizerId)
+      .map(transformEventForDisplay)
+      .filter(e => isEventStillRelevant(e));
 
-    // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
-    const today = new Date();
-    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
-    stockholmTime.setHours(0, 0, 0, 0);
-
-    // Formatera som lokal datetime-sträng för Supabase (YYYY-MM-DD HH:MM:SS)
-    const year = stockholmTime.getFullYear();
-    const month = String(stockholmTime.getMonth() + 1).padStart(2, '0');
-    const day = String(stockholmTime.getDate()).padStart(2, '0');
-    const filterDate = `${year}-${month}-${day} 00:00:00`;
-
-    const { data, error } = await supabase
-      .from('events')
-      .select(`
-        *,
-        organizer:organizers(*)
-      `)
-      .eq('status', 'published')
-      .eq('organizer_id', organizerId) // Filtrera på organizer_id
-      .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
-      .order('date_time', { ascending: true }); // Sortera på datum (tidigast först)
-
-    console.log('📊 Events by organizer_id response:', { data, error });
-
-    if (error) {
-      console.error('Error fetching events by organizer_id:', error);
-      return [];
-    }
-
-    console.log(`✅ Found ${data?.length || 0} upcoming events for organizer_id ${organizerId}`);
-    const transformedEvents = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
-    
     // Sortera events efter datum (00:00 behandlas som 12:00)
     transformedEvents.sort((a, b) => {
       return getSortableDate(a.date) - getSortableDate(b.date);
     });
-    
+
     return transformedEvents;
   } catch (error) {
     console.error('Error in getEventsByOrganizerId:', error);
@@ -631,41 +579,20 @@ export interface SimilarEventsResult {
 export async function getSimilarEvents(currentEvent: EventDisplay): Promise<SimilarEventsResult> {
   const emptyResult: SimilarEventsResult = { sameSeries: [], similar: [], similarIsFallback: false };
   try {
-    // Kandidatfönster: idag (svensk tid) och 45 dagar framåt
-    const today = new Date();
-    const stockholmTime = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
-    stockholmTime.setHours(0, 0, 0, 0);
-    const windowEnd = new Date(stockholmTime);
+    // Kandidatfönster: idag (svensk tid) och 45 dagar framåt, max 400 event
+    const windowStart = stockholmTodayStart();
+    const windowEnd = new Date(windowStart);
     windowEnd.setDate(windowEnd.getDate() + 45);
     windowEnd.setHours(23, 59, 59, 999);
 
-    const formatDateForQuery = (date: Date): string => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    };
-
-    const { data, error } = await supabase
-      .from('events')
-      .select(`
-        *,
-        organizer:organizers(*)
-      `)
-      .eq('status', 'published')
-      .neq('event_id', currentEvent.id)
-      .gte('date_time', formatDateForQuery(stockholmTime))
-      .lte('date_time', formatDateForQuery(windowEnd))
-      .order('date_time', { ascending: true })
-      .limit(400);
-
-    if (error) {
-      console.error('Error fetching similar event candidates:', error);
-      return emptyResult;
-    }
+    const rows = await getUpcomingEventRows();
+    const data = rows
+      .filter(e => {
+        if (e.event_id === currentEvent.id) return false;
+        const date = new Date(e.date_time);
+        return date >= windowStart && date <= windowEnd;
+      })
+      .slice(0, 400);
 
     const candidates = (data || []).map(transformEventForDisplay).filter(e => isEventStillRelevant(e));
     const currentCategories = getAllCategories(currentEvent);
