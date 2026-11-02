@@ -18,7 +18,7 @@ function allSaintsDay(year: number): Date {
 }
 
 /** Sista dagen i halloweensäsongen: söndagen efter Alla helgons dag, 23:59. */
-function halloweenSeasonEnd(year: number): Date {
+export function halloweenSeasonEnd(year: number): Date {
   const end = allSaintsDay(year);
   end.setDate(end.getDate() + 1);
   end.setHours(23, 59, 59, 999);
