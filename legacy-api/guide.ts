@@ -7,6 +7,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 // Rewrites i vercel.json. Ersätter de gamla statiska React-sidorna.
 
 import { SITE, CATEGORIES } from './_lib/constants';
+import { SEASONS } from './_lib/seasons';
 import { stockholmToday, addDays } from './_lib/dates';
 import { fetchEvents, organizerSlug, type DbEvent } from './_lib/supabase';
 import { escapeHtml, pickHighlights, dedupeByName } from './_lib/events';
@@ -113,7 +114,9 @@ ${areaChipRow()}
 ${chipRow([
     { href: '/att-gora-i-varberg', label: 'Att göra i Varberg' },
     { href: '/varberg-kalender', label: 'Varberg Kalender' },
-  ])}`;
+  ])}
+  <h2>Varberg året runt</h2>
+${chipRow(SEASONS.map((season) => ({ href: `/${season.slug}`, label: season.name })))}`;
 
   return layout({
     title,

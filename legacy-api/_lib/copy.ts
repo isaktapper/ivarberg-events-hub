@@ -13,13 +13,13 @@ export const ATT_GORA_INTRO =
 
 export const SEASONS_HTML = `<h2>Säsongsguide – Varberg året runt</h2>
 <h3>☀️ Sommar (juni–augusti)</h3>
-<p>Sommaren är Varbergs högsäsong: badliv, beachvolley, surfing, utomhuskonserter och en strandpromenad som lever från morgon till kväll. Missa inte torghandeln med lokala producenter.</p>
+<p>Sommaren är Varbergs högsäsong: badliv, beachvolley, surfing, utomhuskonserter och en strandpromenad som lever från morgon till kväll. Missa inte torghandeln med lokala producenter. Se <a href="/sommar-i-varberg">allt som händer i sommar</a> och <a href="/midsommar-i-varberg">midsommarfirandet</a>.</p>
 <h3>🍂 Höst (september–november)</h3>
-<p>Perfekt tid för vandringar längs kusten och i <a href="/omrade/ovriga-kommunen">Åkulla bokskogar</a>, svampplockning och skördemarknader. Teatersäsongen drar igång och höststormarna bjuder på spektakulära vågor.</p>
+<p>Perfekt tid för vandringar längs kusten och i <a href="/omrade/ovriga-kommunen">Åkulla bokskogar</a>, svampplockning och skördemarknader. Teatersäsongen drar igång och höststormarna bjuder på spektakulära vågor. På <a href="/hostlov-i-varberg">höstlovet</a> fylls kalendern med lovaktiviteter och Halloween.</p>
 <h3>❄️ Vinter (december–februari)</h3>
-<p>Mysig stadskärna med <a href="/kategori/jul">julmarknad och julkonserter</a> i december. Kallbadhuset erbjuder vinterbad och bastu, och museet på fästningen är ett givet regnvädersbesök.</p>
+<p>Mysig stadskärna med <a href="/jul-i-varberg">julmarknad och julkonserter</a> i december. Kallbadhuset erbjuder vinterbad och bastu, och museet på fästningen är ett givet regnvädersbesök. Under <a href="/sportlov-i-varberg">sportlovet</a> finns gott om aktiviteter för barn.</p>
 <h3>🌸 Vår (mars–maj)</h3>
-<p>Staden vaknar: uteserveringarna öppnar, cykelsäsongen på Kattegattleden börjar och naturen på <a href="/omrade/getteron">Getterön</a> exploderar av fågelliv.</p>`;
+<p>Staden vaknar: uteserveringarna öppnar, cykelsäsongen på Kattegattleden börjar och naturen på <a href="/omrade/getteron">Getterön</a> exploderar av fågelliv. Kolla vad som händer i <a href="/pask-i-varberg">påsk</a> och på <a href="/valborg-i-varberg">valborg</a>.</p>`;
 
 export const PLANERA_HTML = `<h2>Planera ditt besök i Varberg</h2>
 <ul>

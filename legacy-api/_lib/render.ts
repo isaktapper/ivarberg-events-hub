@@ -3,6 +3,7 @@ import type { DbEvent } from './supabase';
 import type { Recommendation } from './recommendations';
 import { escapeHtml, plainText, eventTime, eventDayLabel, mainCategory } from './events';
 import { svDateLabel } from './dates';
+import { SEASONS } from './seasons';
 import { optimizedImage } from '../../src/lib/images';
 
 // HTML-rendering för de serverrenderade sidorna. Layout, CSS och kort/list-
@@ -310,6 +311,12 @@ function footerHtml(): string {
         <li><a href="/varberg-kalender">Varberg Kalender</a></li>
         <li><a href="/tips">Tipsa oss</a></li>
         <li><a href="/om-oss">Om oss</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Året i Varberg</h4>
+      <ul>
+${SEASONS.map((season) => `        <li><a href="/${season.slug}">${escapeHtml(season.name)}</a></li>`).join('\n')}
       </ul>
     </div>
     <div>

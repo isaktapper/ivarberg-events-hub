@@ -122,6 +122,10 @@ ${listEvents.map((e) => eventRow(e)).join('\n')}
 ${chipRow(organizerChips)}`);
   }
 
+  if (kind === 'kategori' && entry.slug === 'jul') {
+    sections.push(`  <div class="cta-wrap"><a class="cta" href="/jul-i-varberg">Julguiden: datum, julmarknader och Lucia</a></div>`);
+  }
+
   if (related.length > 0) {
     sections.push(`  <h2>${kind === 'kategori' ? 'Relaterade kategorier' : 'Andra områden'}</h2>
 ${chipRow(related)}`);

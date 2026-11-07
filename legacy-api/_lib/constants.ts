@@ -126,8 +126,9 @@ export const CATEGORIES: TaxonomyEntry[] = [
     name: 'Jul',
     slug: 'jul',
     emoji: '🎄',
-    h1: 'Jul i Varberg – julmarknader & julkonserter',
-    titleLabel: 'Jul i Varberg – julmarknader & julkonserter',
+    // "Jul i Varberg" som rubrik ägs av säsongssidan /jul-i-varberg
+    h1: 'Julevenemang i Varberg',
+    titleLabel: 'Julevenemang i Varberg – julmarknader & julkonserter',
     intro:
       'När december närmar sig förvandlas Varberg: julmarknad på fästningen, skyltsöndag i stadskärnan, julkonserter i kyrkorna och vinterbad vid Kallbadhuset. Här samlar vi julens alla evenemang i Varberg.',
     emptyNote:

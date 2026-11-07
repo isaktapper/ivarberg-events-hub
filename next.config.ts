@@ -25,8 +25,28 @@ const SHARP_LINUX_FILES = [
   "./node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**",
 ];
 
+// PostHog skickas via vår egen domän (ivarberg.nu/r/...) i stället för direkt
+// till eu.i.posthog.com, så att adblockers inte slänger eventen. Sökvägen är
+// medvetet neutral - "posthog", "analytics" o.d. står på blocklistorna.
+// Samma sökväg används som api_host i src/app/providers.tsx.
+const POSTHOG_PROXY_PATH = "/r";
+
 const nextConfig: NextConfig = {
   env,
+  // PostHog anropar sökvägar med avslutande snedstreck (/e/, /flags/). Next:s
+  // inbyggda omdirigering till utan snedstreck skulle göra om POST-anropen
+  // till 308:or, så den stängs av här och görs i stället i redirects() nedan
+  // för alla sidor utom proxyn.
+  skipTrailingSlashRedirect: true,
+  async redirects() {
+    return [
+      {
+        source: `/:path((?!${POSTHOG_PROXY_PATH.slice(1)}/).+)/`,
+        destination: "/:path",
+        permanent: true,
+      },
+    ];
+  },
   serverExternalPackages: ["sharp"],
   outputFileTracingIncludes: {
     "/api/bild": SHARP_LINUX_FILES,
@@ -35,6 +55,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     // Serverrenderade landningssidor (tidigare rewrites i vercel.json → api/*)
     return [
+      // PostHog reverse proxy (EU-regionen)
+      { source: `${POSTHOG_PROXY_PATH}/static/:path*`, destination: "https://eu-assets.i.posthog.com/static/:path*" },
+      { source: `${POSTHOG_PROXY_PATH}/array/:path*`, destination: "https://eu-assets.i.posthog.com/array/:path*" },
+      { source: `${POSTHOG_PROXY_PATH}/:path*`, destination: "https://eu.i.posthog.com/:path*" },
       { source: "/idag", destination: "/api/landing/idag" },
       { source: "/imorgon", destination: "/api/landing/imorgon" },
       { source: "/i-helgen", destination: "/api/landing/i-helgen" },
@@ -42,6 +66,16 @@ const nextConfig: NextConfig = {
       { source: "/evenemang-varberg", destination: "/api/guide/evenemang-varberg" },
       { source: "/att-gora-i-varberg", destination: "/api/guide/att-gora-i-varberg" },
       { source: "/varberg-kalender", destination: "/api/guide/varberg-kalender" },
+      // Säsongssidorna (legacy-api/_lib/seasons.ts) – håll listan i synk med SEASONS
+      ...[
+        "jul-i-varberg",
+        "sportlov-i-varberg",
+        "pask-i-varberg",
+        "valborg-i-varberg",
+        "midsommar-i-varberg",
+        "sommar-i-varberg",
+        "hostlov-i-varberg",
+      ].map((slug) => ({ source: `/${slug}`, destination: `/api/sasong/${slug}` })),
       { source: "/kategori/:slug", destination: "/api/kategori/:slug" },
       { source: "/omrade/:slug", destination: "/api/omrade/:slug" },
     ];
