@@ -7,8 +7,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
+// Eventen går via vår egen domän (rewrites i next.config.ts) så att adblockers
+// inte stoppar dem. ui_host behövs för att länkar till PostHog-appen (toolbar
+// m.m.) ska peka rätt när api_host inte är PostHogs egen.
 const options = {
-  api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  api_host: "/r",
+  ui_host: "https://eu.posthog.com",
   defaults: "2025-05-24",
 } as const;
 
