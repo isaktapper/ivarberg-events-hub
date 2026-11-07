@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { subscribeToNewsletter } from "@/services/eventService";
 import { INSTAGRAM_URL } from "@/lib/constants";
+import { SEASONS } from "../../legacy-api/_lib/seasons";
 
 export function Footer() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -145,6 +146,19 @@ export function Footer() {
             </div>
           </div>
         </div>
+
+        <nav aria-label="Året i Varberg" className="mt-10">
+          <h4 className="font-semibold mb-3 text-sand">Året i Varberg</h4>
+          <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {SEASONS.map((season) => (
+              <li key={season.slug}>
+                <a href={`/${season.slug}`} className="text-sand/70 hover:text-seaglass transition-colors">
+                  {season.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
         <div className="mt-8 pt-8 text-center text-sm border-t border-sand/15 text-sand/70">
           <p>&copy; {new Date().getFullYear()} ivarberg.nu - Alla rättigheter förbehållna</p>

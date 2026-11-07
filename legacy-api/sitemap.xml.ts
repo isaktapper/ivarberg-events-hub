@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { CATEGORIES, AREAS } from './_lib/constants';
+import { SEASONS } from './_lib/seasons';
 
 // Denna funktion genererar en dynamisk sitemap med alla events
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -88,6 +89,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
+      // Säsongssidorna (jul, sommar, loven …)
+      ...SEASONS.map((season) => ({
+        url: `https://ivarberg.nu/${season.slug}`,
+        priority: '0.9',
+        changefreq: 'daily',
+        lastmod: new Date().toISOString().split('T')[0]
+      })),
       // Kategori- och områdessidor (serverrenderade, dagsfärsk eventdata)
       ...CATEGORIES.map((c) => ({
         url: `https://ivarberg.nu/kategori/${c.slug}`,
@@ -163,7 +171,12 @@ ${events && events.length > 0 ? events.map((event: any) => `  <url>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-${CATEGORIES.map((c) => `  <url>
+${SEASONS.map((season) => `  <url>
+    <loc>https://ivarberg.nu/${season.slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+`).join('')}${CATEGORIES.map((c) => `  <url>
     <loc>https://ivarberg.nu/kategori/${c.slug}</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>

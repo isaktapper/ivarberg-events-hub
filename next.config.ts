@@ -66,6 +66,16 @@ const nextConfig: NextConfig = {
       { source: "/evenemang-varberg", destination: "/api/guide/evenemang-varberg" },
       { source: "/att-gora-i-varberg", destination: "/api/guide/att-gora-i-varberg" },
       { source: "/varberg-kalender", destination: "/api/guide/varberg-kalender" },
+      // Säsongssidorna (legacy-api/_lib/seasons.ts) – håll listan i synk med SEASONS
+      ...[
+        "jul-i-varberg",
+        "sportlov-i-varberg",
+        "pask-i-varberg",
+        "valborg-i-varberg",
+        "midsommar-i-varberg",
+        "sommar-i-varberg",
+        "hostlov-i-varberg",
+      ].map((slug) => ({ source: `/${slug}`, destination: `/api/sasong/${slug}` })),
       { source: "/kategori/:slug", destination: "/api/kategori/:slug" },
       { source: "/omrade/:slug", destination: "/api/omrade/:slug" },
     ];

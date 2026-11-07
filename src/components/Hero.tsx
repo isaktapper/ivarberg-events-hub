@@ -6,6 +6,8 @@ import { EventCategory, EventDisplay } from "@/types/event";
 import { useMemo } from "react";
 import { usePostHog } from "posthog-js/react";
 import { HALLOWEEN_THEME, isHalloweenEvent, isHalloweenSeason } from "@/lib/seasonal";
+import { seasonPromo } from "../../legacy-api/_lib/seasons";
+import { stockholmToday } from "../../legacy-api/_lib/dates";
 
 interface QuickFilter {
   id: string;
@@ -26,6 +28,8 @@ interface HeroProps {
 export function Hero({ onFilterApply, onScrollToResults, onThemeSelect, events }: HeroProps) {
   const posthog = usePostHog();
   const halloween = isHalloweenSeason();
+  // Länk till aktuell säsongssida (jul, sportlov, sommar …) – under halloween har temat redan en egen knapp
+  const promo = halloween ? null : seasonPromo(stockholmToday());
 
   // Samma matchning som halloweenfiltret på startsidan, så att siffran stämmer med träffarna
   const halloweenCount = useMemo(
@@ -257,6 +261,19 @@ export function Hero({ onFilterApply, onScrollToResults, onThemeSelect, events }
                   {halloweenCount}
                 </span>
               </button>
+            )}
+
+            {promo && (
+              <a
+                href={promo.href}
+                onClick={() =>
+                  posthog?.capture('season_page_clicked', { href: promo.href, label: promo.label, source: 'hero' })
+                }
+                className="col-span-2 flex items-center justify-center gap-2 px-3 sm:px-6 py-3 sm:py-4 rounded-full font-medium text-sm sm:text-base text-white transition-colors bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)] border border-white/40"
+              >
+                <span>{promo.label}</span>
+                <span aria-hidden="true">→</span>
+              </a>
             )}
 
             {quickFilters.map((filter) => {
