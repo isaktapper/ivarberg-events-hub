@@ -641,10 +641,10 @@ export function currentEdition(season: Season, today: string): { year: number; w
 
 // Startsidans säsongslänk: den säsong vars fönster tar slut först bland dem
 // som är aktiva eller startar inom sina promoDays.
-export function seasonPromo(today: string): { href: string; label: string } | null {
+export function seasonPromo(today: string): { slug: string; href: string; label: string } | null {
   const active = SEASONS.map((s) => ({ s, ed: currentEdition(s, today) }))
     .filter((x) => x.ed && addDays(x.ed.window.from, -x.s.promoDays) <= today)
     .sort((a, b) => (a.ed!.window.to < b.ed!.window.to ? -1 : 1));
   const first = active[0];
-  return first ? { href: `/${first.s.slug}`, label: `${first.s.name} ${first.ed!.year}` } : null;
+  return first ? { slug: first.s.slug, href: `/${first.s.slug}`, label: `${first.s.name} ${first.ed!.year}` } : null;
 }
