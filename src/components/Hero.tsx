@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, MessageCircle, Sunrise } from "lucide-react";
+import { Calendar, Clock, MessageCircle, Sunrise, Snowflake, MountainSnow, Egg, Flame, Flower2, Sun, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventCategory, EventDisplay } from "@/types/event";
 import { useMemo } from "react";
@@ -18,6 +18,18 @@ interface QuickFilter {
   dateRange?: { start: Date; end: Date };
 }
 
+// Utseende på säsongsknappen i heron: färg + ikon per säsongssida.
+// Julen får en djupröd knapp med snöflinga; övriga säsonger den varma poppy-färgen.
+const SEASON_PROMO_STYLE: Record<string, { className: string; Icon: React.ComponentType<{ className?: string }> }> = {
+  "jul-i-varberg": { className: "bg-[#B3261E] hover:bg-[#8F1D17]", Icon: Snowflake },
+  "sportlov-i-varberg": { className: "bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)]", Icon: MountainSnow },
+  "pask-i-varberg": { className: "bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)]", Icon: Egg },
+  "valborg-i-varberg": { className: "bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)]", Icon: Flame },
+  "midsommar-i-varberg": { className: "bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)]", Icon: Flower2 },
+  "sommar-i-varberg": { className: "bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)]", Icon: Sun },
+  "hostlov-i-varberg": { className: "bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)]", Icon: Leaf },
+};
+
 interface HeroProps {
   onFilterApply: (filter: QuickFilter) => void;
   onScrollToResults: () => void;
@@ -30,6 +42,8 @@ export function Hero({ onFilterApply, onScrollToResults, onThemeSelect, events }
   const halloween = isHalloweenSeason();
   // Länk till aktuell säsongssida (jul, sportlov, sommar …) – under halloween har temat redan en egen knapp
   const promo = halloween ? null : seasonPromo(stockholmToday());
+  const promoStyle = promo ? SEASON_PROMO_STYLE[promo.slug] : undefined;
+  const PromoIcon = promoStyle?.Icon;
 
   // Samma matchning som halloweenfiltret på startsidan, så att siffran stämmer med träffarna
   const halloweenCount = useMemo(
@@ -269,8 +283,11 @@ export function Hero({ onFilterApply, onScrollToResults, onThemeSelect, events }
                 onClick={() =>
                   posthog?.capture('season_page_clicked', { href: promo.href, label: promo.label, source: 'hero' })
                 }
-                className="col-span-2 flex items-center justify-center gap-2 px-3 sm:px-6 py-3 sm:py-4 rounded-full font-medium text-sm sm:text-base text-white transition-colors bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)] border border-white/40"
+                className={`col-span-2 flex items-center justify-center gap-2 px-3 sm:px-6 py-3 sm:py-4 rounded-full font-medium text-sm sm:text-base text-white transition-colors border border-white/40 ${
+                  promoStyle?.className ?? "bg-[hsl(var(--poppy))] hover:bg-[hsl(20_80%_33%)]"
+                }`}
               >
+                {PromoIcon && <PromoIcon className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />}
                 <span>{promo.label}</span>
                 <span aria-hidden="true">→</span>
               </a>
