@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Mail, MapPin, Instagram } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,8 +12,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { subscribeToNewsletter } from "@/services/eventService";
-import { INSTAGRAM_URL } from "@/lib/constants";
-import { SEASONS } from "../../legacy-api/_lib/seasons";
+import {
+  FOOTER_ADDRESS,
+  FOOTER_BOTTOM_LINKS,
+  FOOTER_GROUPS,
+  FOOTER_TAGLINE,
+  INU_LABEL,
+  INU_LIME,
+  INU_PATH,
+  INU_URL,
+} from "../../legacy-api/_lib/footer";
 
 export function Footer() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -58,110 +65,80 @@ export function Footer() {
     }
   };
 
+  // Serverrenderade sidor länkar hit med ?nyhetsbrev=1 – öppna dialogen direkt
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("nyhetsbrev") !== "1") return;
+    setIsDialogOpen(true);
+    params.delete("nyhetsbrev");
+    const query = params.toString();
+    window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
+  }, []);
+
+  const linkClass = "inline-block py-1.5 text-sand/75 hover:text-seaglass transition-colors";
+
   return (
     <footer className="mt-16 bg-navy text-sand">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+      <div className="max-w-6xl mx-auto px-4 pt-12 pb-7 lg:px-6 lg:pt-14">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,3fr)] lg:gap-14">
           <div>
-            <h3 className="text-xl font-bold mb-4 text-sand">
-              ivarberg.nu
-            </h3>
-            <p className="text-sm text-sand/70">
-              Din kompletta guide till Varbergs puls. Missa aldrig ett evenemang igen!
-            </p>
+            <p className="text-xl font-bold text-white tracking-tight mb-1.5">ivarberg.nu</p>
+            <p className="text-[15px] text-sand/75">{FOOTER_TAGLINE}</p>
+            <p className="mt-3 text-sm text-sand/75">{FOOTER_ADDRESS}</p>
+            <button
+              type="button"
+              onClick={() => setIsDialogOpen(true)}
+              className="mt-5 whitespace-nowrap rounded-full bg-seaglass px-5 py-3 text-[15px] font-semibold text-navy transition-colors hover:bg-seaglass/85"
+            >
+              Få nyhetsbrevet
+            </button>
           </div>
 
-          <div>
-            <h4 className="font-semibold mb-4 text-sand">Snabblänkar</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="/" className="text-sand/70 hover:text-seaglass transition-colors">Alla evenemang</a></li>
-              <li><a href="/idag" className="text-sand/70 hover:text-seaglass transition-colors">Idag</a></li>
-              <li><a href="/i-helgen" className="text-sand/70 hover:text-seaglass transition-colors">I helgen</a></li>
-              <li><a href="/evenemang-varberg" className="text-sand/70 hover:text-seaglass transition-colors">Evenemang Varberg</a></li>
-              <li><a href="/att-gora-i-varberg" className="text-sand/70 hover:text-seaglass transition-colors">Att göra i Varberg</a></li>
-              <li><a href="/varberg-kalender" className="text-sand/70 hover:text-seaglass transition-colors">Varberg Kalender</a></li>
-              <li><a href="/tips" target="_blank" className="text-sand/70 hover:text-seaglass transition-colors">Tipsa oss</a></li>
-              <li><a href="/om-oss" className="text-sand/70 hover:text-seaglass transition-colors">Om oss</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4 text-sand">Kategorier</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="/kategori/scen" className="text-sand/70 hover:text-seaglass transition-colors">Scen</a></li>
-              <li><a href="/kategori/sport" className="text-sand/70 hover:text-seaglass transition-colors">Sport</a></li>
-              <li><a href="/kategori/mat-dryck" className="text-sand/70 hover:text-seaglass transition-colors">Mat & Dryck</a></li>
-              <li><a href="/kategori/barn-familj" className="text-sand/70 hover:text-seaglass transition-colors">Barn & Familj</a></li>
-              <li><a href="/kategori/nattliv" className="text-sand/70 hover:text-seaglass transition-colors">Nattliv</a></li>
-              <li><a href="/kategori/utstallningar" className="text-sand/70 hover:text-seaglass transition-colors">Utställningar</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4 text-sand">Områden</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="/omrade/centrala-varberg" className="text-sand/70 hover:text-seaglass transition-colors">Centrala Varberg</a></li>
-              <li><a href="/omrade/apelviken" className="text-sand/70 hover:text-seaglass transition-colors">Apelviken</a></li>
-              <li><a href="/omrade/getteron" className="text-sand/70 hover:text-seaglass transition-colors">Getterön</a></li>
-              <li><a href="/omrade/traslovslage" className="text-sand/70 hover:text-seaglass transition-colors">Träslövsläge</a></li>
-              <li><a href="/omrade/bua" className="text-sand/70 hover:text-seaglass transition-colors">Bua</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4 text-sand">Kontakt</h4>
-            <ul className="space-y-2 text-sm text-sand/70">
-              <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-sea-mist" />
-                <span>info@ivarberg.nu</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-sea-mist" />
-                <span>Fästningsgatan 5, 432 44 Varberg</span>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4 text-sand">Följ oss</h4>
-            <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full text-sand hover:bg-sand/10 hover:text-seaglass transition-colors"
-                asChild
-              >
-                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
-                  <Instagram className="h-5 w-5" />
-                </a>
-              </Button>
-            </div>
-            <div className="mt-4">
-              <Button
-                className="rounded-full bg-seaglass text-navy font-semibold hover:bg-seaglass/85"
-                onClick={() => setIsDialogOpen(true)}
-              >
-                Nyhetsbrev
-              </Button>
-            </div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4">
+            {FOOTER_GROUPS.map((group) => (
+              <nav key={group.title} aria-label={group.title}>
+                <h2 className="mb-2 text-sm font-semibold text-white">{group.title}</h2>
+                <ul className="text-sm">
+                  {group.links.map((link) => (
+                    <li key={link.href}>
+                      <a href={link.href} className={linkClass}>
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
           </div>
         </div>
 
-        <nav aria-label="Året i Varberg" className="mt-10">
-          <h4 className="font-semibold mb-3 text-sand">Året i Varberg</h4>
-          <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            {SEASONS.map((season) => (
-              <li key={season.slug}>
-                <a href={`/${season.slug}`} className="text-sand/70 hover:text-seaglass transition-colors">
-                  {season.name}
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-sand/15 pt-5 text-sm text-sand/75">
+          <ul className="flex flex-wrap items-center gap-x-5">
+            <li>&copy; {new Date().getFullYear()} ivarberg.nu</li>
+            {FOOTER_BOTTOM_LINKS.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  className={linkClass}
+                >
+                  {link.label}
                 </a>
               </li>
             ))}
           </ul>
-        </nav>
-
-        <div className="mt-8 pt-8 text-center text-sm border-t border-sand/15 text-sand/70">
-          <p>&copy; {new Date().getFullYear()} ivarberg.nu - Alla rättigheter förbehållna</p>
+          <a
+            href={INU_URL}
+            rel="noopener"
+            aria-label={INU_LABEL}
+            className="inline-flex items-center gap-1.5 py-1.5 font-medium text-white hover:text-seaglass transition-colors"
+          >
+            En del av
+            <svg viewBox="0 7 147 85" width="26" height="15" aria-hidden="true" focusable="false" className="block">
+              <path d={INU_PATH} fill="none" stroke="currentColor" strokeWidth="13" />
+              <rect x="0" y="9" width="13" height="13" fill={INU_LIME} />
+            </svg>
+          </a>
         </div>
       </div>
 

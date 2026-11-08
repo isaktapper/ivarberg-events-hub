@@ -16,6 +16,7 @@ import { stockholmToday, weekdayIndex, svDateLabel } from './_lib/dates';
 import { fetchEvents, type DbEvent } from './_lib/supabase';
 import { escapeHtml, eventTime, dedupeByName } from './_lib/events';
 import { pageJsonLd } from './_lib/jsonld';
+import { siteFooterHtml, SITE_FOOTER_CSS } from './_lib/footer';
 import {
   SEASONS,
   findSeason,
@@ -261,14 +262,6 @@ h1 { margin:0 0 6px; font-size:32px; line-height:1.1; font-weight:700; letter-sp
 .more div { display:flex; flex-wrap:wrap; gap:8px; }
 .more a { font-size:14px; font-weight:500; padding:9px 14px; border-radius:999px; background:#fff; border:1px solid var(--border); color:var(--ink); text-decoration:none; }
 .more a:hover { border-color:var(--sea); color:var(--sea); }
-footer { margin-top:48px; background:var(--navy); color:#fff; }
-footer .wrap { padding:28px 16px 40px; }
-footer p { margin:0 0 4px; }
-footer .brand { font-size:16px; font-weight:700; }
-footer .muted { color:#C9D3E3; font-size:14px; margin-bottom:16px; }
-footer ul { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 16px; }
-footer li a { display:inline-block; padding:6px 0; font-size:14px; color:#9DC8F5; text-decoration:none; }
-footer li a:hover { color:#fff; text-decoration:underline; }
 @media (min-width:640px) {
   .hero { height:300px; margin-top:24px; border-radius:12px; }
   .hero-wrap { padding:0 16px; }
@@ -300,7 +293,8 @@ ${opts.robots ? `<meta name="robots" content="${opts.robots}">\n` : ''}<link rel
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 ${opts.jsonLd ?? ''}
-<style>${CSS}</style>
+<style>${CSS}
+${SITE_FOOTER_CSS}</style>
 </head>
 <body>
 <header class="top"><div class="wrap">
@@ -310,21 +304,7 @@ ${opts.jsonLd ?? ''}
 <main class="wrap">
 ${opts.main}
 </main>
-<footer><div class="wrap">
-  <p class="brand">ivarberg.nu</p>
-  <p class="muted">Allt som händer i Varberg, på ett ställe.</p>
-  <ul>
-    <li><a href="/">Alla evenemang</a></li>
-    <li><a href="/idag">Idag</a></li>
-    <li><a href="/i-helgen">I helgen</a></li>
-    <li><a href="/evenemang-varberg">Evenemang i Varberg</a></li>
-    <li><a href="/att-gora-i-varberg">Att göra i Varberg</a></li>
-    <li><a href="/varberg-kalender">Varberg Kalender</a></li>
-${SEASONS.map((s) => `    <li><a href="/${s.slug}">${escapeHtml(s.name)}</a></li>`).join('\n')}
-    <li><a href="/tips">Tipsa oss</a></li>
-    <li><a href="/om-oss">Om oss</a></li>
-  </ul>
-</div></footer>
+${siteFooterHtml(`/${season.slug}#nyhetsbrev`)}
 </body>
 </html>`;
 }

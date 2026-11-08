@@ -3,7 +3,7 @@ import type { DbEvent } from './supabase';
 import type { Recommendation } from './recommendations';
 import { escapeHtml, plainText, eventTime, eventDayLabel, mainCategory } from './events';
 import { svDateLabel } from './dates';
-import { SEASONS } from './seasons';
+import { siteFooterHtml, SITE_FOOTER_CSS } from './footer';
 import { optimizedImage } from '../../src/lib/images';
 
 // HTML-rendering för de serverrenderade sidorna. Layout, CSS och kort/list-
@@ -142,18 +142,6 @@ const CSS = `  /* Speglar startsidans design: Hero.tsx, EventCard.tsx, EventList
   .cta-wrap { text-align:center; }
   .cta { display:inline-block; margin-top:2.5rem; background:linear-gradient(135deg,hsl(217 91% 42%),hsl(210 100% 56%)); color:#fff; font-weight:600; text-decoration:none; border-radius:9999px; padding:.9rem 2rem; box-shadow:0 4px 16px hsl(217 91% 42% / .12); transition:box-shadow .2s; }
   .cta:hover { box-shadow:0 8px 32px hsl(217 91% 42% / .16); }
-  footer { background:#fff; border-top:1px solid rgba(8,7,92,.1); margin-top:4rem; }
-  .footer-grid { max-width:72rem; margin:0 auto; padding:3rem 1.5rem 0; display:grid; grid-template-columns:1fr; gap:2rem; }
-  @media (min-width:640px) { .footer-grid { grid-template-columns:1fr 1fr; } }
-  @media (min-width:1024px) { .footer-grid { grid-template-columns:repeat(5,1fr); } }
-  footer h3 { color:var(--navy); font-size:1.15rem; margin-bottom:.75rem; }
-  footer h4 { color:var(--navy); font-size:.95rem; margin-bottom:.75rem; }
-  footer p, footer li, footer a { color:rgba(8,7,92,.7); font-size:.85rem; }
-  footer ul { list-style:none; }
-  footer li { margin-bottom:.45rem; }
-  footer a { text-decoration:none; }
-  footer a:hover { color:var(--accent); }
-  .copyright { max-width:72rem; margin:2rem auto 0; padding:1.5rem; border-top:1px solid rgba(8,7,92,.1); text-align:center; font-size:.85rem; color:rgba(8,7,92,.7); }
   @media (max-width:640px) { .nav-links { display:none; } .nav-inner { gap:.75rem; padding:.6rem 1rem; } .nav img { height:1.75rem; } .nav-cta { margin-left:auto; font-size:.75rem; padding:.45rem .7rem; } .hero-content { padding-bottom:7rem; } }
   /* Kurerade rekommendationskort */
   .rec-grid { display:grid; grid-template-columns:1fr; gap:1.5rem; max-width:64rem; margin:0 auto; }
@@ -294,63 +282,7 @@ function heroPills(activeSlug?: string): string {
 }
 
 function footerHtml(): string {
-  return `<footer>
-  <div class="footer-grid">
-    <div>
-      <h3>ivarberg.nu</h3>
-      <p>Din kompletta guide till Varbergs puls. Missa aldrig ett evenemang igen!</p>
-    </div>
-    <div>
-      <h4>Snabblänkar</h4>
-      <ul>
-        <li><a href="/">Alla evenemang</a></li>
-        <li><a href="/idag">Idag</a></li>
-        <li><a href="/i-helgen">I helgen</a></li>
-        <li><a href="/evenemang-varberg">Evenemang Varberg</a></li>
-        <li><a href="/att-gora-i-varberg">Att göra i Varberg</a></li>
-        <li><a href="/varberg-kalender">Varberg Kalender</a></li>
-        <li><a href="/tips">Tipsa oss</a></li>
-        <li><a href="/om-oss">Om oss</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Året i Varberg</h4>
-      <ul>
-${SEASONS.map((season) => `        <li><a href="/${season.slug}">${escapeHtml(season.name)}</a></li>`).join('\n')}
-      </ul>
-    </div>
-    <div>
-      <h4>Kategorier</h4>
-      <ul>
-        <li><a href="/kategori/scen">Scen</a></li>
-        <li><a href="/kategori/sport">Sport</a></li>
-        <li><a href="/kategori/mat-dryck">Mat &amp; Dryck</a></li>
-        <li><a href="/kategori/barn-familj">Barn &amp; Familj</a></li>
-        <li><a href="/kategori/nattliv">Nattliv</a></li>
-        <li><a href="/kategori/utstallningar">Utställningar</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Områden</h4>
-      <ul>
-        <li><a href="/omrade/centrala-varberg">Centrala Varberg</a></li>
-        <li><a href="/omrade/apelviken">Apelviken</a></li>
-        <li><a href="/omrade/getteron">Getterön</a></li>
-        <li><a href="/omrade/traslovslage">Träslövsläge</a></li>
-        <li><a href="/omrade/bua">Bua</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Kontakt</h4>
-      <ul>
-        <li>info@ivarberg.nu</li>
-        <li>Fästningsgatan 5, 432 44 Varberg</li>
-        <li><a href="https://instagram.com/ivarberg.nu" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="copyright">&copy; ${new Date().getFullYear()} ivarberg.nu - Alla rättigheter förbehållna</div>
-</footer>`;
+  return siteFooterHtml();
 }
 
 export interface LayoutOpts {
@@ -388,7 +320,8 @@ ${opts.robots ? `<meta name="robots" content="${escapeHtml(opts.robots)}">\n` : 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
 ${opts.jsonLd}
 <style>
-${CSS}${opts.extraCss ? '\n' + opts.extraCss : ''}
+${CSS}
+${SITE_FOOTER_CSS}${opts.extraCss ? '\n' + opts.extraCss : ''}
 </style>
 </head>
 <body>
