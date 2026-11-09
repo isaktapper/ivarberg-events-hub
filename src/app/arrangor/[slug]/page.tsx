@@ -4,7 +4,14 @@ import { notFound } from "next/navigation";
 import OrganizerPage from "@/views/OrganizerPage";
 import { getOrganizerEvents, getOrganizerPage } from "@/lib/server-data";
 
-export const dynamic = "force-dynamic";
+// Varje sida renderas vid första besöket, cachas och renderas om högst var
+// 5:e minut. Tom generateStaticParams = inget byggs i förväg, men sidan blir
+// ISR i stället för att renderas vid varje besök.
+export const revalidate = 300;
+
+export function generateStaticParams() {
+  return [];
+}
 
 const loadOrganizer = cache((slug: string) => getOrganizerPage(slug));
 

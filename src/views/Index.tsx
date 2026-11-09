@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useSearchParams } from "@/lib/router";
+import { useHydrated, useSearchParams } from "@/lib/router";
 import { Helmet } from "@/lib/helmet";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
@@ -28,10 +28,14 @@ interface IndexProps {
 
 const Index = ({ initialEvents }: IndexProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  // Sidan är cachad och serverrenderas utan query-sträng; filtren i URL:en
+  // finns först efter hydreringen (se src/lib/router.tsx)
+  const hydrated = useHydrated();
   const [events, setEvents] = useState<EventDisplay[]>(initialEvents);
   const [loading, setLoading] = useState(false);
-  // Filtren initieras från URL:en redan vid serverrenderingen, så att en
-  // delad filtrerad länk visar rätt lista från start
+  // Filtren initieras från URL:en när komponenten monteras efter en
+  // navigering i appen. Vid en vanlig sidladdning är URL:en tom under
+  // hydreringen och filtren läses in av effekterna nedan.
   const [selectedCategories, setSelectedCategories] = useState<EventCategory[]>(() => urlToCategories(searchParams.get('cat')));
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(() => {
     const dateParam = searchParams.get('date');
@@ -67,6 +71,7 @@ const Index = ({ initialEvents }: IndexProps) => {
 
   // Handle URL parameters - restore filters from URL on page load
   useEffect(() => {
+    if (!hydrated) return;
     // Read date or date range from URL
     const dateParam = searchParams.get('date');
     const dateStartParam = searchParams.get('dateStart');
@@ -95,7 +100,9 @@ const Index = ({ initialEvents }: IndexProps) => {
         setCurrentPage(pageNum);
       }
     }
-  }, []); // Only run once on mount
+    // Körs en gång, när URL:en finns tillgänglig efter hydreringen
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
 
   // Synka sök och kategorier från URL:en - körs både vid mount och när
   // t.ex. header-sökningen navigerar hit med nya parametrar
@@ -123,11 +130,12 @@ const Index = ({ initialEvents }: IndexProps) => {
   // Som tidigare: kommer man till startsidan med sökning eller kategori i
   // URL:en (t.ex. från header-sökningen) scrollas listan fram
   useEffect(() => {
+    if (!hydrated) return;
     if (searchParams.get('search') || urlToCategories(searchParams.get('cat')).length > 0) {
       setTimeout(() => scrollToResults(), 150);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hydrated]);
 
   // Events hämtas på servern. Testevents används som tidigare bara om
   // databasen inte gav något (utvecklingsläge / Supabase nere).
