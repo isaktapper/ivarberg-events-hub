@@ -1,17 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { subscribeToNewsletter } from "@/services/eventService";
+import { useEffect } from "react";
+import { NewsletterCard } from "@/components/NewsletterCard";
 import {
   FOOTER_ADDRESS,
   FOOTER_BOTTOM_LINKS,
@@ -24,55 +14,17 @@ import {
 } from "../../legacy-api/_lib/footer";
 
 export function Footer() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    const result = await subscribeToNewsletter(email, name);
-
-    if (result.success) {
-      setSuccess(true);
-      setEmail("");
-      setName("");
-      // Stäng dialog efter 2 sekunder
-      setTimeout(() => {
-        setIsDialogOpen(false);
-        setSuccess(false);
-      }, 2000);
-    } else {
-      setError(result.error || "Ett fel uppstod");
-    }
-
-    setIsSubmitting(false);
-  };
-
-  const handleOpenChange = (open: boolean) => {
-    setIsDialogOpen(open);
-    if (!open) {
-      // Reset form när dialog stängs
-      setEmail("");
-      setName("");
-      setError(null);
-      setSuccess(false);
-    }
-  };
-
-  // Serverrenderade sidor länkar hit med ?nyhetsbrev=1 – öppna dialogen direkt
+  // Serverrenderade sidor länkar hit med ?nyhetsbrev=1 – hoppa till anmälan i sidfoten
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("nyhetsbrev") !== "1") return;
-    setIsDialogOpen(true);
     params.delete("nyhetsbrev");
     const query = params.toString();
     window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
+    setTimeout(() => {
+      document.getElementById("nyhetsbrev")?.scrollIntoView({ block: "center" });
+      document.getElementById("sidfot-epost")?.focus({ preventScroll: true });
+    }, 300);
   }, []);
 
   const linkClass = "inline-block py-1.5 text-sand/75 hover:text-seaglass transition-colors";
@@ -85,13 +37,7 @@ export function Footer() {
             <p className="text-xl font-bold text-white tracking-tight mb-1.5">ivarberg.nu</p>
             <p className="text-[15px] text-sand/75">{FOOTER_TAGLINE}</p>
             <p className="mt-3 text-sm text-sand/75">{FOOTER_ADDRESS}</p>
-            <button
-              type="button"
-              onClick={() => setIsDialogOpen(true)}
-              className="mt-5 whitespace-nowrap rounded-full bg-seaglass px-5 py-3 text-[15px] font-semibold text-navy transition-colors hover:bg-seaglass/85"
-            >
-              Få nyhetsbrevet
-            </button>
+            <NewsletterCard variant="dark" source="footer" inputId="sidfot-epost" />
           </div>
 
           <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4">
@@ -141,79 +87,6 @@ export function Footer() {
           </a>
         </div>
       </div>
-
-      {/* Newsletter Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle style={{ color: '#10214B' }}>Prenumerera på nyhetsbrev</DialogTitle>
-            <DialogDescription style={{ color: '#10214B', opacity: 0.7 }}>
-              Få de senaste evenemangen och nyheterna från Varberg direkt till din inkorg.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {success ? (
-            <div className="py-4">
-              <div className="bg-green-50 border border-green-200 rounded-md p-4 text-center">
-                <p className="text-sm font-medium text-green-800">
-                  Tack! Du är nu prenumererad på vårt nyhetsbrev.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="newsletter-name" style={{ color: '#10214B' }}>
-                  Ditt namn *
-                </Label>
-                <Input
-                  id="newsletter-name"
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ditt namn"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="newsletter-email" style={{ color: '#10214B' }}>
-                  Din e-postadress *
-                </Label>
-                <Input
-                  id="newsletter-email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="din@email.se"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                  <p className="text-sm text-red-600">{error}</p>
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full"
-                style={{
-                  backgroundColor: '#0F5AA6',
-                  color: '#FFFFFF',
-                  border: 'none'
-                }}
-              >
-                {isSubmitting ? 'Registrerar...' : 'Prenumerera'}
-              </Button>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
     </footer>
   );
 }

@@ -34,7 +34,7 @@ export function InstagramPromoCard({ onShown, onClick }: InstagramPromoCardProps
   }, [onShown]);
 
   return (
-    <div ref={rootRef} className="bg-navy rounded-lg p-4 sm:p-5">
+    <div ref={rootRef} className="rounded-2xl bg-navy p-4 sm:p-5">
       <div className="flex items-center gap-3 sm:gap-4">
         <div className="flex h-10 w-10 sm:h-11 sm:w-11 flex-shrink-0 items-center justify-center rounded-full bg-sand/10 text-seaglass">
           <Instagram className="h-5 w-5" />

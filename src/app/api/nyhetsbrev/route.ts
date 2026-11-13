@@ -11,7 +11,7 @@ type Status = "ok" | "finns" | "ogiltig" | "fel";
 const MESSAGES: Record<Status, string> = {
   ok: "Tack! Nu är du anmäld till nyhetsbrevet.",
   finns: "Den e-postadressen är redan anmäld.",
-  ogiltig: "Fyll i namn och en giltig e-postadress.",
+  ogiltig: "Fyll i en giltig e-postadress.",
   fel: "Något gick fel. Försök igen om en stund.",
 };
 
@@ -20,7 +20,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 async function subscribe(namn: string, epost: string): Promise<Status> {
   const name = namn.trim();
   const email = epost.trim().toLowerCase();
-  if (!EMAIL.test(email) || email.length > 254 || name.length < 2 || name.length > 100) return "ogiltig";
+  if (!EMAIL.test(email) || email.length > 254 || name.length > 100) return "ogiltig";
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;

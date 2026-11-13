@@ -37,6 +37,9 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
   const loadingSimilar = false;
   const ctaRef = useRef<HTMLDivElement | null>(null);
   const [ctaOutOfView, setCtaOutOfView] = useState(false);
+  const footerRef = useRef<HTMLDivElement | null>(null);
+  const [footerInView, setFooterInView] = useState(false);
+  const stickyVisible = ctaOutOfView && !footerInView;
   const [showAllDates, setShowAllDates] = useState(false);
 
   // Scroll to top when component mounts and when navigating between events
@@ -77,6 +80,16 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
       ([entry]) => setCtaOutOfView(!entry.isIntersecting),
       { threshold: 0 }
     );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [event]);
+
+  // …och göms igen när sidfoten kommer in i bild, så att den inte ligger över den
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el || !STICKY_CTA_ENABLED) return;
+
+    const observer = new IntersectionObserver(([entry]) => setFooterInView(entry.isIntersecting), { threshold: 0 });
     observer.observe(el);
     return () => observer.disconnect();
   }, [event]);
@@ -567,26 +580,35 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
         </div>
       </main>
 
-      {/* Sticky botten-CTA (mobil): visas när inline-CTA:n scrollats förbi */}
-      {STICKY_CTA_ENABLED && organizerUrl && ctaOutOfView && (
+      {/* Sticky botten-CTA (mobil): visas när inline-CTA:n scrollats förbi.
+          Ligger alltid kvar i sidan och skjuts in med transform, på en egen
+          yta utan oskärpa – annars hackar den i Safari på iPhone när
+          adressfältet åker in och ut. */}
+      {STICKY_CTA_ENABLED && organizerUrl && (
         <div
-          className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-border bg-white/95 backdrop-blur-sm px-4 pt-3"
+          aria-hidden={!stickyVisible}
+          className={`fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white px-4 pt-3 transition-transform duration-200 will-change-transform md:hidden ${
+            stickyVisible ? "translate-y-0" : "pointer-events-none translate-y-full"
+          }`}
           style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
         >
           <a
             href={organizerUrl}
             target="_blank"
             rel="noopener noreferrer"
+            tabIndex={stickyVisible ? undefined : -1}
             onClick={() => handleOrganizerClick('sticky')}
           >
-            <Button className="w-full h-12 rounded-xl bg-ink text-white text-base font-bold hover:bg-navy">
+            <Button tabIndex={-1} className="w-full h-12 rounded-xl bg-ink text-white text-base font-bold hover:bg-navy">
               Mer info hos arrangören
               <ChevronRight className="h-5 w-5" />
             </Button>
           </a>
         </div>
       )}
-      <Footer />
+      <div ref={footerRef}>
+        <Footer />
+      </div>
       </div>
     </>
   );
