@@ -39,7 +39,8 @@ function checkRateLimit(identifier: string, maxRequests: number = 10, windowMs: 
 // Säkerhetsvalidering (samma som i frontend, men körs på servern)
 function validateEventSubmission(eventData: any): { isValid: boolean; error?: string } {
   // Validera att alla required fields finns
-  if (!eventData.event_name || !eventData.date_time || !eventData.event_location || !eventData.description) {
+  // Beskrivning och kategori är valfria (tips via länk eller bild saknar dem ibland)
+  if (!eventData.event_name || !eventData.date_time || !eventData.event_location) {
     return { isValid: false, error: 'Alla obligatoriska fält måste fyllas i' };
   }
 
@@ -49,8 +50,13 @@ function validateEventSubmission(eventData: any): { isValid: boolean; error?: st
   }
 
   // Validera beskrivning
-  if (typeof eventData.description !== 'string' || eventData.description.trim().length < 10 || eventData.description.trim().length > 2000) {
-    return { isValid: false, error: 'Beskrivningen måste vara mellan 10 och 2000 tecken' };
+  if (eventData.description != null && (typeof eventData.description !== 'string' || eventData.description.trim().length > 2000)) {
+    return { isValid: false, error: 'Beskrivningen får vara högst 2000 tecken' };
+  }
+
+  // Validera datum (YYYY-MM-DDTHH:MM)
+  if (typeof eventData.date_time !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(eventData.date_time) || isNaN(new Date(eventData.date_time).getTime())) {
+    return { isValid: false, error: 'Datumet är inte giltigt' };
   }
 
   // Validera plats
@@ -59,11 +65,11 @@ function validateEventSubmission(eventData: any): { isValid: boolean; error?: st
   }
 
   // Validera kategorier
-  if (!Array.isArray(eventData.categories) || eventData.categories.length === 0) {
-    return { isValid: false, error: 'Du måste välja minst en kategori' };
+  if (eventData.categories != null && !Array.isArray(eventData.categories)) {
+    return { isValid: false, error: 'Ogiltiga kategorier' };
   }
 
-  if (eventData.categories.length > 3) {
+  if (eventData.categories && eventData.categories.length > 3) {
     return { isValid: false, error: 'Du kan bara välja max 3 kategorier' };
   }
 
@@ -101,7 +107,7 @@ function validateEventSubmission(eventData: any): { isValid: boolean; error?: st
     /vbscript:/i
   ];
 
-  const textToCheck = `${eventData.event_name} ${eventData.description} ${eventData.event_location}`;
+  const textToCheck = `${eventData.event_name} ${eventData.description ?? ''} ${eventData.event_location}`;
   for (const pattern of suspiciousPatterns) {
     if (pattern.test(textToCheck)) {
       return { isValid: false, error: 'Innehållet innehåller otillåten kod' };
@@ -160,9 +166,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       date_time: req.body.date_time,
       event_location: req.body.event_location.trim(),
       venue_name: req.body.venue_name?.trim() || req.body.event_location.trim(),
-      event_description: req.body.description.trim(),
-      categories: req.body.categories,
-      category: req.body.categories[0] || req.body.category,
+      event_description: req.body.description?.trim() || null,
+      categories: req.body.categories?.length ? req.body.categories : null,
+      category: req.body.categories?.[0] || req.body.category || null,
       image_url: req.body.image_url?.trim() || null,
       website_url: req.body.website_url?.trim() || null,
       submitter_email: req.body.submitter_email?.trim() || null,
