@@ -119,7 +119,7 @@ function newsletterHtml(season: Season, status: string | undefined): string {
   const messages: Record<string, [string, string]> = {
     ok: ['ok', 'Tack! Nu är du anmäld till nyhetsbrevet.'],
     finns: ['err', 'Den e-postadressen är redan anmäld.'],
-    ogiltig: ['err', 'Fyll i namn och en giltig e-postadress.'],
+    ogiltig: ['err', 'Fyll i en giltig e-postadress.'],
     fel: ['err', 'Något gick fel. Försök igen om en stund.'],
   };
   const msg = status ? messages[status] : undefined;
@@ -129,8 +129,6 @@ function newsletterHtml(season: Season, status: string | undefined): string {
   <form id="nl-form" action="/api/nyhetsbrev" method="post">
     <input type="hidden" name="tillbaka" value="/${season.slug}">
     <div class="hp" aria-hidden="true"><label for="nl-web">Lämna tomt</label><input id="nl-web" name="website" tabindex="-1" autocomplete="off"></div>
-    <label for="nl-namn">Förnamn</label>
-    <input id="nl-namn" name="namn" autocomplete="given-name" required minlength="2" maxlength="100">
     <label for="nl-epost">E-postadress</label>
     <input id="nl-epost" name="epost" type="email" autocomplete="email" placeholder="namn@exempel.se" required>
     <button type="submit">Prenumerera</button>
@@ -150,7 +148,7 @@ function newsletterHtml(season: Season, status: string | undefined): string {
     fetch(f.action, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ namn: val('namn'), epost: val('epost'), website: val('website') })
+      body: JSON.stringify({ epost: val('epost'), website: val('website') })
     }).then(function (r) { return r.json(); }).then(function (j) {
       msg.textContent = j.message;
       msg.className = 'nl-msg ' + (j.ok ? 'ok' : 'err');

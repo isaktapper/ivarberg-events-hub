@@ -17,7 +17,7 @@ import { Footer } from "@/components/Footer";
 import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { FAQSchema } from "@/components/FAQSchema";
 import { InstagramPromoCard } from "@/components/InstagramPromoCard";
-import { InstagramPromoDialog } from "@/components/InstagramPromoDialog";
+import { NewsletterCard } from "@/components/NewsletterCard";
 import { useInstagramPromo } from "@/hooks/useInstagramPromo";
 import { getSortableDate, isEventStillRelevant } from "@/services/eventService";
 import { EventCategory, EventDisplay, hasCategory, EVENT_AREAS, eventMatchesArea } from "@/types/event";
@@ -85,12 +85,9 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
 
-  // Instagram-promo A/B-test (inline-kort vs popup)
+  // Instagram-promo (PostHog-experimentet "instagram-promo"). Popupen är
+  // borttagen: både inline- och popup-gruppen ser rutan i listan.
   const promo = useInstagramPromo();
-  const [promoPopupOpen, setPromoPopupOpen] = useState(false);
-  const promoSentinelRef = useRef<HTMLDivElement>(null);
-  const popupTriggeredRef = useRef(false); // max en popup-visning per sidladdning
-  const popupClickedRef = useRef(false); // exakt ett av clicked/dismissed per visning
   const inlineShownRef = useRef(false); // max en shown-event per sidladdning
 
   // Handle URL parameters - restore filters from URL on page load
@@ -168,41 +165,6 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
       addTestEventsToState(setEvents);
     }
   }, [initialEvents]);
-
-  // Popup-varianten: öppna dialogen först när besökaren scrollat till promo-punkten
-  // (samma plats i flödet som inline-kortet, för en rättvis A/B-jämförelse)
-  useEffect(() => {
-    if (!promo.showPopup || loading || popupTriggeredRef.current) return;
-
-    const el = promoSentinelRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting) && !popupTriggeredRef.current) {
-        popupTriggeredRef.current = true;
-        setPromoPopupOpen(true);
-        promo.trackShown("home_feed");
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [promo.showPopup, promo.trackShown, loading, currentPage]);
-
-  const handlePromoPopupOpenChange = (open: boolean) => {
-    if (open) return;
-    setPromoPopupOpen(false);
-    if (!popupClickedRef.current) {
-      promo.trackDismissed("home_feed");
-    }
-  };
-
-  const handlePromoPopupClick = () => {
-    popupClickedRef.current = true;
-    promo.trackClicked("home_feed");
-    setPromoPopupOpen(false);
-  };
 
   const handleCategoryToggle = (category: EventCategory) => {
     const newCategories = selectedCategories.includes(category)
@@ -633,20 +595,18 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
 
   const listTitle = theme === HALLOWEEN_THEME ? "Halloween i Varberg" : "Alla evenemang";
 
-  const promoSlot = promo.showInline ? (
-    <InstagramPromoCard
-      onShown={() => {
-        if (!inlineShownRef.current) {
-          inlineShownRef.current = true;
-          promo.trackShown("home_feed");
-        }
-      }}
-      onClick={() => promo.trackClicked("home_feed")}
-    />
-  ) : promo.showPopup ? (
-    // Osynlig sentinel på inline-kortets plats – triggar popupen vid scroll
-    <div ref={promoSentinelRef} aria-hidden className="h-0" />
-  ) : null;
+  const promoSlot =
+    promo.showInline || promo.showPopup ? (
+      <InstagramPromoCard
+        onShown={() => {
+          if (!inlineShownRef.current) {
+            inlineShownRef.current = true;
+            promo.trackShown("home_feed");
+          }
+        }}
+        onClick={() => promo.trackClicked("home_feed")}
+      />
+    ) : null;
 
   return (
     <>
@@ -803,7 +763,8 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
                   <p className="py-12 text-center text-ink-soft">Inga evenemang matchar filtret.</p>
                 ) : (
                   listGroups.map((group, groupIndex) => (
-                    <div key={group.key} className="flex flex-col gap-2 lg:gap-3">
+                    <Fragment key={group.key}>
+                    <div className="flex flex-col gap-2 lg:gap-3">
                       <h3 className="text-[15px] font-bold leading-5 text-ink lg:text-lg lg:leading-6">
                         {group.label} <span className="font-medium text-ink-soft">{group.dateShort}</span>
                       </h3>
@@ -811,13 +772,14 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
                         {group.events.map((event, index) => (
                           <Fragment key={event.id}>
                             <EventListRow event={event} />
-                            {groupIndex === 0 && index === Math.min(2, group.events.length - 1) && promoSlot && (
-                              <div className="lg:col-span-2">{promoSlot}</div>
-                            )}
                           </Fragment>
                         ))}
                       </div>
                     </div>
+                    {/* Torsdagsbrevet efter första dagen, Instagram efter den andra */}
+                    {groupIndex === 0 && <NewsletterCard source="home_list" />}
+                    {groupIndex === 1 && promoSlot}
+                    </Fragment>
                   ))
                 )}
                 {nextDay && listEvents.length <= shownCount && (
@@ -852,12 +814,6 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
             </div>
           </section>
         </main>
-
-        <InstagramPromoDialog
-          open={promoPopupOpen}
-          onOpenChange={handlePromoPopupOpenChange}
-          onClick={handlePromoPopupClick}
-        />
 
         <Footer />
       </div>

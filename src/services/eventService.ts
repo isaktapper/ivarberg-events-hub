@@ -670,7 +670,7 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Simi
 }
 
 // Prenumerera på nyhetsbrev
-export async function subscribeToNewsletter(email: string, name: string): Promise<{ success: boolean; error?: string }> {
+export async function subscribeToNewsletter(email: string, name: string = ''): Promise<{ success: boolean; error?: string }> {
   try {
     // Validera e-post
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -678,9 +678,9 @@ export async function subscribeToNewsletter(email: string, name: string): Promis
       return { success: false, error: 'Ogiltig e-postadress' };
     }
 
-    // Validera namn (obligatoriskt)
-    if (!name || name.trim().length < 2 || name.trim().length > 100) {
-      return { success: false, error: 'Namnet måste vara mellan 2 och 100 tecken' };
+    // Namn är valfritt (Torsdagsbrevet anmäls med bara e-post)
+    if (name.trim().length > 100) {
+      return { success: false, error: 'Namnet får vara högst 100 tecken' };
     }
 
     const subscriptionData = {
@@ -695,7 +695,7 @@ export async function subscribeToNewsletter(email: string, name: string): Promis
     if (error) {
       // Om e-posten redan finns (unique constraint)
       if (error.code === '23505') {
-        return { success: false, error: 'Denna e-postadress är redan registrerad' };
+        return { success: false, error: 'Den e-postadressen är redan anmäld.' };
       }
       console.error('Error subscribing to newsletter:', error);
       return { success: false, error: `Fel vid registrering: ${error.message}` };
