@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Index from "@/views/Index";
 import { getHomeEvents } from "@/lib/server-data";
 
-// Renderas per request: listan är alltid färsk och filtren i URL:en
-// (?cat=, ?date=, ?search= …) följer med i serverrenderingen
-export const dynamic = "force-dynamic";
+// Cachas och renderas om högst var 5:e minut (samma intervall som
+// eventdatan i server-data.ts). Filtren i URL:en (?cat=, ?date=, ?search= …)
+// läses i webbläsaren efter laddning.
+export const revalidate = 300;
 
 const TITLE = "Evenemang i Varberg - Din kompletta eventkalender | ivarberg.nu";
 const DESCRIPTION =

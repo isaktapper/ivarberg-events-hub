@@ -5,7 +5,14 @@ import EventDetail from "@/views/EventDetail";
 import { getEventById, getEventRelations } from "@/lib/server-data";
 import { getAllCategories } from "@/types/event";
 
-export const dynamic = "force-dynamic";
+// Varje sida renderas vid första besöket, cachas och renderas om högst var
+// 5:e minut. Tom generateStaticParams = inget byggs i förväg, men sidan blir
+// ISR i stället för att renderas vid varje besök.
+export const revalidate = 300;
+
+export function generateStaticParams() {
+  return [];
+}
 
 // generateMetadata och sidan delar samma hämtning
 const loadEvent = cache((id: string) => getEventById(id));

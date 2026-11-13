@@ -14,7 +14,16 @@ import {
   useRouter,
   useSearchParams as useNextSearchParams,
 } from "next/navigation";
-import { forwardRef, useCallback, useMemo, type AnchorHTMLAttributes, type ReactNode } from "react";
+import {
+  Suspense,
+  forwardRef,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useSyncExternalStore,
+  type AnchorHTMLAttributes,
+  type ReactNode,
+} from "react";
 
 type LinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   to: string;
@@ -48,13 +57,73 @@ export function useParams<T extends Record<string, string | undefined> = Record<
   return (useNextParams() ?? {}) as T;
 }
 
+/*
+ * Query-strängen utan att sidorna blir dynamiska.
+ *
+ * Sidorna cachas (ISR) och renderas alltså utan att servern vet vilken
+ * query-sträng besökaren har. Next:s useSearchParams skulle då tvinga hela
+ * trädet upp till närmaste <Suspense> att renderas i webbläsaren i stället
+ * för i HTML:en. I stället läser bara <SearchParamsSync> (i root-layouten,
+ * egen Suspense) Next:s useSearchParams och lägger värdet i en liten store.
+ * Komponenterna läser storen: tom query vid serverrendering och hydrering
+ * (samma HTML för alla), riktig query direkt efteråt.
+ */
+
+let currentSearch = typeof window === "undefined" ? "" : window.location.search.replace(/^\?/, "");
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function setCurrentSearch(next: string) {
+  if (next === currentSearch) return;
+  currentSearch = next;
+  listeners.forEach((l) => l());
+}
+
+const getSearch = () => currentSearch;
+const getServerSearch = () => "";
+
+function SearchParamsSyncInner() {
+  const nextParams = useNextSearchParams();
+  const search = nextParams?.toString() ?? "";
+  useLayoutEffect(() => setCurrentSearch(search), [search]);
+  return null;
+}
+
+/** Monteras en gång i root-layouten */
+export function SearchParamsSync() {
+  return (
+    <Suspense fallback={null}>
+      <SearchParamsSyncInner />
+    </Suspense>
+  );
+}
+
+const noopSubscribe = () => () => {};
+
+/** false under serverrendering och hydrering, true därefter */
+export function useHydrated() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false
+  );
+}
+
+function useSearchString() {
+  return useSyncExternalStore(subscribe, getSearch, getServerSearch);
+}
+
 type SearchParamsInit = URLSearchParams | Record<string, string> | string;
 
 export function useSearchParams(): [URLSearchParams, (next: SearchParamsInit, options?: { replace?: boolean }) => void] {
-  const nextParams = useNextSearchParams();
+  const search = useSearchString();
   const pathname = usePathname();
 
-  const params = useMemo(() => new URLSearchParams(nextParams?.toString() ?? ""), [nextParams]);
+  const params = useMemo(() => new URLSearchParams(search), [search]);
 
   const setParams = useCallback(
     (next: SearchParamsInit, options?: { replace?: boolean }) => {
@@ -64,6 +133,7 @@ export function useSearchParams(): [URLSearchParams, (next: SearchParamsInit, op
       // och ingen scroll. Next.js synkar useSearchParams med history-API:t.
       if (options?.replace) window.history.replaceState(null, "", url);
       else window.history.pushState(null, "", url);
+      setCurrentSearch(qs);
     },
     [pathname]
   );
@@ -73,7 +143,6 @@ export function useSearchParams(): [URLSearchParams, (next: SearchParamsInit, op
 
 export function useLocation() {
   const pathname = usePathname();
-  const nextParams = useNextSearchParams();
-  const search = nextParams?.toString() ? `?${nextParams.toString()}` : "";
-  return { pathname, search, hash: "" };
+  const search = useSearchString();
+  return { pathname, search: search ? `?${search}` : "", hash: "" };
 }

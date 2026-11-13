@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Providers } from "./providers";
+import { SearchParamsSync } from "@/lib/router";
 import "@/index.css";
 
-// Alla sidor renderas per request: datan är alltid färsk och komponenter som
-// läser URL:en (header-sökningen, filtren) fungerar i serverrenderingen
-export const dynamic = "force-dynamic";
+// Sidorna cachas (ISR, se revalidate i respektive page.tsx) i stället för att
+// renderas vid varje besök - force-dynamic här tömde Hobby-kvoten för
+// Fluid CPU i november 2026. Query-strängen läses i webbläsaren, se
+// SearchParamsSync i src/lib/router.tsx.
 
 const DESCRIPTION =
   "Din kompletta guide till Varbergs evenemang. Upptäck konserter, teater, sport, restauranger och aktiviteter för hela familjen.";
@@ -50,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-texture">
+        <SearchParamsSync />
         <Providers>{children}</Providers>
       </body>
     </html>
