@@ -32,7 +32,7 @@ export function Footer() {
   return (
     <footer className="mt-16 bg-navy text-sand">
       <div className="max-w-6xl mx-auto px-4 pt-12 pb-7 lg:px-6 lg:pt-14">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,3fr)] lg:gap-14">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,3fr)] lg:gap-14">
           <div>
             <p className="text-xl font-bold text-white tracking-tight mb-1.5">ivarberg.nu</p>
             <p className="text-[15px] text-sand/75">{FOOTER_TAGLINE}</p>
