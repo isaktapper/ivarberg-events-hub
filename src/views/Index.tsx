@@ -656,7 +656,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
             ref={listRef}
             className="mx-auto flex w-full max-w-[1280px] scroll-mt-24 flex-col gap-3.5 pt-2 lg:gap-6 lg:px-10 lg:pt-4"
           >
-            <div className="flex items-baseline justify-between gap-4 px-4 lg:px-0" ref={resultsRef}>
+            <div className="flex items-baseline justify-between gap-4 px-4 lg:relative lg:z-[31] lg:px-0" ref={resultsRef}>
               <h2 className="text-2xl font-bold leading-tight text-ink lg:text-[28px]">
                 {listTitle} <span className="font-medium text-ink-soft">{filteredEvents.length}</span>
               </h2>
@@ -679,11 +679,14 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
             </div>
 
             {searchTerm.trim() && (
-              <p className="px-4 text-sm text-ink-soft lg:px-0">
+              <p className="px-4 text-sm text-ink-soft lg:relative lg:z-[31] lg:px-0">
                 Sökresultat för <span className="font-semibold text-ink">”{searchTerm.trim()}”</span>
               </p>
             )}
 
+            {/* På dator följer dagraden med under den svävande menyn när man skrollar i listan.
+                Det vita fältet ovanför (before) täcker glipan bakom den svävande menyn. */}
+            <div className="lg:sticky lg:top-[68px] lg:z-30 lg:-my-3 lg:bg-white lg:py-3 lg:before:absolute lg:before:inset-x-0 lg:before:bottom-full lg:before:h-[68px] lg:before:bg-white">
             <DayStrip
               today={today}
               counts={dayCounts.counts}
@@ -702,6 +705,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
                 />
               )}
             />
+            </div>
 
             <div className="flex flex-col gap-3.5 lg:flex-row lg:items-start lg:gap-10">
               {/* Filter: knappar + kategorirad på mobil, panel till vänster på dator */}
@@ -729,7 +733,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
                 ))}
               </div>
 
-              <aside className="hidden w-[260px] shrink-0 flex-col gap-7 lg:flex">
+              <aside className="hidden w-[260px] shrink-0 flex-col gap-7 lg:sticky lg:top-[174px] lg:flex lg:max-h-[calc(100dvh-190px)] lg:overflow-y-auto">
                 <div className="flex flex-col gap-2.5">
                   <h3 className="text-[15px] font-bold leading-5 text-ink">Område</h3>
                   <LocationFilter
