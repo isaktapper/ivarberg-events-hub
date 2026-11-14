@@ -76,21 +76,23 @@ export const INU_LIME = '#C6F135';
 
 // ---------- HTML för de serverrenderade sidorna ----------
 
+// Färgerna kan skrivas över per stad med --sf-dark och --sf-hl (se
+// src/lib/legacy/feature-gate.ts). Utan dem gäller ivarberg.nu:s palett.
 export const SITE_FOOTER_CSS = `
-.sf { margin-top:64px; background:#0B1B3A; color:#F7F2EA; font-family:'Poppins',system-ui,sans-serif; line-height:1.5; }
+.sf { margin-top:64px; background:var(--sf-dark,#0B1B3A); color:#F7F2EA; font-family:'Poppins',system-ui,sans-serif; line-height:1.5; }
 .sf * { box-sizing:border-box; }
 .sf-in { max-width:72rem; margin:0 auto; padding:48px 16px 28px; }
 .sf-top { display:grid; grid-template-columns:minmax(0,1fr); gap:40px; }
 .sf .sf-brand .sf-name { margin:0 0 6px; font-size:20px; font-weight:700; color:#fff; letter-spacing:-.01em; }
 .sf .sf-brand p { margin:0; font-size:15px; color:#C3CCDD; }
 .sf .sf-brand .sf-addr { margin-top:12px; font-size:14px; }
-.sf .sf-nl { display:inline-block; margin-top:20px; padding:12px 20px; border-radius:999px; background:#7FD1C8; color:#0B1B3A; font-size:15px; font-weight:600; text-decoration:none; white-space:nowrap; }
-.sf .sf-nl:hover { background:#A3E0D9; color:#0B1B3A; }
+.sf .sf-nl { display:inline-block; margin-top:20px; padding:12px 20px; border-radius:999px; background:var(--sf-hl,#7FD1C8); color:var(--sf-dark,#0B1B3A); font-size:15px; font-weight:600; text-decoration:none; white-space:nowrap; }
+.sf .sf-nl:hover { background:var(--sf-hl,#7FD1C8); filter:brightness(1.08); color:var(--sf-dark,#0B1B3A); }
 .sf-groups { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px 24px; }
 .sf .sf-h { margin:0 0 8px; padding:0; text-align:left; font-size:14px; line-height:1.4; font-weight:600; color:#fff; }
 .sf ul { list-style:none; margin:0; padding:0; }
 .sf-groups a { display:inline-block; padding:5px 0; font-size:14px; color:#C3CCDD; text-decoration:none; }
-.sf a:hover { color:#7FD1C8; }
+.sf a:hover { color:var(--sf-hl,#7FD1C8); }
 .sf-bot { margin-top:40px; padding-top:20px; border-top:1px solid rgba(247,242,234,.15); display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px 24px; font-size:14px; color:#C3CCDD; }
 .sf-bot ul { display:flex; flex-wrap:wrap; align-items:center; gap:0 20px; }
 .sf-bot a { display:inline-block; padding:6px 0; color:#C3CCDD; text-decoration:none; }

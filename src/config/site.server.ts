@@ -3,11 +3,10 @@
  *
  * - SITE_SLUG inte satt: ivarberg.nu precis som innan städer fanns. Ingen
  *   databasfråga, ingen filtrering.
- * - SITE_SLUG satt: stadens rad i `tenants` läses (cachad 5 min) och eventen
+ * - SITE_SLUG satt: stadens rad i `tenants` läses (cachad 1 min) och eventen
  *   filtreras på stadens kommunkoder.
  */
 
-import { unstable_cache } from "next/cache";
 import { VARBERG_SITE, VARBERG_SLUG, siteFromTenant, type SiteConfig, type TenantRow } from "./site";
 
 const SITE_SLUG = (process.env.SITE_SLUG || "").trim().toLowerCase();
@@ -19,15 +18,16 @@ async function loadTenant(slug: string): Promise<TenantRow | null> {
 
   const res = await fetch(
     `${supabaseUrl}/rest/v1/tenants?slug=eq.${encodeURIComponent(slug)}&select=id,slug,name,city_name,municipality_codes,primary_domain,status,theme,features,seo,contact&limit=1`,
-    { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }, cache: "no-store" },
+    // Next:s datacache: ändringar i admin syns inom en minut (plus sidornas egen cache)
+    { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }, next: { revalidate: 60, tags: ["site"] } },
   );
-  // Kastar så att ett fel aldrig cachas (unstable_cache sparar bara lyckade svar)
+  // Kastar vid fel, så att getSite kan välja reservvärden
   if (!res.ok) throw new Error(`Kunde inte hämta staden "${slug}": HTTP ${res.status}`);
   const rows = (await res.json()) as TenantRow[];
   return rows[0] ?? null;
 }
 
-const getTenant = unstable_cache(loadTenant, ["site-tenant-v1"], { revalidate: 300, tags: ["site"] });
+const getTenant = loadTenant;
 
 export async function getSite(): Promise<SiteConfig> {
   if (!SITE_SLUG) return VARBERG_SITE;

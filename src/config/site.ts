@@ -267,11 +267,15 @@ const hsl = (h: number, s: number, l: number) => `${h} ${clamp(s, 0, 100)}% ${cl
 export function themeCss(site: SiteConfig): string {
   const c = site.theme.colors;
   if (!c) return "";
-  const primary = hexToHsl(c.primary);
-  const dark = hexToHsl(c.dark);
-  const accent = hexToHsl(c.accent);
-  const background = hexToHsl(c.background);
-  const highlight = hexToHsl(c.highlight);
+  // Bara färger som skiljer sig från den inbyggda paletten skrivs över, så att
+  // index.css exakta nyanser gäller för resten (omräkning hex → hsl är inte exakt).
+  const changed = (key: keyof typeof DEFAULT_COLORS) =>
+    c[key].toLowerCase() === DEFAULT_COLORS[key].toLowerCase() ? null : hexToHsl(c[key]);
+  const primary = changed("primary");
+  const dark = changed("dark");
+  const accent = changed("accent");
+  const background = changed("background");
+  const highlight = changed("highlight");
   const vars: string[] = [];
 
   if (primary) {
