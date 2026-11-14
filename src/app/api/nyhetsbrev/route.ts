@@ -4,6 +4,8 @@
 // JSON in → JSON ut (formulärets fetch). Vanlig formulärpost (utan JS) →
 // 303 tillbaka till sidan med ?nyhetsbrev=<status>#nyhetsbrev.
 
+import { getSite, tenantFields } from "@/config/site.server";
+
 export const dynamic = "force-dynamic";
 
 type Status = "ok" | "finns" | "ogiltig" | "fel";
@@ -34,7 +36,7 @@ async function subscribe(namn: string, epost: string): Promise<Status> {
       "Content-Type": "application/json",
       Prefer: "return=minimal",
     },
-    body: JSON.stringify({ email, name }),
+    body: JSON.stringify({ email, name, ...tenantFields(await getSite()) }),
   });
   if (res.ok) return "ok";
   if (res.status === 409) return "finns"; // unique-constraint på email

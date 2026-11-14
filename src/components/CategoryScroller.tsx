@@ -79,7 +79,7 @@ export function CategoryScroller({ selectedCategories, onCategoryToggle }: Categ
                 style={{
                   backgroundColor: isSelected ? 'rgba(15, 90, 166, 0.25)' : 'rgba(255, 255, 255, 0.25)',
                   borderColor: isSelected ? 'rgba(15, 90, 166, 0.5)' : 'rgba(255, 255, 255, 0.5)',
-                  color: '#10214B',
+                  color: 'hsl(var(--ink))',
                   backdropFilter: 'blur(12px)'
                 }}
                 onMouseEnter={(e) => {
@@ -90,7 +90,7 @@ export function CategoryScroller({ selectedCategories, onCategoryToggle }: Categ
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = isSelected ? 'rgba(15, 90, 166, 0.25)' : 'rgba(255, 255, 255, 0.25)';
                   e.currentTarget.style.borderColor = isSelected ? 'rgba(15, 90, 166, 0.5)' : 'rgba(255, 255, 255, 0.5)';
-                  e.currentTarget.style.color = '#10214B';
+                  e.currentTarget.style.color = 'hsl(var(--ink))';
                 }}
               >
                 <IconComponent
@@ -104,7 +104,7 @@ export function CategoryScroller({ selectedCategories, onCategoryToggle }: Categ
                   maxWidth: (isForelasning || isUtstallningar || isMarknader) ? '80px' : '65px',
                   wordWrap: 'break-word',
                   hyphens: 'auto',
-                  color: isSelected ? '#0F5AA6' : '#10214B'
+                  color: isSelected ? '#0F5AA6' : 'hsl(var(--ink))'
                 }}
               >
                 {category.label}
@@ -116,7 +116,7 @@ export function CategoryScroller({ selectedCategories, onCategoryToggle }: Categ
       
       {/* Scroll hint text - bara på mobil */}
       <div className="text-center mt-2 sm:hidden">
-        <span className="text-xs" style={{ color: '#10214B', opacity: 0.6 }}>
+        <span className="text-xs" style={{ color: 'hsl(var(--ink))', opacity: 0.6 }}>
           Skrolla →
         </span>
       </div>

@@ -6,6 +6,8 @@ import { PostHogProvider } from "posthog-js/react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SiteProvider } from "@/config/SiteProvider";
+import type { SiteConfig } from "@/config/site";
 
 // Eventen går via vår egen domän (rewrites i next.config.ts) så att adblockers
 // inte stoppar dem. ui_host behövs för att länkar till PostHog-appen (toolbar
@@ -24,18 +26,22 @@ declare global {
   }
 }
 
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({ site, children }: { site: SiteConfig; children: ReactNode }) {
   useEffect(() => {
     window.posthog = posthog;
-  }, []);
+    // Alla städer delar PostHog-projekt: märk varje händelse med stad
+    posthog.register({ site: site.slug });
+  }, [site.slug]);
 
   return (
     <PostHogProvider apiKey={process.env.NEXT_PUBLIC_POSTHOG_KEY!} options={options}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        {children}
-      </TooltipProvider>
+      <SiteProvider site={site}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          {children}
+        </TooltipProvider>
+      </SiteProvider>
     </PostHogProvider>
   );
 }

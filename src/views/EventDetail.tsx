@@ -15,6 +15,7 @@ import { EventDisplay, getAllCategories, getMainCategory, getCategoryChipColor }
 import type { SimilarEventsResult } from "@/services/eventService";
 import { formatLocation } from "@/lib/locationUtils";
 import { usePostHog } from "posthog-js/react";
+import { useSite } from "@/config/SiteProvider";
 
 // Fas 3-flagga: sticky botten-CTA på mobil. Mät utklick via cta_position i PostHog
 // och stäng av här om baren inte motiverar ytan den tar.
@@ -28,6 +29,8 @@ interface EventDetailProps {
 
 const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
   const { id } = useParams<{ id: string }>();
+  const site = useSite();
+  const city = site.cityName;
   const posthog = usePostHog();
   const [event] = useState<EventDisplay | null>(initialEvent);
   const [similarEvents] = useState<EventDisplay[]>(initialRelations.similar);
@@ -113,7 +116,7 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
     return (
       <div className="min-h-screen bg-texture">
         <Helmet>
-          <title>Evenemang hittades inte | ivarberg.nu</title>
+          <title>{`Evenemang hittades inte | ${site.name}`}</title>
           <meta name="robots" content="noindex" />
         </Helmet>
         <Header />
@@ -241,7 +244,7 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
     const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//ivarberg.nu//Event Calendar//SV',
+      `PRODID:-//${site.domain}//Event Calendar//SV`,
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
       'BEGIN:VEVENT',
@@ -251,7 +254,7 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
       `SUMMARY:${event.title}`,
       `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}`,
       `LOCATION:${locationInfo.hasVenueName ? `${locationInfo.venueName}, ${locationInfo.address}` : locationInfo.address}`,
-      `UID:${event.id}@ivarberg.nu`,
+      `UID:${event.id}@${site.domain}`,
       'STATUS:CONFIRMED',
       'END:VEVENT',
       'END:VCALENDAR'
@@ -269,12 +272,12 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
 
   // SEO data
   const cleanDescription = event.description.replace(/[#*_\[\]`]/g, '').replace(/\n+/g, ' ');
-  const seoDescription = `${event.title} i Varberg - ${event.date.toLocaleDateString('sv-SE')}${event.time ? ` kl ${event.time}` : ''}. ${cleanDescription.substring(0, 120)}...`;
-  const seoKeywords = `${event.title}, evenemang Varberg, ${getAllCategories(event).join(', ')}, event Varberg, Varberg evenemang`;
-  const eventUrl = `https://ivarberg.nu/event/${id}`;
+  const seoDescription = `${event.title} i ${city} - ${event.date.toLocaleDateString('sv-SE')}${event.time ? ` kl ${event.time}` : ''}. ${cleanDescription.substring(0, 120)}...`;
+  const seoKeywords = `${event.title}, evenemang ${city}, ${getAllCategories(event).join(', ')}, event ${city}, ${city} evenemang`;
+  const eventUrl = `${site.url}/event/${id}`;
 
   // SEO-friendly alt text for event image
-  const imageAlt = `${event.title} - ${mainCategory} evenemang i Varberg den ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })} på ${locationInfo.hasVenueName ? locationInfo.venueName : locationInfo.address}`;
+  const imageAlt = `${event.title} - ${mainCategory} evenemang i ${city} den ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })} på ${locationInfo.hasVenueName ? locationInfo.venueName : locationInfo.address}`;
 
   // Event Schema.org structured data
   const eventSchema = {
@@ -291,8 +294,8 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
       "address": {
         "@type": "PostalAddress",
         "streetAddress": event.location,
-        "addressLocality": "Varberg",
-        "postalCode": "432 44",
+        "addressLocality": city,
+        ...(site.geo.postalCode ? { "postalCode": site.geo.postalCode } : {}),
         "addressCountry": "SE"
       }
     },
@@ -301,23 +304,23 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
     "organizer": event.organizer ? {
       "@type": "Organization",
       "name": event.organizer.name,
-      "url": event.organizer.website || "https://ivarberg.nu"
+      "url": event.organizer.website || site.url
     } : {
       "@type": "Organization",
-      "name": "ivarberg.nu",
-      "url": "https://ivarberg.nu"
+      "name": site.name,
+      "url": site.url
     }
   };
 
   return (
     <>
       <Helmet>
-        <title>{event.title} - Evenemang i Varberg | ivarberg.nu</title>
+        <title>{`${event.title} - Evenemang i ${city} | ${site.name}`}</title>
         <meta name="description" content={seoDescription} />
         <meta name="keywords" content={seoKeywords} />
 
         {/* Open Graph */}
-        <meta property="og:title" content={`${event.title} - ivarberg.nu`} />
+        <meta property="og:title" content={`${event.title} - ${site.name}`} />
         <meta property="og:description" content={seoDescription} />
         <meta property="og:type" content="event" />
         <meta property="og:url" content={eventUrl} />
@@ -326,7 +329,7 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${event.title} - ivarberg.nu`} />
+        <meta name="twitter:title" content={`${event.title} - ${site.name}`} />
         <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={event.image} />
 
@@ -542,7 +545,7 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
               <div className="mt-8">
                 <SimilarEventsCarousel
                   events={similarEvents}
-                  title={similarIsFallback ? 'Mer att göra i Varberg' : 'Liknande evenemang'}
+                  title={similarIsFallback ? `Mer att göra i ${city}` : 'Liknande evenemang'}
                   onEventClick={(clicked) => handleRelatedEventClick(clicked, 'similar')}
                 />
               </div>

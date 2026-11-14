@@ -274,7 +274,7 @@ export async function getAllEvents(): Promise<EventDisplay[]> {
 }
 
 // Hämta featured events
-export async function getFeaturedEvents(): Promise<EventDisplay[]> {
+export async function getFeaturedEvents(municipalityCodes: string[] | null = null): Promise<EventDisplay[]> {
   try {
     // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
@@ -287,13 +287,16 @@ export async function getFeaturedEvents(): Promise<EventDisplay[]> {
     const day = String(stockholmTime.getDate()).padStart(2, '0');
     const filterDate = `${year}-${month}-${day} 00:00:00`;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('events')
       .select(`
         *,
         organizer:organizers(*)
       `)
-      .eq('status', 'published')
+      .eq('status', 'published');
+    // Kolumnen municipality_code refereras bara när staden har kommunkoder
+    if (municipalityCodes) query = query.in('municipality_code', municipalityCodes);
+    const { data, error } = await query
       .eq('featured', true)
       .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .order('date_time', { ascending: true })
@@ -319,7 +322,7 @@ export async function getFeaturedEvents(): Promise<EventDisplay[]> {
 }
 
 // Hämta events för en specifik kategori
-export async function getEventsByCategory(category: EventCategory): Promise<EventDisplay[]> {
+export async function getEventsByCategory(category: EventCategory, municipalityCodes: string[] | null = null): Promise<EventDisplay[]> {
   try {
     // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
@@ -332,13 +335,16 @@ export async function getEventsByCategory(category: EventCategory): Promise<Even
     const day = String(stockholmTime.getDate()).padStart(2, '0');
     const filterDate = `${year}-${month}-${day} 00:00:00`;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('events')
       .select(`
         *,
         organizer:organizers(*)
       `)
-      .eq('status', 'published')
+      .eq('status', 'published');
+    // Kolumnen municipality_code refereras bara när staden har kommunkoder
+    if (municipalityCodes) query = query.in('municipality_code', municipalityCodes);
+    const { data, error } = await query
       .eq('category', category)
       .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .order('featured', { ascending: false })
@@ -366,15 +372,18 @@ export async function getEventsByCategory(category: EventCategory): Promise<Even
 }
 
 // Hämta events inom ett datumintervall
-export async function getEventsByDateRange(startDate: Date, endDate: Date): Promise<EventDisplay[]> {
+export async function getEventsByDateRange(startDate: Date, endDate: Date, municipalityCodes: string[] | null = null): Promise<EventDisplay[]> {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('events')
       .select(`
         *,
         organizer:organizers(*)
       `)
-      .eq('status', 'published')
+      .eq('status', 'published');
+    // Kolumnen municipality_code refereras bara när staden har kommunkoder
+    if (municipalityCodes) query = query.in('municipality_code', municipalityCodes);
+    const { data, error } = await query
       .gte('date_time', startDate.toISOString().slice(0, 19))
       .lte('date_time', endDate.toISOString().slice(0, 19))
       .order('featured', { ascending: false })
@@ -402,7 +411,7 @@ export async function getEventsByDateRange(startDate: Date, endDate: Date): Prom
 }
 
 // Sök events (fulltext search)
-export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> {
+export async function searchEvents(searchTerm: string, municipalityCodes: string[] | null = null): Promise<EventDisplay[]> {
   try {
     // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
@@ -415,13 +424,16 @@ export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> 
     const day = String(stockholmTime.getDate()).padStart(2, '0');
     const filterDate = `${year}-${month}-${day} 00:00:00`;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('events')
       .select(`
         *,
         organizer:organizers(*)
       `)
-      .eq('status', 'published')
+      .eq('status', 'published');
+    // Kolumnen municipality_code refereras bara när staden har kommunkoder
+    if (municipalityCodes) query = query.in('municipality_code', municipalityCodes);
+    const { data, error } = await query
       .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .textSearch('name', searchTerm, {
         type: 'websearch',
@@ -449,7 +461,7 @@ export async function searchEvents(searchTerm: string): Promise<EventDisplay[]> 
 }
 
 // Hämta events för en specifik arrangör (by name - deprecated, använd getEventsByOrganizerId istället)
-export async function getEventsByOrganizer(organizerName: string): Promise<EventDisplay[]> {
+export async function getEventsByOrganizer(organizerName: string, municipalityCodes: string[] | null = null): Promise<EventDisplay[]> {
   try {
     // Skapa dagens datum i svensk tid (Stockholm timezone) vid midnatt
     const today = new Date();
@@ -462,13 +474,16 @@ export async function getEventsByOrganizer(organizerName: string): Promise<Event
     const day = String(stockholmTime.getDate()).padStart(2, '0');
     const filterDate = `${year}-${month}-${day} 00:00:00`;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('events')
       .select(`
         *,
         organizer:organizers(*)
       `)
-      .eq('status', 'published')
+      .eq('status', 'published');
+    // Kolumnen municipality_code refereras bara när staden har kommunkoder
+    if (municipalityCodes) query = query.in('municipality_code', municipalityCodes);
+    const { data, error } = await query
       .gte('date_time', filterDate) // Endast events från idag och framåt (svensk tid)
       .ilike('organizer.name', `%${organizerName}%`) // Sök i organizer.name fält
       .order('featured', { ascending: false })
@@ -670,7 +685,7 @@ export async function getSimilarEvents(currentEvent: EventDisplay): Promise<Simi
 }
 
 // Prenumerera på nyhetsbrev
-export async function subscribeToNewsletter(email: string, name: string = ''): Promise<{ success: boolean; error?: string }> {
+export async function subscribeToNewsletter(email: string, name: string = '', tenantId: string | null = null): Promise<{ success: boolean; error?: string }> {
   try {
     // Validera e-post
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -686,6 +701,8 @@ export async function subscribeToNewsletter(email: string, name: string = ''): P
     const subscriptionData = {
       email: email.trim().toLowerCase(),
       name: name.trim(),
+      // Stadsmärkning (site.tenantId). Utelämnas helt när den saknas.
+      ...(tenantId ? { tenant_id: tenantId } : {}),
     };
 
     const { error } = await supabase

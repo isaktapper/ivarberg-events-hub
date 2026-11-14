@@ -14,15 +14,15 @@ const OrganizerNotFound = () => {
       <Header />
       <main className="container mx-auto px-4 py-12">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4" style={{ color: '#10214B' }}>Arrangör hittades inte</h1>
-          <p className="mb-4" style={{ color: '#10214B', opacity: 0.7 }}>Slug: {slug}</p>
+          <h1 className="text-2xl font-bold mb-4" style={{ color: 'hsl(var(--ink))' }}>Arrangör hittades inte</h1>
+          <p className="mb-4" style={{ color: 'hsl(var(--ink))', opacity: 0.7 }}>Slug: {slug}</p>
           <Link to="/">
             <Button
               variant="outline"
               style={{
                 backgroundColor: '#FFFFFF',
-                color: '#10214B',
-                borderColor: '#10214B'
+                color: 'hsl(var(--ink))',
+                borderColor: 'hsl(var(--ink))'
               }}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />

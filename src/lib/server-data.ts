@@ -6,6 +6,7 @@
 
 import { unstable_cache } from "next/cache";
 import { supabase } from "@/lib/supabase";
+import { getSite } from "@/config/site.server";
 import { halloweenSeasonEnd, isHalloweenSeason } from "@/lib/seasonal";
 import {
   LIST_EVENT_SELECT,
@@ -40,13 +41,15 @@ function formatLocalDateTime(date: Date): string {
 
 async function loadUpcomingEventRows(): Promise<Event[]> {
   const today = stockholmTodayStart();
-  const { data, error } = await supabase
+  const site = await getSite();
+  let query = supabase
     .from("events")
     .select(LIST_EVENT_SELECT)
     .eq("status", "published")
-    .gte("date_time", formatLocalDateTime(today))
-    .order("date_time", { ascending: true })
-    .limit(2000);
+    .gte("date_time", formatLocalDateTime(today));
+  // Bara stadens event (ingen filtrering när SITE_SLUG inte är satt)
+  if (site.municipalityCodes) query = query.in("municipality_code", site.municipalityCodes);
+  const { data, error } = await query.order("date_time", { ascending: true }).limit(2000);
   // Kastar så att ett fel aldrig cachas (unstable_cache sparar bara lyckade svar)
   if (error) throw new Error(`Kunde inte hämta event: ${error.message}`);
   const rows = (data ?? []) as unknown as Event[];
@@ -55,12 +58,14 @@ async function loadUpcomingEventRows(): Promise<Event[]> {
   // säsongen hämtas den därför för eventen fram till säsongens slut.
   if (isHalloweenSeason()) {
     const seasonEnd = halloweenSeasonEnd(today.getFullYear());
-    const { data: descriptions } = await supabase
+    let descriptionQuery = supabase
       .from("events")
       .select("event_id,description")
       .eq("status", "published")
       .gte("date_time", formatLocalDateTime(today))
       .lte("date_time", formatLocalDateTime(seasonEnd));
+    if (site.municipalityCodes) descriptionQuery = descriptionQuery.in("municipality_code", site.municipalityCodes);
+    const { data: descriptions } = await descriptionQuery;
     const byId = new Map((descriptions ?? []).map((d) => [d.event_id, d.description]));
     for (const row of rows) row.description = byId.get(row.event_id) ?? null;
   }
@@ -74,7 +79,8 @@ async function loadUpcomingEventRows(): Promise<Event[]> {
  * varje sidvisning (tidigare select(*) per request ≈ 1 MB, se egress-problemet
  * november 2026). Sidorna renderas fortfarande per request.
  */
-export const getUpcomingEventRows = unstable_cache(loadUpcomingEventRows, ["upcoming-event-rows-v1"], {
+// Staden ingår i nyckeln så att två städer aldrig kan dela cachade event
+export const getUpcomingEventRows = unstable_cache(loadUpcomingEventRows, ["upcoming-event-rows-v1", process.env.SITE_SLUG || "default"], {
   revalidate: 300,
   tags: ["events"],
 });
@@ -89,12 +95,11 @@ export async function getHomeEvents(): Promise<EventDisplay[]> {
 }
 
 export async function getEventById(id: string): Promise<EventDisplay | null> {
-  const { data, error } = await supabase
-    .from("events")
-    .select(`*, organizer:organizers(*)`)
-    .eq("event_id", id)
-    .eq("status", "published")
-    .maybeSingle();
+  const site = await getSite();
+  let query = supabase.from("events").select(`*, organizer:organizers(*)`).eq("event_id", id).eq("status", "published");
+  // Ett event i en annan stad ska inte gå att öppna på den här domänen
+  if (site.municipalityCodes) query = query.in("municipality_code", site.municipalityCodes);
+  const { data, error } = await query.maybeSingle();
 
   if (error) {
     console.error("Error fetching event:", error);
@@ -136,12 +141,10 @@ export interface OrganizerPageData {
 }
 
 export async function getOrganizerPage(slug: string): Promise<OrganizerPageData | null> {
-  const { data, error } = await supabase
-    .from("organizer_pages")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
+  const site = await getSite();
+  let query = supabase.from("organizer_pages").select("*").eq("slug", slug).eq("is_published", true);
+  if (site.tenantId) query = query.eq("tenant_id", site.tenantId);
+  const { data, error } = await query.maybeSingle();
 
   if (error) {
     console.error("Error fetching organizer:", error);

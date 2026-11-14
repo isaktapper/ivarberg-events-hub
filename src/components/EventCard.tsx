@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatLocation } from "@/lib/locationUtils";
 import { usePostHog } from "posthog-js/react";
+import { useSite } from "@/config/SiteProvider";
 
 interface EventCardProps {
   event: EventDisplay;
@@ -22,12 +23,13 @@ const createPreview = (markdown: string, maxLength: number = 150): string => {
 };
 
 export function EventCard({ event }: EventCardProps) {
+  const site = useSite();
   const mainCategory = getMainCategory(event);
   const chip = getCategoryChipColor(mainCategory);
   const locationInfo = formatLocation(event.venue_name, event.location);
 
   // SEO-friendly alt text with event details
-  const imageAlt = `${event.title} - ${mainCategory} evenemang i Varberg ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  const imageAlt = `${event.title} - ${mainCategory} evenemang i ${site.cityName} ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 
   return (
     <div className="event-card group cursor-pointer">
@@ -50,7 +52,7 @@ export function EventCard({ event }: EventCardProps) {
       
       <div className="p-6">
         <div className="mb-4">
-          <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200" style={{ color: '#10214B' }}>{event.title}</h3>
+          <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200" style={{ color: 'hsl(var(--ink))' }}>{event.title}</h3>
           {event.isFeatured && (
             <div className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full">
               ✨ Marknadsfört event

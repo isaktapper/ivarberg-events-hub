@@ -1,9 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { CATEGORIES, AREAS } from './_lib/constants';
 import { SEASONS } from './_lib/seasons';
+import { getSite, municipalityQuery } from '../src/config/site.server';
 
 // Denna funktion genererar en dynamisk sitemap med alla events
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Domän, påslagna delar och kommunfilter kommer från stadskonfigurationen
+  const site = await getSite();
+  const SITE = site.url;
+  const { guides, seasons, taxonomyPages } = site.features;
+
   try {
     // Hämta Supabase credentials från environment variables
     const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -16,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         // Endast kommande event – passerade event ska inte fylla sitemapen
         const today = new Date().toISOString().split('T')[0];
-        const eventsResponse = await fetch(`${supabaseUrl}/rest/v1/events?status=eq.published&date_time=gte.${today}&select=event_id,updated_at,date_time&limit=5000`, {
+        const eventsResponse = await fetch(`${supabaseUrl}/rest/v1/events?status=eq.published&date_time=gte.${today}&select=event_id,updated_at,date_time&limit=5000${municipalityQuery(site)}`, {
           headers: {
             'apikey': supabaseKey,
             'Authorization': `Bearer ${supabaseKey}`,
@@ -42,86 +48,93 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Statiska sidor
     const staticPages = [
       { 
-        url: 'https://ivarberg.nu/', 
+        url: `${SITE}/`, 
         priority: '1.0', 
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
       {
-        url: 'https://ivarberg.nu/idag',
+        url: `${SITE}/idag`,
         priority: '0.9',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
       {
-        url: 'https://ivarberg.nu/imorgon',
+        url: `${SITE}/imorgon`,
         priority: '0.9',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
       {
-        url: 'https://ivarberg.nu/i-helgen',
+        url: `${SITE}/i-helgen`,
         priority: '0.9',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
       {
-        url: 'https://ivarberg.nu/i-veckan',
+        url: `${SITE}/i-veckan`,
         priority: '0.9',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
       {
-        url: 'https://ivarberg.nu/evenemang-varberg',
+        url: `${SITE}/evenemang-varberg`,
         priority: '0.9',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
       {
-        url: 'https://ivarberg.nu/att-gora-i-varberg',
+        url: `${SITE}/att-gora-i-varberg`,
         priority: '0.9',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
       {
-        url: 'https://ivarberg.nu/varberg-kalender',
+        url: `${SITE}/varberg-kalender`,
         priority: '0.9',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       },
       // Säsongssidorna (jul, sommar, loven …)
       ...SEASONS.map((season) => ({
-        url: `https://ivarberg.nu/${season.slug}`,
+        url: `${SITE}/${season.slug}`,
         priority: '0.9',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       })),
       // Kategori- och områdessidor (serverrenderade, dagsfärsk eventdata)
       ...CATEGORIES.map((c) => ({
-        url: `https://ivarberg.nu/kategori/${c.slug}`,
+        url: `${SITE}/kategori/${c.slug}`,
         priority: '0.8',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       })),
       ...AREAS.map((a) => ({
-        url: `https://ivarberg.nu/omrade/${a.slug}`,
+        url: `${SITE}/omrade/${a.slug}`,
         priority: '0.7',
         changefreq: 'daily',
         lastmod: new Date().toISOString().split('T')[0]
       })),
       {
-        url: 'https://ivarberg.nu/om-oss', 
+        url: `${SITE}/om-oss`, 
         priority: '0.7', 
         changefreq: 'monthly',
         lastmod: new Date().toISOString().split('T')[0]
       },
       { 
-        url: 'https://ivarberg.nu/tips', 
+        url: `${SITE}/tips`, 
         priority: '0.8', 
         changefreq: 'monthly',
         lastmod: new Date().toISOString().split('T')[0]
       }
-    ];
+    ].filter((page) => {
+      // Delar som är avstängda för staden (svarar 404) ska inte stå i sitemapen
+      const path = page.url.slice(SITE.length);
+      if (path === '/' || path === '/om-oss' || path === '/tips') return true;
+      if (path.startsWith('/kategori/') || path.startsWith('/omrade/')) return taxonomyPages;
+      if (SEASONS.some((season) => path === `/${season.slug}`)) return seasons;
+      return guides;
+    });
 
     // Generera sitemap XML
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -133,7 +146,7 @@ ${staticPages.map(page => `  <url>
     <priority>${page.priority}</priority>
   </url>`).join('\n')}
 ${events && events.length > 0 ? events.map((event: any) => `  <url>
-    <loc>https://ivarberg.nu/event/${event.event_id}</loc>
+    <loc>${SITE}/event/${event.event_id}</loc>
     <lastmod>${event.updated_at ? new Date(event.updated_at).toISOString().split('T')[0] : new Date(event.date_time).toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -148,51 +161,74 @@ ${events && events.length > 0 ? events.map((event: any) => `  <url>
   } catch (error) {
     console.error('Error generating sitemap:', error);
     
-    // Fallback: returnera åtminstone de statiska sidorna
-    const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+    // En stad utan guider, säsonger och kategorisidor: bara de sidor som finns
+    if (!guides || !seasons || !taxonomyPages) {
+      res.setHeader('Content-Type', 'text/xml');
+      return res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ivarberg.nu/</loc>
+    <loc>${SITE}/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ivarberg.nu/evenemang-varberg</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://ivarberg.nu/att-gora-i-varberg</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://ivarberg.nu/varberg-kalender</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-${SEASONS.map((season) => `  <url>
-    <loc>https://ivarberg.nu/${season.slug}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-`).join('')}${CATEGORIES.map((c) => `  <url>
-    <loc>https://ivarberg.nu/kategori/${c.slug}</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>`).join('\n')}
-${AREAS.map((a) => `  <url>
-    <loc>https://ivarberg.nu/omrade/${a.slug}</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>`).join('\n')}
-  <url>
-    <loc>https://ivarberg.nu/om-oss</loc>
+    <loc>${SITE}/om-oss</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ivarberg.nu/tips</loc>
+    <loc>${SITE}/tips</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>`);
+    }
+
+    // Fallback: returnera åtminstone de statiska sidorna
+    const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${SITE}/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${SITE}/evenemang-varberg</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${SITE}/att-gora-i-varberg</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${SITE}/varberg-kalender</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+${SEASONS.map((season) => `  <url>
+    <loc>${SITE}/${season.slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+`).join('')}${CATEGORIES.map((c) => `  <url>
+    <loc>${SITE}/kategori/${c.slug}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('\n')}
+${AREAS.map((a) => `  <url>
+    <loc>${SITE}/omrade/${a.slug}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
+  <url>
+    <loc>${SITE}/om-oss</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${SITE}/tips</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

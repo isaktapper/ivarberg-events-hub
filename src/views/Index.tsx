@@ -12,7 +12,7 @@ import { DayStrip } from "@/components/home/DayStrip";
 import { ArrowRightIcon } from "@/components/home/icons";
 import { addDays, dayHeading, startOfDay, ymd, type HomeRow } from "@/lib/homeRows";
 import { DateFilter } from "@/components/DateFilter";
-import { LocationFilter } from "@/components/LocationFilter";
+import { ALL_LOCATIONS, LocationFilter } from "@/components/LocationFilter";
 import { Footer } from "@/components/Footer";
 import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { FAQSchema } from "@/components/FAQSchema";
@@ -20,7 +20,9 @@ import { InstagramPromoCard } from "@/components/InstagramPromoCard";
 import { NewsletterCard } from "@/components/NewsletterCard";
 import { useInstagramPromo } from "@/hooks/useInstagramPromo";
 import { getSortableDate, isEventStillRelevant } from "@/services/eventService";
-import { EventCategory, EventDisplay, hasCategory, EVENT_AREAS, eventMatchesArea } from "@/types/event";
+import { EventCategory, EventDisplay, hasCategory, eventMatchesArea } from "@/types/event";
+import { useSite } from "@/config/SiteProvider";
+import { VARBERG_SLUG } from "@/config/site";
 import { addTestEventsToState } from "@/testMultiCategoryEvents";
 import { categoriesToUrl, urlToCategories } from "@/lib/categoryUrls";
 import { HALLOWEEN_THEME, isHalloweenEvent } from "@/lib/seasonal";
@@ -51,6 +53,11 @@ interface IndexProps {
 }
 
 const Index = ({ initialEvents, rows }: IndexProps) => {
+  const site = useSite();
+  const city = site.cityName;
+  // Områdesfiltret visas bara för städer som har områden
+  const showAreaFilter = site.features.areaFilter && site.areas.length > 0;
+  const isKnownArea = (value: string | null): value is string => showAreaFilter && !!value && site.areas.includes(value);
   const [searchParams, setSearchParams] = useSearchParams();
   // Sidan är cachad och serverrenderas utan query-sträng; filtren i URL:en
   // finns först efter hydreringen (se src/lib/router.tsx)
@@ -72,7 +79,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
   });
   const [selectedLocation, setSelectedLocation] = useState(() => {
     const locationParam = searchParams.get('location');
-    return locationParam && (EVENT_AREAS as readonly string[]).includes(locationParam) ? locationParam : "Hela Varberg";
+    return isKnownArea(locationParam) ? locationParam : ALL_LOCATIONS;
   });
   const [searchTerm, setSearchTerm] = useState(() => searchParams.get('search') || "");
   // Temafilter läses direkt från URL:en (?tema=halloween)
@@ -109,7 +116,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
 
     // Read location from URL (only known areas are accepted)
     const locationParam = searchParams.get('location');
-    if (locationParam && (EVENT_AREAS as readonly string[]).includes(locationParam)) {
+    if (isKnownArea(locationParam)) {
       setSelectedLocation(locationParam);
     }
 
@@ -158,13 +165,14 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
 
-  // Events hämtas på servern. Testevents används som tidigare bara om
-  // databasen inte gav något (utvecklingsläge / Supabase nere).
+  // Events hämtas på servern. Testevents (påhittade Varbergsevent) fylls bara
+  // i under lokal utveckling av ivarberg.nu. En ny stad utan event, eller en
+  // sajt vars databas är nere, ska visa tomt och aldrig påhittade event.
   useEffect(() => {
-    if (initialEvents.length === 0) {
+    if (initialEvents.length === 0 && process.env.NODE_ENV === "development" && site.slug === VARBERG_SLUG) {
       addTestEventsToState(setEvents);
     }
-  }, [initialEvents]);
+  }, [initialEvents, site.slug]);
 
   const handleCategoryToggle = (category: EventCategory) => {
     const newCategories = selectedCategories.includes(category)
@@ -240,18 +248,18 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
 
   // Location filter ("Hela Varberg" = inget filter)
   const filteredEvents = useMemo(() => {
-    if (selectedLocation === "Hela Varberg") return preLocationEvents;
+    if (selectedLocation === ALL_LOCATIONS) return preLocationEvents;
     return preLocationEvents.filter((event) => eventMatchesArea(event, selectedLocation));
   }, [preLocationEvents, selectedLocation]);
 
   // Antal events per område, med övriga filter applicerade (visas i områdesfiltret)
   const areaCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const area of EVENT_AREAS) {
+    for (const area of site.areas) {
       counts[area] = preLocationEvents.filter((event) => eventMatchesArea(event, area)).length;
     }
     return counts;
-  }, [preLocationEvents]);
+  }, [preLocationEvents, site.areas]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
@@ -339,7 +347,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
 
   const hasActiveFilters =
     selectedCategories.length > 0 || !!selectedDate || !!dateRange || !!searchTerm.trim() || !!theme ||
-    selectedLocation !== "Hela Varberg";
+    selectedLocation !== ALL_LOCATIONS;
 
   // Temafilter från hero (t.ex. halloween) – rensar övriga filter och sätter ?tema=
   const handleThemeSelect = (theme: string) => {
@@ -401,38 +409,38 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
   // Dynamic SEO metadata based on filters
   const getPageTitle = () => {
     if (selectedCategories.length === 1) {
-      return `${selectedCategories[0]} Evenemang i Varberg | ivarberg.nu`;
+      return `${selectedCategories[0]} Evenemang i ${city} | ${site.name}`;
     }
     if (selectedDate) {
-      return `Evenemang i Varberg ${selectedDate.toLocaleDateString('sv-SE')} | ivarberg.nu`;
+      return `Evenemang i ${city} ${selectedDate.toLocaleDateString('sv-SE')} | ${site.name}`;
     }
     if (dateRange) {
-      return `Evenemang i Varberg - Kommande händelser | ivarberg.nu`;
+      return `Evenemang i ${city} - Kommande händelser | ${site.name}`;
     }
-    return 'Evenemang i Varberg - Din kompletta eventkalender | ivarberg.nu';
+    return `Evenemang i ${city} - Din kompletta eventkalender | ${site.name}`;
   };
 
   const getPageDescription = () => {
     if (selectedCategories.length === 1) {
-      return `Upptäck alla ${selectedCategories[0]} evenemang i Varberg. Hitta konserter, teater, sport och aktiviteter. Uppdateras dagligen med nya evenemang.`;
+      return `Upptäck alla ${selectedCategories[0]} evenemang i ${city}. Hitta konserter, teater, sport och aktiviteter. Uppdateras dagligen med nya evenemang.`;
     }
     if (selectedDate) {
-      return `Se alla evenemang i Varberg ${selectedDate.toLocaleDateString('sv-SE')}. Fullständig översikt över vad som händer i Varberg idag och framåt.`;
+      return `Se alla evenemang i ${city} ${selectedDate.toLocaleDateString('sv-SE')}. Fullständig översikt över vad som händer i ${city} idag och framåt.`;
     }
-    return 'Din kompletta guide till Varbergs evenemang. Upptäck konserter, teater, sport, restauranger och aktiviteter för hela familjen. Uppdateras dagligen!';
+    return `Din kompletta guide till ${site.cityGenitive} evenemang. Upptäck konserter, teater, sport, restauranger och aktiviteter för hela familjen. Uppdateras dagligen!`;
   };
 
   const getH1Text = () => {
     if (theme === HALLOWEEN_THEME) {
-      return 'Halloween i Varberg';
+      return `Halloween i ${city}`;
     }
     if (selectedCategories.length === 1) {
-      return `${selectedCategories[0]} Evenemang i Varberg`;
+      return `${selectedCategories[0]} Evenemang i ${city}`;
     }
     if (selectedDate) {
-      return `Evenemang i Varberg ${selectedDate.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+      return `Evenemang i ${city} ${selectedDate.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })}`;
     }
-    return 'Evenemang i Varberg - Upptäck vad som händer';
+    return `Evenemang i ${city} - Upptäck vad som händer`;
   };
 
   // ---- Nya startsidan: rader per period + "Alla evenemang" ----
@@ -523,7 +531,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
       )
         continue;
       if (selectedCategories.length > 0 && !selectedCategories.some((c) => hasCategory(event, c))) continue;
-      if (selectedLocation !== "Hela Varberg" && !eventMatchesArea(event, selectedLocation)) continue;
+      if (selectedLocation !== ALL_LOCATIONS && !eventMatchesArea(event, selectedLocation)) continue;
       const key = ymd(event.date);
       counts[key] = (counts[key] ?? 0) + 1;
       total++;
@@ -593,7 +601,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
       active ? "bg-ink text-white" : "bg-[#F4F5F7] text-ink hover:bg-[#E9ECF0]"
     }`;
 
-  const listTitle = theme === HALLOWEEN_THEME ? "Halloween i Varberg" : "Alla evenemang";
+  const listTitle = theme === HALLOWEEN_THEME ? `Halloween i ${city}` : "Alla evenemang";
 
   const promoSlot =
     promo.showInline || promo.showPopup ? (
@@ -613,23 +621,23 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
       <Helmet>
         <title>{getPageTitle()}</title>
         <meta name="description" content={getPageDescription()} />
-        <meta name="keywords" content="evenemang Varberg, Varberg event, att göra Varberg, vad göra Varberg, Varberg kalender, events Varberg, Varberg aktiviteter" />
+        <meta name="keywords" content={`evenemang ${city}, ${city} event, att göra ${city}, vad göra ${city}, ${city} kalender, events ${city}, ${city} aktiviteter`} />
         
         {/* Open Graph */}
         <meta property="og:title" content={getPageTitle()} />
         <meta property="og:description" content={getPageDescription()} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://ivarberg.nu" />
-        <meta property="og:image" content="https://ivarberg.nu/og-image.jpg" />
+        <meta property="og:url" content={site.url} />
+        {site.theme.ogImage && <meta property="og:image" content={site.theme.ogImage} />}
         <meta property="og:locale" content="sv_SE" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={getPageTitle()} />
         <meta name="twitter:description" content={getPageDescription()} />
-        <meta name="twitter:image" content="https://ivarberg.nu/og-image.jpg" />
+        {site.theme.ogImage && <meta name="twitter:image" content={site.theme.ogImage} />}
         
-        <link rel="canonical" href="https://ivarberg.nu/" />
+        <link rel="canonical" href={`${site.url}/`} />
       </Helmet>
       
       {/* Structured Data */}
@@ -667,7 +675,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
                     setSelectedCategories([]);
                     setSelectedDate(undefined);
                     setDateRange(undefined);
-                    setSelectedLocation("Hela Varberg");
+                    setSelectedLocation(ALL_LOCATIONS);
                     setSearchTerm("");
                     setSearchParams({});
                   }}
@@ -709,7 +717,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
 
             <div className="flex flex-col gap-3.5 lg:flex-row lg:items-start lg:gap-10">
               {/* Filter: knappar + kategorirad på mobil, panel till vänster på dator */}
-              <div className="flex gap-2 px-4 lg:hidden" ref={filtersRef}>
+              {showAreaFilter && <div className="flex gap-2 px-4 lg:hidden" ref={filtersRef}>
                 <div className="flex-1">
                   <LocationFilter
                     variant="plain"
@@ -717,11 +725,11 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
                     areaCounts={areaCounts}
                     onLocationChange={(location) => {
                       setSelectedLocation(location);
-                      updateUrlParams({ location: location !== "Hela Varberg" ? location : null });
+                      updateUrlParams({ location: location !== ALL_LOCATIONS ? location : null });
                     }}
                   />
                 </div>
-              </div>
+              </div>}
               <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 lg:hidden">
                 <button type="button" className={pillClass(selectedCategories.length === 0)} onClick={clearCategories}>
                   Alla
@@ -734,7 +742,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
               </div>
 
               <aside className="hidden w-[260px] shrink-0 flex-col gap-7 lg:sticky lg:top-[174px] lg:flex lg:max-h-[calc(100dvh-190px)] lg:overflow-y-auto">
-                <div className="flex flex-col gap-2.5">
+                {showAreaFilter && <div className="flex flex-col gap-2.5">
                   <h3 className="text-[15px] font-bold leading-5 text-ink">Område</h3>
                   <LocationFilter
                     variant="plain"
@@ -742,10 +750,10 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
                     areaCounts={areaCounts}
                     onLocationChange={(location) => {
                       setSelectedLocation(location);
-                      updateUrlParams({ location: location !== "Hela Varberg" ? location : null });
+                      updateUrlParams({ location: location !== ALL_LOCATIONS ? location : null });
                     }}
                   />
-                </div>
+                </div>}
                 <div className="flex flex-col gap-2.5">
                   <h3 className="text-[15px] font-bold leading-5 text-ink">Kategori</h3>
                   <div className="flex flex-wrap gap-2">

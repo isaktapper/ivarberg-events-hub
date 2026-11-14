@@ -1,6 +1,8 @@
 // Supabase REST-hämtning för de serverrenderade sidorna.
 // Utökad från api/landing.ts med area, organizer-embed samt kategori-/områdesfilter.
 
+import { getSite, municipalityQuery } from '../../src/config/site.server';
+
 export interface DbEvent {
   event_id: string;
   name: string;
@@ -64,6 +66,9 @@ export async function fetchEvents(opts: FetchEventsOpts): Promise<DbEvent[] | nu
         ? `&or=${encodeURIComponent(`(area.is.null,area.eq."${OVRIGA_KOMMUNEN}")`)}`
         : `&area=eq.${encodeURIComponent(opts.area)}`;
   }
+
+  // Bara stadens event (tomt när SITE_SLUG inte är satt)
+  url += municipalityQuery(await getSite());
 
   const res = await fetch(url, {
     headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },

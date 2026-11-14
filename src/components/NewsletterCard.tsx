@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePostHog } from "posthog-js/react";
 import { subscribeToNewsletter } from "@/services/eventService";
+import { useSite } from "@/config/SiteProvider";
 
 interface NewsletterCardProps {
   /** "light" = ljusblå ruta i listan, "dark" = i den mörka sidfoten */
@@ -16,6 +17,7 @@ interface NewsletterCardProps {
 // Torsdagsbrevet: anmälan direkt på sidan med bara e-postadress.
 export function NewsletterCard({ variant = "light", source, inputId = "torsdagsbrevet-epost" }: NewsletterCardProps) {
   const posthog = usePostHog();
+  const site = useSite();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export function NewsletterCard({ variant = "light", source, inputId = "torsdagsb
     if (isSubmitting) return;
     setError(null);
     setIsSubmitting(true);
-    const result = await subscribeToNewsletter(email);
+    const result = await subscribeToNewsletter(email, "", site.tenantId);
     if (result.success) {
       setSuccess(true);
       posthog?.capture("newsletter_subscribed", { source });
@@ -77,12 +79,14 @@ export function NewsletterCard({ variant = "light", source, inputId = "torsdagsb
     </form>
   );
 
+  if (!site.features.newsletter) return null;
+
   if (dark) {
     return (
       <div id="nyhetsbrev" className="mt-6 flex max-w-sm scroll-mt-24 flex-col gap-3">
         <div>
           <p className="text-[15px] font-semibold text-white">Torsdagsbrevet</p>
-          <p className="mt-0.5 text-sm text-sand/75">Helgen i Varberg i din inkorg, varje torsdag.</p>
+          <p className="mt-0.5 text-sm text-sand/75">{`Helgen i ${site.cityName} i din inkorg, varje torsdag.`}</p>
         </div>
         {form}
       </div>
@@ -97,7 +101,7 @@ export function NewsletterCard({ variant = "light", source, inputId = "torsdagsb
       <div className="lg:max-w-[30rem]">
         <span className="text-[13px] font-semibold leading-4 text-[#0F4C81]">Torsdagsbrevet</span>
         <h3 id={`${inputId}-rubrik`} className="mt-1 text-lg font-bold leading-6 text-ink">
-          Helgen i Varberg, varje torsdag
+          {`Helgen i ${site.cityName}, varje torsdag`}
         </h3>
         <p className="mt-1 text-sm leading-[21px] text-ink-soft">
           Ett mejl i veckan med tre saker vi inte skulle missa i helgen.

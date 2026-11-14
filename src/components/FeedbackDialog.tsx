@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { useSite } from "@/config/SiteProvider";
 
 type Verdict = "gillar" | "gillar_inte";
 
@@ -20,6 +21,7 @@ const FIELD =
 // "Tyck till": gillar / gillar inte, och frivilligt en kommentar och en e-postadress för svar.
 export function FeedbackDialog({ open, onOpenChange, onSent }: FeedbackDialogProps) {
   const posthog = usePostHog();
+  const site = useSite();
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [comment, setComment] = useState("");
   const [email, setEmail] = useState("");
@@ -97,7 +99,7 @@ export function FeedbackDialog({ open, onOpenChange, onSent }: FeedbackDialogPro
         ) : (
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
             <div className="pr-6">
-              <DialogTitle className="text-xl font-bold leading-7 tracking-normal">Vad tycker du om nya ivarberg.nu?</DialogTitle>
+              <DialogTitle className="text-xl font-bold leading-7 tracking-normal">{`Vad tycker du om nya ${site.name}?`}</DialogTitle>
               <DialogDescription className="sr-only">
                 Välj om du gillar det eller inte. Kommentar och e-postadress är frivilligt.
               </DialogDescription>

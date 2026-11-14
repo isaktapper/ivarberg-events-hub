@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Instagram } from "lucide-react";
-import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/constants";
+import { useSite } from "@/config/SiteProvider";
 
 interface InstagramPromoCardProps {
   onShown: () => void;
@@ -11,6 +11,7 @@ interface InstagramPromoCardProps {
 
 // Inline-variant av Instagram-promon – renderas som ett kort mitt i eventflödet.
 export function InstagramPromoCard({ onShown, onClick }: InstagramPromoCardProps) {
+  const site = useSite();
   const rootRef = useRef<HTMLDivElement>(null);
   const hasShownRef = useRef(false);
 
@@ -33,6 +34,8 @@ export function InstagramPromoCard({ onShown, onClick }: InstagramPromoCardProps
     return () => observer.disconnect();
   }, [onShown]);
 
+  if (!site.features.instagram || !site.contact.instagramUrl) return null;
+
   return (
     <div ref={rootRef} className="rounded-2xl bg-navy p-4 sm:p-5">
       <div className="flex items-center gap-3 sm:gap-4">
@@ -42,15 +45,15 @@ export function InstagramPromoCard({ onShown, onClick }: InstagramPromoCardProps
 
         <div className="min-w-0 flex-1">
           <p className="text-sm sm:text-base font-semibold text-sand leading-snug">
-            Missa inget i Varberg
+            {`Missa inget i ${site.cityName}`}
           </p>
           <p className="text-xs sm:text-sm text-sand/70 mt-0.5">
-            Följ {INSTAGRAM_HANDLE} på Instagram för dagliga eventtips
+            Följ {site.contact.instagramHandle ?? "oss"} på Instagram för dagliga eventtips
           </p>
         </div>
 
         <a
-          href={INSTAGRAM_URL}
+          href={site.contact.instagramUrl}
           target="_blank"
           rel="noopener noreferrer"
           onClick={onClick}

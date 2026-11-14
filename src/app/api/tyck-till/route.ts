@@ -1,5 +1,7 @@
 // Tar emot svar från "Tyck till"-rutan och sparar dem i tabellen site_feedback.
 
+import { getSite, tenantFields } from "@/config/site.server";
+
 export const dynamic = "force-dynamic";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -41,7 +43,7 @@ export async function POST(request: Request): Promise<Response> {
       "Content-Type": "application/json",
       Prefer: "return=minimal",
     },
-    body: JSON.stringify({ verdict, comment: comment || null, email: email || null, page: page || null }),
+    body: JSON.stringify({ verdict, comment: comment || null, email: email || null, page: page || null, ...tenantFields(await getSite()) }),
   });
   if (res.ok) return Response.json({ ok: true });
 

@@ -1,26 +1,30 @@
 import type { Metadata } from "next";
 import About from "@/views/About";
+import { getSite } from "@/config/site.server";
+import { VARBERG_SLUG } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: "Om oss - Evenemang i Varberg | ivarberg.nu",
-  description:
-    "ivarberg.nu är din kompletta guide till evenemang i Varberg. Vi samlar alla konserter, teater, sport och aktiviteter på ett ställe. Läs mer om vår vision och kontakta oss!",
-  keywords: "om ivarberg, evenemang Varberg, kontakt, arrangörer Varberg, event kalender Varberg",
-  alternates: { canonical: "https://ivarberg.nu/om-oss" },
-  openGraph: {
-    title: "Om oss - ivarberg.nu",
-    description:
-      "Din kompletta guide till evenemang i Varberg. Vi samlar alla konserter, teater, sport och aktiviteter på ett ställe.",
-    type: "website",
-    url: "https://ivarberg.nu/om-oss",
-    images: ["https://ivarberg.nu/og-image.jpg"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Om oss - ivarberg.nu",
-    description: "Din kompletta guide till evenemang i Varberg",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSite();
+  const city = site.cityName;
+  return {
+    title: `Om oss - Evenemang i ${city} | ${site.name}`,
+    description: `${site.name} är din kompletta guide till evenemang i ${city}. Vi samlar alla konserter, teater, sport och aktiviteter på ett ställe. Läs mer om vår vision och kontakta oss!`,
+    keywords: `om ${site.slug === VARBERG_SLUG ? "ivarberg" : site.name}, evenemang ${city}, kontakt, arrangörer ${city}, event kalender ${city}`,
+    alternates: { canonical: `${site.url}/om-oss` },
+    openGraph: {
+      title: `Om oss - ${site.name}`,
+      description: `Din kompletta guide till evenemang i ${city}. Vi samlar alla konserter, teater, sport och aktiviteter på ett ställe.`,
+      type: "website",
+      url: `${site.url}/om-oss`,
+      ...(site.theme.ogImage ? { images: [site.theme.ogImage] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Om oss - ${site.name}`,
+      description: `Din kompletta guide till evenemang i ${city}`,
+    },
+  };
+}
 
 export default function AboutPage() {
   return <About />;

@@ -8,6 +8,8 @@ import { HALLOWEEN_THEME, isHalloweenEvent, isHalloweenSeason } from "@/lib/seas
 import { addDays, startOfDay, ymd } from "@/lib/homeRows";
 import { seasonPromo } from "../../legacy-api/_lib/seasons";
 import { stockholmToday } from "../../legacy-api/_lib/dates";
+import { useSite } from "@/config/SiteProvider";
+import { VARBERG_SLUG } from "@/config/site";
 
 const WEEKDAYS = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag"];
 const MONTHS = ["januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"];
@@ -35,9 +37,13 @@ const QUICK_ICON = "h-4 w-4 shrink-0 min-[480px]:h-[18px] min-[480px]:w-[18px]";
 // Bild kant till kant som tonar ut i vitt, med dagens siffror och fyra snabbknappar.
 export function Hero({ events, onThemeSelect, onDateRange, onFamily }: HeroProps) {
   const posthog = usePostHog();
+  const site = useSite();
   const halloween = isHalloweenSeason();
-  // Länk till aktuell säsongssida (jul, sportlov, sommar …) – under halloween har temat redan en egen knapp
-  const promo = halloween ? null : seasonPromo(stockholmToday());
+  // Länk till aktuell säsongssida (jul, sportlov, sommar …) – under halloween har temat redan en egen knapp.
+  // Säsongssidorna finns bara för städer med delen påslagen.
+  const promo = halloween || !site.features.seasons ? null : seasonPromo(stockholmToday());
+  // Halloweenbilden är Varbergs. Städer utan egen bild får en enfärgad mörk yta.
+  const heroImage = halloween && site.slug === VARBERG_SLUG ? "/hero_halloween.webp" : site.theme.heroImage;
 
   const today = startOfDay(new Date());
   const weekday = today.getDay();
@@ -70,10 +76,8 @@ export function Hero({ events, onThemeSelect, onDateRange, onFamily }: HeroProps
     <section className="relative overflow-hidden bg-white">
       {/* Bilden slutar en bit ovanför kanten så att övergången alltid landar i rent vitt */}
       <div
-        className="absolute inset-x-0 top-0 bottom-6 bg-cover bg-center"
-        style={{
-          backgroundImage: halloween ? "url('/hero_halloween.webp')" : "url('/hero_host.webp')",
-        }}
+        className={`absolute inset-x-0 top-0 bottom-6 bg-cover bg-center${heroImage ? "" : " bg-navy"}`}
+        style={heroImage ? { backgroundImage: `url('${heroImage}')` } : undefined}
       >
         {/* Mörkt upptill för läsbarhet, tonar sedan ut i sidans vita bakgrund */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/0" />
@@ -86,7 +90,7 @@ export function Hero({ events, onThemeSelect, onDateRange, onFamily }: HeroProps
       <div className="relative mx-auto max-w-[1280px] px-4 pb-24 pt-12 text-center sm:pb-32 sm:pt-16 lg:pb-40 lg:pt-20">
         <div className="flex flex-col items-center gap-3 lg:gap-4">
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)] sm:text-5xl lg:text-7xl">
-            Vad händer i Varberg?
+            {site.seo.heroHeading}
           </h1>
           {/* Datum och antal räknas i besökarens tidszon, därav suppressHydrationWarning */}
           <p className="max-w-xl text-base font-medium leading-snug text-white/90 drop-shadow-md lg:text-xl">

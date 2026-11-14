@@ -35,7 +35,7 @@ export function HeaderSearchTrigger({ onClick, showLabel = false }: { onClick: (
       onClick={onClick}
       aria-label="Sök evenemang"
       className={`relative z-20 flex items-center gap-1.5 px-2 py-2 text-sm font-medium transition-colors cursor-pointer ${
-        showLabel ? 'text-neutral-600 hover:text-[#10214B]' : 'text-black'
+        showLabel ? 'text-neutral-600 hover:text-ink' : 'text-black'
       }`}
     >
       <Search className={showLabel ? "h-5 w-5" : "h-6 w-6"} />
@@ -248,7 +248,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
           className="relative"
         >
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none z-10"
-            style={{ color: '#10214B', opacity: 0.6 }}
+            style={{ color: 'hsl(var(--ink))', opacity: 0.6 }}
           />
           <input
             ref={inputRef}
@@ -263,7 +263,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
             placeholder="Hitta något roligt..."
             className="w-full pl-10 pr-10 py-3 text-base rounded-lg border bg-white shadow-2xl focus:outline-none focus:ring-2 [&::-webkit-search-cancel-button]:hidden"
             style={{
-              color: '#10214B',
+              color: 'hsl(var(--ink))',
               borderColor: 'rgba(15, 90, 166, 0.9)',
               fontSize: '16px' // Förhindrar iOS zoom
             }}
@@ -273,7 +273,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
             type="button"
             onClick={close}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:opacity-100 transition-opacity z-10"
-            style={{ color: '#10214B', opacity: 0.6 }}
+            style={{ color: 'hsl(var(--ink))', opacity: 0.6 }}
             aria-label="Stäng sökning"
           >
             ✕
@@ -295,7 +295,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
             {/* Kategorier */}
             {suggestions.filter(s => s.type === 'category').length > 0 && (
               <div className="px-3 pt-3 pb-1">
-                <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#10214B', opacity: 0.5 }}>
+                <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'hsl(var(--ink))', opacity: 0.5 }}>
                   Kategorier
                 </div>
                 {suggestions.filter(s => s.type === 'category').map((suggestion, idx) => {
@@ -307,7 +307,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${
                         selectedIndex === globalIndex ? 'bg-blue-50' : 'hover:bg-gray-50'
                       }`}
-                      style={{ color: '#10214B' }}
+                      style={{ color: 'hsl(var(--ink))' }}
                     >
                       <Tag className="h-4 w-4 flex-shrink-0" style={{ color: '#0F5AA6' }} />
                       <span className="font-medium flex-1">
@@ -325,7 +325,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
             {/* Platser */}
             {suggestions.filter(s => s.type === 'venue').length > 0 && (
               <div className="px-3 pt-3 pb-1 border-t" style={{ borderColor: 'rgba(0,0,0,0.05)' }}>
-                <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#10214B', opacity: 0.5 }}>
+                <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'hsl(var(--ink))', opacity: 0.5 }}>
                   Platser
                 </div>
                 {suggestions.filter(s => s.type === 'venue').map((suggestion, idx) => {
@@ -337,7 +337,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${
                         selectedIndex === globalIndex ? 'bg-blue-50' : 'hover:bg-gray-50'
                       }`}
-                      style={{ color: '#10214B' }}
+                      style={{ color: 'hsl(var(--ink))' }}
                     >
                       <MapPin className="h-4 w-4 flex-shrink-0" style={{ color: '#E87C3E' }} />
                       <span className="font-medium flex-1">
@@ -355,7 +355,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
             {/* Evenemang */}
             {suggestions.filter(s => s.type === 'event').length > 0 && (
               <div className="px-3 pt-3 pb-1 border-t" style={{ borderColor: 'rgba(0,0,0,0.05)' }}>
-                <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#10214B', opacity: 0.5 }}>
+                <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'hsl(var(--ink))', opacity: 0.5 }}>
                   Evenemang
                 </div>
                 {suggestions.filter(s => s.type === 'event').map((suggestion, idx) => {
@@ -367,7 +367,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${
                         selectedIndex === globalIndex ? 'bg-blue-50' : 'hover:bg-gray-50'
                       }`}
-                      style={{ color: '#10214B' }}
+                      style={{ color: 'hsl(var(--ink))' }}
                     >
                       <Ticket className="h-4 w-4 flex-shrink-0" style={{ color: '#22C55E' }} />
                       <div className="flex-1 min-w-0">
@@ -375,12 +375,12 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
                           {suggestion.label}
                         </div>
                         {suggestion.subLabel && (
-                          <div className="text-xs truncate" style={{ color: '#10214B', opacity: 0.6 }}>
+                          <div className="text-xs truncate" style={{ color: 'hsl(var(--ink))', opacity: 0.6 }}>
                             {suggestion.subLabel}
                           </div>
                         )}
                       </div>
-                      <span className="text-xs" style={{ color: '#10214B', opacity: 0.4 }}>→</span>
+                      <span className="text-xs" style={{ color: 'hsl(var(--ink))', opacity: 0.4 }}>→</span>
                     </button>
                   );
                 })}
@@ -414,7 +414,7 @@ export function HeaderSearchOverlay({ open, onClose }: { open: boolean; onClose:
               backgroundColor: 'rgba(255, 255, 255, 0.98)',
               borderColor: 'rgba(15, 90, 166, 0.3)',
               backdropFilter: 'blur(16px)',
-              color: '#10214B'
+              color: 'hsl(var(--ink))'
             }}
           >
             <p className="text-sm" style={{ opacity: 0.7 }}>

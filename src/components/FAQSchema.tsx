@@ -1,12 +1,18 @@
 "use client";
 
 import { Helmet } from "@/lib/helmet";
+import { useSite } from "@/config/SiteProvider";
+import { VARBERG_SLUG } from "@/config/site";
 
 /**
  * FAQ Schema for ivarberg.nu
  * Helps Google show rich results with common questions about Varberg events
  */
 export function FAQSchema() {
+  const site = useSite();
+  // Frågorna och svaren är skrivna för Varberg. Andra städer får inget FAQ-schema.
+  if (site.slug !== VARBERG_SLUG) return null;
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",

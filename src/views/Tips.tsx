@@ -22,6 +22,7 @@ import {
 } from "@/lib/tipDraft";
 import { TipReview } from "@/components/tips/TipReview";
 import { CategoryChips, TipImage, fieldInput, fieldLabel, primaryButton, secondaryButton, textButton } from "@/components/tips/ui";
+import { useSite } from "@/config/SiteProvider";
 
 // Tipsflödet: länk eller bild först, AI fyller i, tipsaren granskar och skickar.
 // "Fyll i själv" finns kvar som en diskret väg. Design: se ritytan
@@ -34,6 +35,8 @@ const MISSING_WORDS = { name: "namn", when: "datum", location: "plats" } as cons
 
 const Tips = () => {
   const posthog = usePostHog();
+  const site = useSite();
+  const city = site.cityName;
   const [step, setStep] = useState<Step>("start");
   const [method, setMethod] = useState<Method>("link");
   const [linkUrl, setLinkUrl] = useState("");
@@ -227,7 +230,7 @@ const Tips = () => {
   const selectedDrafts = drafts.filter((_, index) => selected[index]);
   const selectedIncomplete = selectedDrafts.some((draft) => missingFields(draft).length > 0);
 
-  const heading = "text-[26px] leading-tight font-bold text-[#10214B] focus:outline-none";
+  const heading = "text-[26px] leading-tight font-bold text-ink focus:outline-none";
   const lead = "text-base leading-relaxed text-[#3D4660]";
   const note = "text-[13px] text-[#5B6478] text-center";
   const backLink =
@@ -236,22 +239,22 @@ const Tips = () => {
   return (
     <>
       <Helmet>
-        <title>Tipsa oss om evenemang - Varberg | ivarberg.nu</title>
+        <title>{`Tipsa oss om evenemang - ${city} | ${site.name}`}</title>
         <meta
           name="description"
-          content="Tipsa oss om evenemang i Varberg! Klistra in en länk eller ta en bild på affischen, så fyller vi i resten. Kostnadsfritt att lägga till evenemang på ivarberg.nu."
+          content={`Tipsa oss om evenemang i ${city}! Klistra in en länk eller ta en bild på affischen, så fyller vi i resten. Kostnadsfritt att lägga till evenemang på ${site.name}.`}
         />
-        <meta name="keywords" content="tipsa evenemang Varberg, lägg till event Varberg, publicera evenemang Varberg, arrangörer Varberg" />
-        <meta property="og:title" content="Tipsa oss om evenemang - ivarberg.nu" />
-        <meta property="og:description" content="Hjälp andra att upptäcka evenemang i Varberg. Kostnadsfritt att lägga till evenemang!" />
+        <meta name="keywords" content={`tipsa evenemang ${city}, lägg till event ${city}, publicera evenemang ${city}, arrangörer ${city}`} />
+        <meta property="og:title" content={`Tipsa oss om evenemang - ${site.name}`} />
+        <meta property="og:description" content={`Hjälp andra att upptäcka evenemang i ${city}. Kostnadsfritt att lägga till evenemang!`} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://ivarberg.nu/tips" />
+        <meta property="og:url" content={`${site.url}/tips`} />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Tipsa oss om evenemang - ivarberg.nu" />
-        <link rel="canonical" href="https://ivarberg.nu/tips" />
+        <meta name="twitter:title" content={`Tipsa oss om evenemang - ${site.name}`} />
+        <link rel="canonical" href={`${site.url}/tips`} />
       </Helmet>
 
-      <div className="min-h-screen bg-white text-[#10214B]">
+      <div className="min-h-screen bg-white text-ink">
         <Header />
         <input
           ref={fileInputRef}
@@ -317,7 +320,7 @@ const Tips = () => {
                       type="submit"
                       aria-label="Hämta uppgifter från länken"
                       disabled={!linkUrl.trim()}
-                      className="h-[52px] w-[52px] flex-none rounded-xl bg-[#10214B] text-white flex items-center justify-center hover:bg-[#1B2F66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0F5AA6] disabled:bg-[#8A93A6]"
+                      className="h-[52px] w-[52px] flex-none rounded-xl bg-ink text-white flex items-center justify-center hover:bg-[#1B2F66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0F5AA6] disabled:bg-[#8A93A6]"
                     >
                       <ArrowRight className="h-[22px] w-[22px]" aria-hidden="true" />
                     </button>
@@ -456,7 +459,7 @@ const Tips = () => {
                       <label className="flex-1 min-w-0 min-h-[60px] flex items-center gap-3 cursor-pointer">
                         <input
                           type="checkbox"
-                          className="h-6 w-6 flex-none accent-[#10214B]"
+                          className="h-6 w-6 flex-none accent-ink"
                           checked={!!selected[index]}
                           onChange={(e) => setSelected((prev) => prev.map((value, i) => (i === index ? e.target.checked : value)))}
                         />
@@ -530,7 +533,7 @@ const Tips = () => {
                 <ol className="flex flex-col gap-2.5 text-[15px] leading-snug">
                   {["Öppna inlägget i Facebook eller Instagram.", "Ta en skärmbild där datum och plats syns.", "Kom tillbaka hit och välj bilden."].map((text, index) => (
                     <li key={text} className="flex gap-2.5">
-                      <span aria-hidden="true" className="flex-none h-6 w-6 rounded-full bg-[#10214B] text-white text-[13px] font-semibold flex items-center justify-center">
+                      <span aria-hidden="true" className="flex-none h-6 w-6 rounded-full bg-ink text-white text-[13px] font-semibold flex items-center justify-center">
                         {index + 1}
                       </span>
                       <span>{text}</span>
@@ -708,6 +711,7 @@ function ManualForm({
   headingRef: React.RefObject<HTMLHeadingElement | null>;
   classes: { heading: string; backLink: string; note: string };
 }) {
+  const site = useSite();
   const [showErrors, setShowErrors] = useState(false);
   const missing = missingFields(draft);
   const errorFor = (field: "name" | "when" | "location", text: string) =>
@@ -770,7 +774,7 @@ function ManualForm({
           id="tips-m-location"
           className={fieldInput}
           maxLength={200}
-          placeholder="Till exempel Varbergs Teater"
+          placeholder={`Till exempel ${site.cityGenitive} Teater`}
           value={draft.location}
           onChange={(e) => onChange({ ...draft, location: e.target.value })}
         />

@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useFeatureFlagVariantKey, usePostHog } from "posthog-js/react";
+import { useSite } from "@/config/SiteProvider";
 
 export type InstagramPromoPlacement = "home_feed";
 
@@ -43,6 +44,8 @@ function persistPopupDismissal() {
  */
 export function useInstagramPromo() {
   const posthog = usePostHog();
+  // Städer utan Instagram visar aldrig promon
+  const enabled = useSite().features.instagram;
   const variant = useFeatureFlagVariantKey(FLAG_KEY);
   const [popupSuppressed, setPopupSuppressed] = useState(readPopupSuppressed);
 
@@ -74,8 +77,8 @@ export function useInstagramPromo() {
   );
 
   return {
-    showInline: variant === "inline",
-    showPopup: variant === "popup" && !popupSuppressed,
+    showInline: enabled && variant === "inline",
+    showPopup: enabled && variant === "popup" && !popupSuppressed,
     trackShown,
     trackClicked,
     trackDismissed,

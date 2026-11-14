@@ -20,7 +20,7 @@ const GLASS_TRIGGER = {
   style: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
     borderColor: 'rgba(255, 255, 255, 0.5)',
-    color: '#10214B',
+    color: 'hsl(var(--ink))',
     backdropFilter: 'blur(12px)',
   },
   onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -31,7 +31,7 @@ const GLASS_TRIGGER = {
   onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
     e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-    e.currentTarget.style.color = '#10214B';
+    e.currentTarget.style.color = 'hsl(var(--ink))';
   },
 };
 
