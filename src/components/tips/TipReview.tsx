@@ -5,6 +5,7 @@ import { Pencil, Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { TipDraft, TipField, formatWhen, missingFields } from "@/lib/tipDraft";
 import { CategoryChips, TipImage, fieldInput, fieldLabel, primaryButton, textButton } from "./ui";
+import { useSite } from "@/config/SiteProvider";
 
 // Granska-kortet: en rad per uppgift. Trycker man på en rad öppnas ett ark
 // nerifrån med bara det fältet.
@@ -44,7 +45,7 @@ function Row({
       type="button"
       onClick={() => onEdit(field)}
       className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0F5AA6] ${
-        missing ? "bg-[#FFF3D1] text-[#4A3200] border-y border-[#E9C877]" : `bg-white text-[#10214B] hover:bg-[#F8F9FB] ${first ? "" : "border-t border-[#E3E6EC]"}`
+        missing ? "bg-[#FFF3D1] text-[#4A3200] border-y border-[#E9C877]" : `bg-white text-ink hover:bg-[#F8F9FB] ${first ? "" : "border-t border-[#E3E6EC]"}`
       }`}
     >
       <span className="min-w-0 flex flex-col items-start gap-0.5">
@@ -60,6 +61,7 @@ const value = "text-base font-semibold leading-snug break-words";
 const empty = "text-base leading-snug text-[#5B6478]";
 
 export function TipReview({ draft, onChange }: { draft: TipDraft; onChange: (next: TipDraft) => void }) {
+  const site = useSite();
   const [editing, setEditing] = useState<TipField | null>(null);
   const [temp, setTemp] = useState<TipDraft>(draft);
   const missing = missingFields(draft);
@@ -94,7 +96,7 @@ export function TipReview({ draft, onChange }: { draft: TipDraft; onChange: (nex
           {draft.categories.length > 0 ? (
             <span className="flex flex-wrap gap-1.5 pt-0.5">
               {draft.categories.map((category) => (
-                <span key={category} className="px-3 py-0.5 rounded-full bg-[#10214B] text-white text-sm font-medium">
+                <span key={category} className="px-3 py-0.5 rounded-full bg-ink text-white text-sm font-medium">
                   {category}
                 </span>
               ))}
@@ -116,7 +118,7 @@ export function TipReview({ draft, onChange }: { draft: TipDraft; onChange: (nex
         <SheetContent
           side="bottom"
           aria-describedby={undefined}
-          className="rounded-t-[20px] border-0 px-5 pt-6 pb-7 max-h-[90vh] overflow-y-auto sm:max-w-md sm:mx-auto text-[#10214B]"
+          className="rounded-t-[20px] border-0 px-5 pt-6 pb-7 max-h-[90vh] overflow-y-auto sm:max-w-md sm:mx-auto text-ink"
         >
           {editing && (
             <form
@@ -126,7 +128,7 @@ export function TipReview({ draft, onChange }: { draft: TipDraft; onChange: (nex
                 commit();
               }}
             >
-              <SheetTitle className="text-[22px] font-bold text-[#10214B] text-left">{SHEET_TITLES[editing]}</SheetTitle>
+              <SheetTitle className="text-[22px] font-bold text-ink text-left">{SHEET_TITLES[editing]}</SheetTitle>
 
               {editing === "name" && (
                 <div>
@@ -164,7 +166,7 @@ export function TipReview({ draft, onChange }: { draft: TipDraft; onChange: (nex
                     id="tip-edit-location"
                     className={fieldInput}
                     maxLength={200}
-                    placeholder="Till exempel Varbergs Teater"
+                    placeholder={`Till exempel ${site.cityGenitive} Teater`}
                     value={temp.location}
                     onChange={(e) => setTemp({ ...temp, location: e.target.value })}
                   />

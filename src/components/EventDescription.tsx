@@ -74,10 +74,10 @@ export function EventDescription({
     
     // Rubriker (h1 renderas som h2 – sidan ska bara ha en h1: eventtiteln)
     h1: ({ node, ...props }) => (
-      <h2 className="text-2xl font-bold mb-4 mt-6" style={{ color: '#10214B' }} {...props} />
+      <h2 className="text-2xl font-bold mb-4 mt-6" style={{ color: 'hsl(var(--ink))' }} {...props} />
     ),
     h2: ({ node, ...props }) => (
-      <h2 className="text-xl font-semibold mb-3 mt-5" style={{ color: '#10214B' }} {...props} />
+      <h2 className="text-xl font-semibold mb-3 mt-5" style={{ color: 'hsl(var(--ink))' }} {...props} />
     ),
     h3: ({ node, ...props }) => (
       <h3 className="text-lg font-semibold text-gray-800 mb-2 mt-4" {...props} />
@@ -96,7 +96,7 @@ export function EventDescription({
     
     // Fetstil och kursiv
     strong: ({ node, ...props }) => (
-      <strong className="font-semibold" style={{ color: '#10214B' }} {...props} />
+      <strong className="font-semibold" style={{ color: 'hsl(var(--ink))' }} {...props} />
     ),
     em: ({ node, ...props }) => (
       <em className="italic text-gray-600" {...props} />

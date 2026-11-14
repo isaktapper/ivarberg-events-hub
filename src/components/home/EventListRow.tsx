@@ -7,9 +7,11 @@ import { formatLocation } from "@/lib/locationUtils";
 import { timeText } from "@/lib/homeRows";
 import { EventDisplay, getCategoryChipColor, getMainCategory } from "@/types/event";
 import { ClockIcon, PinIcon } from "./icons";
+import { useSite } from "@/config/SiteProvider";
 
 // En rad i "Alla evenemang": bild, kategori, titel, tid och plats
 export function EventListRow({ event }: { event: EventDisplay }) {
+  const site = useSite();
   const posthog = usePostHog();
   const category = getMainCategory(event);
   const location = formatLocation(event.venue_name, event.location);
@@ -31,7 +33,7 @@ export function EventListRow({ event }: { event: EventDisplay }) {
     >
       <img
         src={optimizedImage(event.image, 320)}
-        alt={`${event.title} – ${category} i Varberg`}
+        alt={`${event.title} – ${category} i ${site.cityName}`}
         loading="lazy"
         decoding="async"
         className="h-[76px] w-[76px] shrink-0 rounded-[10px] bg-[#E9ECF0] object-cover lg:h-24 lg:w-24"

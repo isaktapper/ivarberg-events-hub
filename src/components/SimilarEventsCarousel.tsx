@@ -7,6 +7,7 @@ import { EventDisplay, getMainCategory, getCategoryChipColor } from "@/types/eve
 import { Button } from "@/components/ui/button";
 import { Link, useSearchParams } from "@/lib/router";
 import { formatLocation } from "@/lib/locationUtils";
+import { useSite } from "@/config/SiteProvider";
 
 interface SimilarEventsCarouselProps {
   events: EventDisplay[];
@@ -15,6 +16,7 @@ interface SimilarEventsCarouselProps {
 }
 
 export function SimilarEventsCarousel({ events, title = 'Liknande evenemang', onEventClick }: SimilarEventsCarouselProps) {
+  const site = useSite();
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [searchParams] = useSearchParams();
@@ -113,7 +115,7 @@ export function SimilarEventsCarousel({ events, title = 'Liknande evenemang', on
             const locationInfo = formatLocation(event.venue_name, event.location);
             const mainCategory = getMainCategory(event);
             const chip = getCategoryChipColor(mainCategory);
-            const imageAlt = `${event.title} - ${mainCategory} evenemang i Varberg ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}`;
+            const imageAlt = `${event.title} - ${mainCategory} evenemang i ${site.cityName} ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}`;
 
             const eventUrl = `/event/${event.id}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 

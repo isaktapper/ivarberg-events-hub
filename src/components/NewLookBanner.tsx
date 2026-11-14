@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
+import { useSite } from "@/config/SiteProvider";
+import { VARBERG_SLUG } from "@/config/site";
 
 const STORAGE_KEY = "ivarberg_ny_look_stangd";
 /** Sista dagen raden visas. Efter det är utseendet inte längre en nyhet. */
@@ -15,6 +17,7 @@ const HIDE_EARLY = `try{if(localStorage.getItem("${STORAGE_KEY}"))document.curre
 // Smal rad allra överst som berättar att sajten har fått nytt utseende. Går att stänga.
 export function NewLookBanner() {
   const posthog = usePostHog();
+  const site = useSite();
   const [closed, setClosed] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState(false);
@@ -49,6 +52,8 @@ export function NewLookBanner() {
     />
   );
 
+  // Nyheten gäller ivarberg.nu:s omgjorda utseende, inte andra städers sajter
+  if (site.slug !== VARBERG_SLUG) return null;
   if (closed || new Date().toISOString().slice(0, 10) > SHOW_UNTIL) return null;
 
 

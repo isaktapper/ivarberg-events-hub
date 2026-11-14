@@ -9,6 +9,7 @@ import { Link, useSearchParams } from "@/lib/router";
 import { formatLocation } from "@/lib/locationUtils";
 import { formatRelativeDate } from "@/lib/dateUtils";
 import { usePostHog } from "posthog-js/react";
+import { useSite } from "@/config/SiteProvider";
 
 interface EventListItemProps {
   event: EventDisplay;
@@ -20,6 +21,7 @@ interface EventListItemProps {
 const SHOW_CATEGORY_BADGE = false;
 
 export function EventListItem({ event, activeFilter }: EventListItemProps) {
+  const site = useSite();
   const posthog = usePostHog();
   const [searchParams] = useSearchParams();
   const locationInfo = formatLocation(event.venue_name, event.location);
@@ -40,7 +42,7 @@ export function EventListItem({ event, activeFilter }: EventListItemProps) {
   }
   
   // SEO-friendly alt text
-  const imageAlt = `${event.title} - ${displayCategory} evenemang i Varberg ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}`;
+  const imageAlt = `${event.title} - ${displayCategory} evenemang i ${site.cityName} ${event.date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}`;
   
   // Build URL with preserved search params
   const eventUrl = `/event/${event.id}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;

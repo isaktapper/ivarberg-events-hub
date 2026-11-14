@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 
 import React, { useRef, useState } from "react";
+import { useSite } from "@/config/SiteProvider";
 
 interface NavbarProps {
   children: React.ReactNode;
@@ -226,16 +227,21 @@ export const MobileNavToggle = ({
 };
 
 export const NavbarLogo = () => {
+  const site = useSite();
   return (
     <a
       href="/"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
-      <img 
-        src="/logo.png" 
-        alt="ivarberg.nu" 
-        className="h-8 w-auto"
-      />
+      {site.theme.logo ? (
+        <img 
+          src={site.theme.logo} 
+          alt={site.name} 
+          className="h-8 w-auto"
+        />
+      ) : (
+        <span className="text-lg font-bold tracking-tight text-ink">{site.name}</span>
+      )}
     </a>
   );
 };
@@ -262,8 +268,8 @@ export const NavbarButton = ({
 
   const variantStyles = {
     primary:
-      "bg-[#10214B] text-white shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]",
-    secondary: "bg-transparent shadow-none text-[#10214B] dark:text-white",
+      "bg-ink text-white shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]",
+    secondary: "bg-transparent shadow-none text-ink dark:text-white",
     dark: "bg-black text-white shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]",
     gradient:
       "bg-gradient-to-b from-blue-500 to-blue-700 text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]",

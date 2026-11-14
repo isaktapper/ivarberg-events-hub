@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { getSite, tenantFields } from '../src/config/site.server';
 
 // Simple in-memory rate limiter för Vercel serverless
 // OBS: Detta är per serverless instance, men fungerar bra för att förhindra massattacker
@@ -175,7 +176,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       submitter_name: req.body.submitter_name?.trim() || null,
       status: 'pending',
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      // Vilken stads sajt tipset kom in på (tomt när SITE_SLUG inte är satt)
+      ...tenantFields(await getSite())
     };
 
     // Skicka till Supabase via REST API

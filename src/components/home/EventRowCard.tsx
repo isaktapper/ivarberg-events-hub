@@ -6,6 +6,7 @@ import { optimizedImage } from "@/lib/images";
 import { formatLocation } from "@/lib/locationUtils";
 import { EventDisplay, getCategoryChipColor, getMainCategory } from "@/types/event";
 import { ClockIcon, PinIcon } from "./icons";
+import { useSite } from "@/config/SiteProvider";
 
 interface EventRowCardProps {
   event: EventDisplay;
@@ -15,6 +16,7 @@ interface EventRowCardProps {
 
 // Kortet i startsidans rader: bild, kategori, titel (alltid två rader), tid, plats
 export function EventRowCard({ event, whenText, rowKey }: EventRowCardProps) {
+  const site = useSite();
   const posthog = usePostHog();
   const category = getMainCategory(event);
   const location = formatLocation(event.venue_name, event.location);
@@ -38,7 +40,7 @@ export function EventRowCard({ event, whenText, rowKey }: EventRowCardProps) {
       <div className="h-36 bg-[#E9ECF0] lg:h-[168px]">
         <img
           src={optimizedImage(event.image, 640)}
-          alt={`${event.title} – ${category} i Varberg`}
+          alt={`${event.title} – ${category} i ${site.cityName}`}
           loading="lazy"
           decoding="async"
           className="h-full w-full object-cover"

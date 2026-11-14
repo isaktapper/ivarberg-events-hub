@@ -13,6 +13,9 @@
  *      VITE_SUPABASE_URL (för att känna igen uppladdade bilder)
  */
 
+import { getSite } from "@/config/site.server";
+import type { SiteConfig } from "@/config/site";
+
 export const dynamic = "force-dynamic";
 export const maxDuration = 45;
 
@@ -35,7 +38,7 @@ const FETCH_TIMEOUT_MS = 8000;
 const MAX_HTML_BYTES = 1_500_000;
 const MAX_TEXT_CHARS = 12_000;
 const MAX_EVENTS = 8;
-const USER_AGENT = "Mozilla/5.0 (compatible; ivarberg.nu-tipsbot/1.0; +https://ivarberg.nu/tips)";
+const userAgent = (site: SiteConfig) => `Mozilla/5.0 (compatible; ${site.domain}-tipsbot/1.0; +${site.url}/tips)`;
 
 // Enkel rate limit per serverinstans (samma nivå som submit-event-tip).
 // Räcker lokalt; byts mot något delat innan detta går live.
@@ -145,11 +148,12 @@ function visibleText(html: string): string {
 }
 
 async function fetchHtml(url: URL): Promise<{ html: string; finalUrl: URL; status: number }> {
+  const site = await getSite();
   const response = await fetch(url, {
     redirect: "follow",
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     headers: {
-      "User-Agent": USER_AGENT,
+      "User-Agent": userAgent(site),
       Accept: "text/html,application/xhtml+xml",
       "Accept-Language": "sv-SE,sv;q=0.9,en;q=0.6",
     },
@@ -171,7 +175,7 @@ function stockholmNow(): string {
 
 const nullableString = (description?: string) => ({ type: ["string", "null"], ...(description ? { description } : {}) });
 
-const EXTRACTION_SCHEMA = {
+const extractionSchema = (site: SiteConfig) => ({
   name: "event_tips",
   strict: true,
   schema: {
@@ -190,7 +194,7 @@ const EXTRACTION_SCHEMA = {
             name: { type: "string" },
             date: nullableString("Startdatum som YYYY-MM-DD. null om datum saknas."),
             time: nullableString("Starttid som HH:MM (24 h). null om klockslag saknas."),
-            venue_name: nullableString("Platsens namn, t.ex. Varbergs Teater"),
+            venue_name: nullableString(`Platsens namn, t.ex. ${site.cityGenitive} Teater`),
             address: nullableString("Gatuadress och ort om den framgår"),
             description: nullableString(),
             categories: { type: "array", items: { type: "string", enum: [...CATEGORIES] } },
@@ -200,7 +204,7 @@ const EXTRACTION_SCHEMA = {
       },
     },
   },
-} as const;
+}) as const;
 
 type Extracted = {
   name: string;
@@ -216,6 +220,7 @@ type Extracted = {
 type UserContent = string | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string; detail: "high" } }>;
 
 async function extractWithOpenAI(kind: "page" | "image", content: UserContent): Promise<Extracted[]> {
+  const site = await getSite();
   const source = kind === "image" ? "en bild (affisch, flygblad eller skärmbild av ett inlägg)" : "innehållet på en webbsida";
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -227,12 +232,12 @@ async function extractWithOpenAI(kind: "page" | "image", content: UserContent): 
     body: JSON.stringify({
       model: process.env.OPENAI_TIPS_MODEL || "gpt-4o-mini",
       temperature: 0,
-      response_format: { type: "json_schema", json_schema: EXTRACTION_SCHEMA },
+      response_format: { type: "json_schema", json_schema: extractionSchema(site) },
       messages: [
         {
           role: "system",
           content: [
-            `Du plockar ut uppgifter om evenemang ur ${source}, åt eventkalendern ivarberg.nu (Varberg).`,
+            `Du plockar ut uppgifter om evenemang ur ${source}, åt eventkalendern ${site.name} (${site.cityName}).`,
             `Idag är det ${stockholmNow()}.`,
             "Regler:",
             "- Använd bara det som står i underlaget. Hitta aldrig på. Okända fält ska vara null.",

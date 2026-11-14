@@ -9,18 +9,18 @@ import { TIP_CATEGORIES } from "@/lib/tipDraft";
 // länk eller foto": vit sida, ljusgrå kort, marinblå knappar, inga skuggor.
 
 export const primaryButton =
-  "h-14 w-full rounded-full bg-[#10214B] text-white text-base font-semibold flex items-center justify-center gap-2.5 transition-colors hover:bg-[#1B2F66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0F5AA6] disabled:bg-[#E3E6EC] disabled:text-[#4A5266] disabled:cursor-not-allowed";
+  "h-14 w-full rounded-full bg-ink text-white text-base font-semibold flex items-center justify-center gap-2.5 transition-colors hover:bg-[#1B2F66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0F5AA6] disabled:bg-[#E3E6EC] disabled:text-[#4A5266] disabled:cursor-not-allowed";
 
 export const secondaryButton =
-  "h-[52px] w-full rounded-full border-2 border-[#10214B] bg-white text-[#10214B] text-base font-semibold flex items-center justify-center gap-2.5 transition-colors hover:bg-[#F4F5F7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0F5AA6] disabled:opacity-60";
+  "h-[52px] w-full rounded-full border-2 border-ink bg-white text-ink text-base font-semibold flex items-center justify-center gap-2.5 transition-colors hover:bg-[#F4F5F7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0F5AA6] disabled:opacity-60";
 
 export const textButton =
   "min-h-[44px] px-2 text-[15px] font-medium text-[#0F5AA6] underline underline-offset-2 hover:text-[#0B4480] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5AA6] rounded";
 
 export const fieldInput =
-  "h-[52px] w-full rounded-xl border border-[#C9CED8] bg-white px-3.5 text-base text-[#10214B] placeholder:text-[#5B6478] focus:outline-none focus:border-[#0F5AA6] focus:ring-2 focus:ring-[#0F5AA6]/30";
+  "h-[52px] w-full rounded-xl border border-[#C9CED8] bg-white px-3.5 text-base text-ink placeholder:text-[#5B6478] focus:outline-none focus:border-[#0F5AA6] focus:ring-2 focus:ring-[#0F5AA6]/30";
 
-export const fieldLabel = "block text-[15px] font-semibold text-[#10214B] mb-1.5";
+export const fieldLabel = "block text-[15px] font-semibold text-ink mb-1.5";
 
 export function CategoryChips({ value, onChange }: { value: string[]; onChange: (next: string[]) => void }) {
   const toggle = (category: string) => {
@@ -39,7 +39,7 @@ export function CategoryChips({ value, onChange }: { value: string[]; onChange: 
             disabled={!selected && value.length >= 3}
             onClick={() => toggle(category)}
             className={`h-11 px-4 rounded-full border text-[15px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0F5AA6] disabled:opacity-50 ${
-              selected ? "bg-[#10214B] border-[#10214B] text-white" : "bg-white border-[#C9CED8] text-[#10214B] hover:border-[#10214B]"
+              selected ? "bg-ink border-ink text-white" : "bg-white border-[#C9CED8] text-ink hover:border-ink"
             }`}
           >
             {category}
@@ -99,7 +99,7 @@ export function TipImage({ url, onChange, variant }: { url: string; onChange: (u
               <button
                 type="button"
                 onClick={() => onChange("")}
-                className="h-9 px-3.5 rounded-full bg-white text-[#10214B] text-sm font-semibold border border-[#E3E6EC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5AA6]"
+                className="h-9 px-3.5 rounded-full bg-white text-ink text-sm font-semibold border border-[#E3E6EC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5AA6]"
               >
                 Ta bort
               </button>
@@ -108,7 +108,7 @@ export function TipImage({ url, onChange, variant }: { url: string; onChange: (u
               type="button"
               disabled={upload.uploading}
               onClick={upload.open}
-              className="h-9 px-3.5 rounded-full bg-white text-[#10214B] text-sm font-semibold border border-[#E3E6EC] flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5AA6]"
+              className="h-9 px-3.5 rounded-full bg-white text-ink text-sm font-semibold border border-[#E3E6EC] flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5AA6]"
             >
               {upload.uploading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
               {upload.uploading ? "Laddar upp" : "Byt bild"}
@@ -123,8 +123,8 @@ export function TipImage({ url, onChange, variant }: { url: string; onChange: (u
             setBroken(false);
             upload.open();
           }}
-          className={`w-full flex flex-col items-center justify-center gap-1.5 text-[#10214B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0F5AA6] ${
-            variant === "field" ? "min-h-[112px] p-4 rounded-xl border-2 border-dashed border-[#A9B1C0] bg-white hover:border-[#10214B]" : "h-[112px] bg-[#EEF1F5] hover:bg-[#E3E6EC]"
+          className={`w-full flex flex-col items-center justify-center gap-1.5 text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0F5AA6] ${
+            variant === "field" ? "min-h-[112px] p-4 rounded-xl border-2 border-dashed border-[#A9B1C0] bg-white hover:border-ink" : "h-[112px] bg-[#EEF1F5] hover:bg-[#E3E6EC]"
           }`}
         >
           {upload.uploading ? (

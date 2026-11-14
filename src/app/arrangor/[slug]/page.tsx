@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import OrganizerPage from "@/views/OrganizerPage";
 import { getOrganizerEvents, getOrganizerPage } from "@/lib/server-data";
+import { getSite } from "@/config/site.server";
 
 // Varje sida renderas vid första besöket, cachas och renderas om högst var
 // 5:e minut. Tom generateStaticParams = inget byggs i förväg, men sidan blir
@@ -19,23 +20,23 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const organizer = await loadOrganizer(slug);
+  const [organizer, site] = await Promise.all([loadOrganizer(slug), getSite()]);
   if (!organizer) {
-    return { title: "Arrangör hittades inte | ivarberg.nu", robots: { index: false } };
+    return { title: `Arrangör hittades inte | ${site.name}`, robots: { index: false } };
   }
 
-  const url = `https://ivarberg.nu/arrangor/${slug}`;
+  const url = `${site.url}/arrangor/${slug}`;
   return {
-    title: `${organizer.name} - Arrangör i Varberg | ivarberg.nu`,
+    title: `${organizer.name} - Arrangör i ${site.cityName} | ${site.name}`,
     description:
       organizer.seo_description ||
       organizer.description ||
-      `${organizer.name} arrangerar evenemang i Varberg. Se kommande evenemang och kontaktuppgifter.`,
+      `${organizer.name} arrangerar evenemang i ${site.cityName}. Se kommande evenemang och kontaktuppgifter.`,
     alternates: { canonical: url },
     openGraph: {
-      title: `${organizer.name} - Arrangör i Varberg`,
+      title: `${organizer.name} - Arrangör i ${site.cityName}`,
       description:
-        organizer.seo_description || organizer.description || `${organizer.name} arrangerar evenemang i Varberg.`,
+        organizer.seo_description || organizer.description || `${organizer.name} arrangerar evenemang i ${site.cityName}.`,
       type: "website",
       url,
       ...(organizer.hero_image_url ? { images: [organizer.hero_image_url] } : {}),

@@ -3,6 +3,7 @@
 import { Link } from "@/lib/router";
 import { ChevronRight, Home } from 'lucide-react';
 import { Helmet } from "@/lib/helmet";
+import { useSite } from "@/config/SiteProvider";
 
 export interface BreadcrumbItem {
   label: string;
@@ -19,6 +20,7 @@ interface BreadcrumbsProps {
  * tagits bort men SEO-schemat ska behållas.
  */
 export function BreadcrumbSchema({ items }: BreadcrumbsProps) {
+  const site = useSite();
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -27,13 +29,13 @@ export function BreadcrumbSchema({ items }: BreadcrumbsProps) {
         "@type": "ListItem",
         "position": 1,
         "name": "Hem",
-        "item": "https://ivarberg.nu"
+        "item": site.url
       },
       ...items.map((item, index) => ({
         "@type": "ListItem",
         "position": index + 2,
         "name": item.label,
-        "item": `https://ivarberg.nu${item.href}`
+        "item": `${site.url}${item.href}`
       }))
     ]
   };
@@ -59,7 +61,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
       <nav 
         className="flex items-center gap-2 text-sm mb-6 flex-wrap" 
         aria-label="Breadcrumb"
-        style={{ color: '#10214B' }}
+        style={{ color: 'hsl(var(--ink))' }}
       >
         <Link 
           to="/" 
@@ -74,7 +76,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
           <div key={index} className="flex items-center gap-2">
             <ChevronRight className="h-4 w-4" style={{ opacity: 0.4 }} />
             {index === items.length - 1 ? (
-              <span className="font-medium" style={{ color: '#10214B' }}>
+              <span className="font-medium" style={{ color: 'hsl(var(--ink))' }}>
                 {item.label}
               </span>
             ) : (

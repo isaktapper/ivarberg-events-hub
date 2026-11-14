@@ -9,9 +9,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { usePostHog } from "posthog-js/react";
-import { EVENT_AREAS } from "@/types/event";
+import { useSite } from "@/config/SiteProvider";
 
-const locations = ["Hela Varberg", ...EVENT_AREAS];
+/**
+ * Värdet för "inget områdesfilter". Internt och stabilt (state, statistik):
+ * det är samma för alla städer. Det som visas är `Hela ${site.cityName}`.
+ */
+export const ALL_LOCATIONS = "Hela Varberg";
 
 // "glass" = ursprungliga triggern (frostat glas). "plain" = nya startsidans
 // ljusgrå knapp i "Alla evenemang".
@@ -21,7 +25,7 @@ const GLASS_TRIGGER = {
   style: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
     borderColor: 'rgba(255, 255, 255, 0.5)',
-    color: '#10214B',
+    color: 'hsl(var(--ink))',
     backdropFilter: 'blur(12px)',
   },
   onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -32,7 +36,7 @@ const GLASS_TRIGGER = {
   onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
     e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-    e.currentTarget.style.color = '#10214B';
+    e.currentTarget.style.color = 'hsl(var(--ink))';
   },
 };
 
@@ -47,6 +51,9 @@ interface LocationFilterProps {
 export function LocationFilter({ selectedLocation, onLocationChange, areaCounts, variant = "glass" }: LocationFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const posthog = usePostHog();
+  const site = useSite();
+  const locations = [ALL_LOCATIONS, ...site.areas];
+  const labelFor = (location: string) => (location === ALL_LOCATIONS ? `Hela ${site.cityName}` : location);
 
   const handleClick = () => {
     // Track click for analytics
@@ -73,14 +80,14 @@ export function LocationFilter({ selectedLocation, onLocationChange, areaCounts,
           {...(variant === "plain" ? {} : GLASS_TRIGGER)}
         >
           <MapPin className="h-4 w-4" />
-          <span className={variant === "plain" ? "text-sm truncate flex-1 text-left" : "text-sm truncate flex-1 text-center"}>{selectedLocation}</span>
+          <span className={variant === "plain" ? "text-sm truncate flex-1 text-left" : "text-sm truncate flex-1 text-center"}>{labelFor(selectedLocation)}</span>
           <ChevronDown className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-56 p-2" align="start">
         <div className="space-y-1">
           {locations.map((location) => {
-            const count = location === "Hela Varberg" ? undefined : areaCounts?.[location];
+            const count = location === ALL_LOCATIONS ? undefined : areaCounts?.[location];
             const isSelected = selectedLocation === location;
             const isEmpty = count === 0 && !isSelected;
 
@@ -99,7 +106,7 @@ export function LocationFilter({ selectedLocation, onLocationChange, areaCounts,
                   }
                 `}
               >
-                <span className="truncate">{location}</span>
+                <span className="truncate">{labelFor(location)}</span>
                 {count !== undefined && (
                   <span className={`ml-2 text-xs tabular-nums ${isSelected ? 'text-primary-foreground/80' : 'text-gray-400'}`}>
                     {count}

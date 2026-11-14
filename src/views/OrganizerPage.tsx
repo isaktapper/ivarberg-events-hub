@@ -10,6 +10,7 @@ import { Footer } from "@/components/Footer";
 import { EventList } from "@/components/EventList";
 import { EventDisplay } from "@/types/event";
 import { ImageGallery } from "@/components/ImageGallery";
+import { useSite } from "@/config/SiteProvider";
 
 interface OrganizerPage {
   id: number;
@@ -45,6 +46,7 @@ interface OrganizerPageProps {
 }
 
 const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) => {
+  const site = useSite();
   const { slug } = useParams<{ slug: string }>();
   const [organizer] = useState<OrganizerPage | null>(initialOrganizer);
   const [events] = useState<EventDisplay[]>(initialEvents);
@@ -64,7 +66,7 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#0F5AA6' }}></div>
-            <p className="mt-4" style={{ color: '#10214B' }}>Laddar arrangör...</p>
+            <p className="mt-4" style={{ color: 'hsl(var(--ink))' }}>Laddar arrangör...</p>
           </div>
         </main>
         <Footer />
@@ -76,21 +78,21 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
     return (
       <div className="min-h-screen bg-texture">
         <Helmet>
-          <title>Arrangör hittades inte | ivarberg.nu</title>
+          <title>{`Arrangör hittades inte | ${site.name}`}</title>
           <meta name="robots" content="noindex" />
         </Helmet>
         <Header />
         <main className="container mx-auto px-4 py-12">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4" style={{ color: '#10214B' }}>Arrangör hittades inte</h1>
-            <p className="mb-4" style={{ color: '#10214B', opacity: 0.7 }}>Slug: {slug}</p>
+            <h1 className="text-2xl font-bold mb-4" style={{ color: 'hsl(var(--ink))' }}>Arrangör hittades inte</h1>
+            <p className="mb-4" style={{ color: 'hsl(var(--ink))', opacity: 0.7 }}>Slug: {slug}</p>
             <Link to="/">
               <Button 
                 variant="outline"
                 style={{
                   backgroundColor: '#FFFFFF',
-                  color: '#10214B',
-                  borderColor: '#10214B'
+                  color: 'hsl(var(--ink))',
+                  borderColor: 'hsl(var(--ink))'
                 }}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -107,14 +109,14 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5F3F0' }}>
       <Helmet>
-        <title>{`${organizer.name} - Arrangör i Varberg | ivarberg.nu`}</title>
-        <meta name="description" content={organizer.seo_description || organizer.description || `${organizer.name} arrangerar evenemang i Varberg. Se kommande evenemang och kontaktuppgifter.`} />
-        <meta property="og:title" content={`${organizer.name} - Arrangör i Varberg`} />
-        <meta property="og:description" content={organizer.seo_description || organizer.description || `${organizer.name} arrangerar evenemang i Varberg.`} />
+        <title>{`${organizer.name} - Arrangör i ${site.cityName} | ${site.name}`}</title>
+        <meta name="description" content={organizer.seo_description || organizer.description || `${organizer.name} arrangerar evenemang i ${site.cityName}. Se kommande evenemang och kontaktuppgifter.`} />
+        <meta property="og:title" content={`${organizer.name} - Arrangör i ${site.cityName}`} />
+        <meta property="og:description" content={organizer.seo_description || organizer.description || `${organizer.name} arrangerar evenemang i ${site.cityName}.`} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://ivarberg.nu/arrangor/${slug}`} />
+        <meta property="og:url" content={`${site.url}/arrangor/${slug}`} />
         {organizer.hero_image_url && <meta property="og:image" content={organizer.hero_image_url} />}
-        <link rel="canonical" href={`https://ivarberg.nu/arrangor/${slug}`} />
+        <link rel="canonical" href={`${site.url}/arrangor/${slug}`} />
       </Helmet>
 
       <Header />
@@ -151,8 +153,8 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
             <div className="lg:col-span-2">
               {/* Description */}
               <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-                <h2 className="text-2xl font-bold mb-4" style={{ color: '#10214B' }}>Om {organizer.name}</h2>
-                <div className="prose max-w-none" style={{ color: '#10214B', opacity: 0.8 }}>
+                <h2 className="text-2xl font-bold mb-4" style={{ color: 'hsl(var(--ink))' }}>Om {organizer.name}</h2>
+                <div className="prose max-w-none" style={{ color: 'hsl(var(--ink))', opacity: 0.8 }}>
                   <p className="text-lg mb-4">{organizer.description}</p>
                   {organizer.content && (
                     <div 
@@ -166,7 +168,7 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
               {/* Gallery */}
               {organizer.gallery_images && organizer.gallery_images.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-                  <h3 className="text-xl font-bold mb-4" style={{ color: '#10214B' }}>Bilder från {organizer.name}</h3>
+                  <h3 className="text-xl font-bold mb-4" style={{ color: 'hsl(var(--ink))' }}>Bilder från {organizer.name}</h3>
                   <ImageGallery images={organizer.gallery_images} />
                 </div>
               )}
@@ -174,7 +176,7 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
               {/* Events section - only show if there are events */}
               {!eventsLoading && events.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h3 className="text-xl font-bold mb-4" style={{ color: '#10214B' }}>
+                  <h3 className="text-xl font-bold mb-4" style={{ color: 'hsl(var(--ink))' }}>
                     Kommande evenemang hos {organizer.name}
                   </h3>
                   <div className="relative">
@@ -197,8 +199,8 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
                             className="gap-2"
                             style={{
                               backgroundColor: '#FFFFFF',
-                              color: '#10214B',
-                              borderColor: '#10214B'
+                              color: 'hsl(var(--ink))',
+                              borderColor: 'hsl(var(--ink))'
                             }}
                           >
                             Visa fler evenemang ({events.length - 3} till)
@@ -217,8 +219,8 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
                           className="gap-2"
                           style={{
                             backgroundColor: '#FFFFFF',
-                            color: '#10214B',
-                            borderColor: '#10214B'
+                            color: 'hsl(var(--ink))',
+                            borderColor: 'hsl(var(--ink))'
                           }}
                         >
                           Visa färre evenemang
@@ -235,7 +237,7 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
             <div className="space-y-6">
               {/* Contact info */}
               <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold mb-4" style={{ color: '#10214B' }}>Kontakt</h3>
+                <h3 className="text-lg font-bold mb-4" style={{ color: 'hsl(var(--ink))' }}>Kontakt</h3>
                 <div className="space-y-3">
                   {organizer.contact_info.email && (
                     <div className="flex items-center gap-3">
@@ -243,7 +245,7 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
                       <a 
                         href={`mailto:${organizer.contact_info.email}`}
                         className="text-sm hover:underline"
-                        style={{ color: '#10214B', opacity: 0.8 }}
+                        style={{ color: 'hsl(var(--ink))', opacity: 0.8 }}
                       >
                         {organizer.contact_info.email}
                       </a>
@@ -255,7 +257,7 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
                       <a 
                         href={`tel:${organizer.contact_info.phone}`}
                         className="text-sm hover:underline"
-                        style={{ color: '#10214B', opacity: 0.8 }}
+                        style={{ color: 'hsl(var(--ink))', opacity: 0.8 }}
                       >
                         {organizer.contact_info.phone}
                       </a>
@@ -269,7 +271,7 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm hover:underline flex items-center gap-1"
-                        style={{ color: '#10214B', opacity: 0.8 }}
+                        style={{ color: 'hsl(var(--ink))', opacity: 0.8 }}
                       >
                         Besök webbplats
                         <ExternalLink className="h-3 w-3" />
@@ -279,7 +281,7 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
                   {organizer.contact_info.address && (
                     <div className="flex items-center gap-3">
                       <MapPin className="h-4 w-4" style={{ color: '#0F5AA6' }} />
-                      <span className="text-sm" style={{ color: '#10214B', opacity: 0.8 }}>
+                      <span className="text-sm" style={{ color: 'hsl(var(--ink))', opacity: 0.8 }}>
                         {organizer.contact_info.address}
                       </span>
                     </div>
@@ -290,7 +292,7 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
               {/* Social links */}
               {(organizer.social_links.facebook || organizer.social_links.instagram || organizer.social_links.twitter) && (
                 <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold mb-4" style={{ color: '#10214B' }}>Följ oss</h3>
+                  <h3 className="text-lg font-bold mb-4" style={{ color: 'hsl(var(--ink))' }}>Följ oss</h3>
                   <div className="flex gap-3">
                     {organizer.social_links.facebook && (
                       <a
@@ -328,9 +330,9 @@ const OrganizerPage = ({ initialOrganizer, initialEvents }: OrganizerPageProps) 
 
               {/* CTA */}
               <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold mb-4" style={{ color: '#10214B' }}>Vill du arrangera evenemang?</h3>
-                <p className="text-sm mb-4" style={{ color: '#10214B', opacity: 0.7 }}>
-                  Tipsa oss om ditt evenemang så lägger vi upp det på ivarberg.nu!
+                <h3 className="text-lg font-bold mb-4" style={{ color: 'hsl(var(--ink))' }}>Vill du arrangera evenemang?</h3>
+                <p className="text-sm mb-4" style={{ color: 'hsl(var(--ink))', opacity: 0.7 }}>
+                  {`Tipsa oss om ditt evenemang så lägger vi upp det på ${site.name}!`}
                 </p>
                 <Link to="/tips">
                   <Button 
