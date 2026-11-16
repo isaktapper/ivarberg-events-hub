@@ -15,10 +15,9 @@ import {
 } from "@/lib/newsletterPrompt";
 
 /** Minst så här länge på sajten innan popupen får visas */
-const MIN_TIME_ON_SITE_MS = 20_000;
-/** …och så här långt ner på sidan (andel av det som går att scrolla, max i px) */
-const SCROLL_SHARE = 0.4;
-const SCROLL_MAX_PX = 1200;
+const MIN_TIME_ON_SITE_MS = 8_000;
+/** …och scrollat minst så här långt (px) */
+const MIN_SCROLL_PX = 300;
 
 interface NewsletterPopupProps {
   /** Vilken sida popupen sitter på, för statistiken */
@@ -43,8 +42,8 @@ export function NewsletterPopup({ page }: NewsletterPopupProps) {
     const scrolledEnough = () => {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
       // Korta sidor går knappt att scrolla – där räcker tiden
-      if (scrollable < 300) return true;
-      return window.scrollY >= Math.min(scrollable * SCROLL_SHARE, SCROLL_MAX_PX);
+      if (scrollable < MIN_SCROLL_PX) return true;
+      return window.scrollY >= MIN_SCROLL_PX;
     };
 
     const formInView = () =>
@@ -69,7 +68,7 @@ export function NewsletterPopup({ page }: NewsletterPopupProps) {
       cleanup();
     };
 
-    const timer = window.setInterval(check, 2000);
+    const timer = window.setInterval(check, 1000);
     window.addEventListener("scroll", check, { passive: true });
     const cleanup = () => {
       window.clearInterval(timer);
