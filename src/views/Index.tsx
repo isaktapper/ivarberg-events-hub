@@ -18,6 +18,7 @@ import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { FAQSchema } from "@/components/FAQSchema";
 import { InstagramPromoCard } from "@/components/InstagramPromoCard";
 import { NewsletterCard } from "@/components/NewsletterCard";
+import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { useInstagramPromo } from "@/hooks/useInstagramPromo";
 import { getSortableDate, isEventStillRelevant } from "@/services/eventService";
 import { EventCategory, EventDisplay, hasCategory, eventMatchesArea } from "@/types/event";
@@ -828,6 +829,7 @@ const Index = ({ initialEvents, rows }: IndexProps) => {
         </main>
 
         <Footer />
+        <NewsletterPopup page="home" />
       </div>
     </>
   );

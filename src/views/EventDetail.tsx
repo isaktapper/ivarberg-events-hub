@@ -8,6 +8,8 @@ import { Helmet } from "@/lib/helmet";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { NewsletterCard } from "@/components/NewsletterCard";
+import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { BreadcrumbSchema } from "@/components/Breadcrumbs";
 import { SimilarEventsCarousel } from "@/components/SimilarEventsCarousel";
 import { EventDescription } from "@/components/EventDescription";
@@ -540,6 +542,14 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
               </div>
             )}
 
+            {/* Torsdagsbrevet: de flesta landar här direkt från Google och Facebook */}
+            <NewsletterCard
+              source="event_detail"
+              inputId="event-epost"
+              title="Mer sånt här, varje torsdag"
+              text={`Ett mejl i veckan med det bästa som händer i ${city} i helgen.`}
+            />
+
             {/* Similar Events */}
             {!loadingSimilar && similarEvents.length > 0 && (
               <div className="mt-8">
@@ -612,6 +622,7 @@ const EventDetail = ({ initialEvent, initialRelations }: EventDetailProps) => {
       <div ref={footerRef}>
         <Footer />
       </div>
+      <NewsletterPopup page="event" />
       </div>
     </>
   );
