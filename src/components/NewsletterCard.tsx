@@ -4,25 +4,27 @@ import { useState } from "react";
 import { usePostHog } from "posthog-js/react";
 import { subscribeToNewsletter } from "@/services/eventService";
 import { useSite } from "@/config/SiteProvider";
+import { markNewsletterSubscribed } from "@/lib/newsletterPrompt";
 
-interface NewsletterCardProps {
-  /** "light" = ljusblå ruta i listan, "dark" = i den mörka sidfoten */
-  variant?: "light" | "dark";
-  /** Var rutan sitter, för statistiken */
+interface NewsletterFormProps {
+  /** Mörk bakgrund (sidfoten) eller ljus */
+  dark?: boolean;
+  /** Var formuläret sitter, för statistiken */
   source: string;
   /** id på e-postfältet (måste vara unikt på sidan) */
-  inputId?: string;
+  inputId: string;
+  /** Körs när anmälan har gått igenom */
+  onSubscribed?: () => void;
 }
 
-// Torsdagsbrevet: anmälan direkt på sidan med bara e-postadress.
-export function NewsletterCard({ variant = "light", source, inputId = "torsdagsbrevet-epost" }: NewsletterCardProps) {
+// Själva anmälan: ett e-postfält och en knapp. Delas av rutorna och popupen.
+export function NewsletterForm({ dark = false, source, inputId, onSubscribed }: NewsletterFormProps) {
   const posthog = usePostHog();
   const site = useSite();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const dark = variant === "dark";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,19 +34,25 @@ export function NewsletterCard({ variant = "light", source, inputId = "torsdagsb
     const result = await subscribeToNewsletter(email, "", site.tenantId);
     if (result.success) {
       setSuccess(true);
+      markNewsletterSubscribed();
       posthog?.capture("newsletter_subscribed", { source });
+      onSubscribed?.();
     } else {
       setError(result.error || "Något gick fel. Försök igen om en stund.");
     }
     setIsSubmitting(false);
   };
 
-  const form = success ? (
-    <p role="status" className={`text-[15px] font-semibold ${dark ? "text-white" : "text-ink"}`}>
-      Klart. Första brevet kommer på torsdag klockan sju.
-    </p>
-  ) : (
-    <form onSubmit={handleSubmit} noValidate className="flex w-full flex-col gap-2">
+  if (success) {
+    return (
+      <p role="status" className={`text-[15px] font-semibold ${dark ? "text-white" : "text-ink"}`}>
+        Klart. Första brevet kommer på torsdag klockan sju.
+      </p>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} noValidate data-newsletter-form={source} className="flex w-full flex-col gap-2">
       <div className="flex gap-2">
         <label htmlFor={inputId} className="sr-only">
           Din e-postadress
@@ -78,17 +86,40 @@ export function NewsletterCard({ variant = "light", source, inputId = "torsdagsb
       )}
     </form>
   );
+}
+
+interface NewsletterCardProps {
+  /** "light" = ljusblå ruta i listan, "dark" = i den mörka sidfoten */
+  variant?: "light" | "dark";
+  /** Var rutan sitter, för statistiken */
+  source: string;
+  /** id på e-postfältet (måste vara unikt på sidan) */
+  inputId?: string;
+  /** Egen rubrik och text för den ljusa rutan, t.ex. på eventsidan */
+  title?: string;
+  text?: string;
+}
+
+// Torsdagsbrevet: anmälan direkt på sidan med bara e-postadress.
+export function NewsletterCard({
+  variant = "light",
+  source,
+  inputId = "torsdagsbrevet-epost",
+  title,
+  text = "Ett mejl i veckan med tre saker vi inte skulle missa i helgen.",
+}: NewsletterCardProps) {
+  const site = useSite();
 
   if (!site.features.newsletter) return null;
 
-  if (dark) {
+  if (variant === "dark") {
     return (
       <div id="nyhetsbrev" className="mt-6 flex max-w-sm scroll-mt-24 flex-col gap-3">
         <div>
           <p className="text-[15px] font-semibold text-white">Torsdagsbrevet</p>
           <p className="mt-0.5 text-sm text-sand/75">{`Helgen i ${site.cityName} i din inkorg, varje torsdag.`}</p>
         </div>
-        {form}
+        <NewsletterForm dark source={source} inputId={inputId} />
       </div>
     );
   }
@@ -101,13 +132,13 @@ export function NewsletterCard({ variant = "light", source, inputId = "torsdagsb
       <div className="lg:max-w-[30rem]">
         <span className="text-[13px] font-semibold leading-4 text-[#0F4C81]">Torsdagsbrevet</span>
         <h3 id={`${inputId}-rubrik`} className="mt-1 text-lg font-bold leading-6 text-ink">
-          {`Helgen i ${site.cityName}, varje torsdag`}
+          {title ?? `Helgen i ${site.cityName}, varje torsdag`}
         </h3>
-        <p className="mt-1 text-sm leading-[21px] text-ink-soft">
-          Ett mejl i veckan med tre saker vi inte skulle missa i helgen.
-        </p>
+        <p className="mt-1 text-sm leading-[21px] text-ink-soft">{text}</p>
       </div>
-      <div className="lg:w-[360px] lg:shrink-0">{form}</div>
+      <div className="lg:w-[360px] lg:shrink-0">
+        <NewsletterForm source={source} inputId={inputId} />
+      </div>
     </section>
   );
 }
