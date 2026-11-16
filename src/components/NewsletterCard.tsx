@@ -15,10 +15,20 @@ interface NewsletterFormProps {
   inputId: string;
   /** Körs när anmälan har gått igenom */
   onSubscribed?: () => void;
+  /** Fält och knapp under varandra i full bredd (popupen på smala skärmar) */
+  stacked?: boolean;
+  buttonLabel?: string;
 }
 
 // Själva anmälan: ett e-postfält och en knapp. Delas av rutorna och popupen.
-export function NewsletterForm({ dark = false, source, inputId, onSubscribed }: NewsletterFormProps) {
+export function NewsletterForm({
+  dark = false,
+  source,
+  inputId,
+  onSubscribed,
+  stacked = false,
+  buttonLabel = "Ja tack",
+}: NewsletterFormProps) {
   const posthog = usePostHog();
   const site = useSite();
   const [email, setEmail] = useState("");
@@ -53,7 +63,7 @@ export function NewsletterForm({ dark = false, source, inputId, onSubscribed }: 
 
   return (
     <form onSubmit={handleSubmit} noValidate data-newsletter-form={source} className="flex w-full flex-col gap-2">
-      <div className="flex gap-2">
+      <div className={stacked ? "flex flex-col gap-2 sm:flex-row" : "flex gap-2"}>
         <label htmlFor={inputId} className="sr-only">
           Din e-postadress
         </label>
@@ -67,7 +77,7 @@ export function NewsletterForm({ dark = false, source, inputId, onSubscribed }: 
           onChange={(e) => setEmail(e.target.value)}
           placeholder="din@epost.se"
           disabled={isSubmitting}
-          className="h-[46px] min-w-0 flex-1 rounded-xl border-0 bg-white px-3.5 text-base text-ink placeholder:text-[#7B8496] focus:outline-none focus-visible:ring-2 focus-visible:ring-sea"
+          className={`h-[46px] w-full min-w-0 shrink-0 rounded-xl border-0 bg-white px-3.5 text-base text-ink placeholder:text-[#7B8496] focus:outline-none focus-visible:ring-2 focus-visible:ring-sea ${stacked ? "sm:flex-1" : "flex-1"}`}
         />
         <button
           type="submit"
@@ -76,7 +86,7 @@ export function NewsletterForm({ dark = false, source, inputId, onSubscribed }: 
             dark ? "bg-seaglass text-navy hover:bg-seaglass/85" : "bg-ink text-white hover:bg-navy"
           }`}
         >
-          {isSubmitting ? "Skickar…" : "Ja tack"}
+          {isSubmitting ? "Skickar…" : buttonLabel}
         </button>
       </div>
       {error && (
